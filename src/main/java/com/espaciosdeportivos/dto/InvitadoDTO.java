@@ -9,14 +9,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InvitadoDTO  {
-    private Long idPersona;
+public class InvitadoDTO implements Serializable {
+    private Long id;
 
     @NotBlank(message = "El nombre es obligatorio.")
     @Size(max = 100, message = "El nombre no puede exceder los 100 caracteres.")

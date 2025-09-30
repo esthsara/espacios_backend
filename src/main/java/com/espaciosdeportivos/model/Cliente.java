@@ -19,8 +19,8 @@ import jakarta.validation.constraints.NotNull;
 
 public class Cliente extends Persona {
 
-    public Cliente(Long idPersona) {
-        super.setIdPersona(idPersona);
+    public Cliente(Long id) {
+        super.setId(id);
     }
 
     @NotNull

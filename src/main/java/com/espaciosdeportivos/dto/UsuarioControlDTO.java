@@ -1,6 +1,8 @@
 package com.espaciosdeportivos.dto;
 
 import lombok.*;
+
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -16,9 +18,9 @@ import jakarta.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UsuarioControlDTO {
+public class UsuarioControlDTO implements Serializable{
 
-    private Long idPersona;
+    private Long id;
 
     @NotBlank(message = "El nombre es obligatorio.")
     @Size(max = 100, message = "El nombre no puede exceder los 100 caracteres.")

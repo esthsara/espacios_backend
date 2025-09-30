@@ -19,8 +19,8 @@ import lombok.experimental.SuperBuilder;
 
 public class UsuarioControl extends Persona {
 
-    public UsuarioControl(Long idPersona) {
-        super.setIdPersona(idPersona);
+    public UsuarioControl(Long id) {
+        super.setId(id);
     }
 
     @NotNull

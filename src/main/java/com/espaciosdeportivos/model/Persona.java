@@ -22,7 +22,7 @@ public class Persona {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_persona")
-    private Long idPersona;
+    private Long id;
 
     @NotNull
     @Column(name = "fecha_nacimiento", nullable = false)

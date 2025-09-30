@@ -17,8 +17,8 @@ import jakarta.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 public class Invitado extends Persona {
 
-    public Invitado(Long idPersona) {
-        super.setIdPersona(idPersona);
+    public Invitado(Long id) {
+        super.setId(id);
     }
 
     @NotNull
