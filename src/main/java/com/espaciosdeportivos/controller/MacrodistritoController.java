@@ -30,16 +30,26 @@ public class MacrodistritoController {
         this.macrodistritoService = macrodistritoService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<MacrodistritoDTO>> obtenerTodos() {
-        logger.info("[MACRO] Inicio obtenerTodos");
+    @GetMapping("/activos")
+    public ResponseEntity<List<MacrodistritoDTO>> listarMacrodistritosActivos() {
+        logger.info("[MACRO] Inicio obtenerTodosLosMacrodistritos");
         List<MacrodistritoDTO> macrodistrito = macrodistritoService.obtenerTodosLosMacrodistritos();
+        logger.info("[MACRO] Fin obtenerTodosLosMacrodistritos");
+        return ResponseEntity.ok(macrodistrito);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MacrodistritoDTO>> ListarTodos() {
+        logger.info("[MACRO] Inicio obtenerTodos");
+        List<MacrodistritoDTO> macrodistrito = macrodistritoService.ListarTodos();
         logger.info("[MACRO] Fin obtenerTodos");
         return ResponseEntity.ok(macrodistrito);
     }
 
+    
+
     @GetMapping("/{id}")
-    public ResponseEntity<MacrodistritoDTO> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<MacrodistritoDTO> obtenerMacrodistritoPorId(@PathVariable Long id) {
         logger.info("[MACRO] Inicio obtenerPorId: {}", id);
         MacrodistritoDTO macrodistrito = macrodistritoService.obtenerMacrodistritoPorId(id);
         logger.info("[MACRO] Fin obtenerPorId");
@@ -56,17 +66,33 @@ public class MacrodistritoController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<MacrodistritoDTO> actualizar(@PathVariable Long id, @Valid @RequestBody MacrodistritoDTO macrodistritoDTO) {
+    public ResponseEntity<MacrodistritoDTO> actualizarMacrodistrito(@PathVariable Long id, @Valid @RequestBody MacrodistritoDTO macrodistritoDTO) {
         MacrodistritoDTO actualizado = macrodistritoService.actualizarMacrodistrito(id, macrodistritoDTO);
         return ResponseEntity.ok(actualizado);
     }
 
+    @DeleteMapping("/{id}")
+    @Transactional
+    public void eliminar(@PathVariable Long id) {
+        macrodistritoService.eliminarMacrodistritoFisicamente(id);
+    }
+
+    @PatchMapping("/{id}/estado")
+    public MacrodistritoDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
+        return macrodistritoService.eliminarMacrodistrito(id);
+    }
+
     // Baja lógica
-    @PutMapping("/{id}/eliminar")
+    /*@PutMapping("/{id}/eliminar")
     @Transactional
     public ResponseEntity<MacrodistritoDTO> eliminar(@PathVariable Long id) {
         MacrodistritoDTO eliminado = macrodistritoService.eliminarMacrodistrito(id);
         return ResponseEntity.ok(eliminado);
+    }*/
+
+    @GetMapping("/buscar/{nombre}")
+    public List<MacrodistritoDTO> buscarPorNombre(@PathVariable String nombre) {
+        return macrodistritoService.buscarPorNombre(nombre);
     }
 
     @GetMapping("/{id}/lock")
@@ -75,10 +101,5 @@ public class MacrodistritoController {
         return ResponseEntity.ok(macrodistrito);
     }
 
-    @DeleteMapping("/{id}")
-    @Transactional
-    public ResponseEntity<String> eliminarMacrodistritoFisicamente(@PathVariable Long id) {
-        macrodistritoService.eliminarMacrodistritoFisicamente(id);
-        return ResponseEntity.ok("Mmacrodistrito eliminada físicamente");
-    }
+    
 }

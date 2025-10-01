@@ -1,3 +1,85 @@
+--Nuevo
+
+--administrador
+-- -------------------------------
+-- Administrador 1
+-- -------------------------------
+INSERT INTO persona (fecha_nacimiento, nombre, a_paterno, a_materno, telefono, email, url_imagen, estado)
+VALUES ('1985-04-12', 'Carlos', 'Lopez', 'Gomez', '71234567', 'carlos.lopez@gmail.com', 'https://example.com/carlos.jpg', TRUE)
+RETURNING id_persona;
+
+-- Supongamos que id_persona = 1
+INSERT INTO administrador (id_persona, cargo, direccion)
+VALUES (1, 'Gerente', 'Av. Siempre Viva 123');
+
+-- -------------------------------
+-- Administrador 2
+-- -------------------------------
+INSERT INTO persona (fecha_nacimiento, nombre, a_paterno, a_materno, telefono, email, url_imagen, estado)
+VALUES ('1990-06-25', 'Ana', 'Martinez', 'Ruiz', '71234568', 'ana.martinez@gmail.com', 'https://example.com/ana.jpg', TRUE)
+RETURNING id_persona;
+
+-- id_persona = 2
+INSERT INTO administrador (id_persona, cargo, direccion)
+VALUES (2, 'Coordinadora', 'Calle Falsa 456');
+
+-- -------------------------------
+-- Administrador 3
+-- -------------------------------
+INSERT INTO persona (fecha_nacimiento, nombre, a_paterno, a_materno, telefono, email, url_imagen, estado)
+VALUES ('1982-11-05', 'Luis', 'Fernandez', 'Diaz', '71234569', 'luis.fernandez@gmail.com', 'https://example.com/luis.jpg', TRUE)
+RETURNING id_persona;
+
+-- id_persona = 3
+INSERT INTO administrador (id_persona, cargo, direccion)
+VALUES (3, 'Subgerente', 'Av. Principal 789');
+
+-- -------------------------------
+-- Administrador 4
+-- -------------------------------
+INSERT INTO persona (fecha_nacimiento, nombre, a_paterno, a_materno, telefono, email, url_imagen, estado)
+VALUES ('1978-03-18', 'Maria', 'Sanchez', 'Lopez', '71234570', 'maria.sanchez@gmail.com', 'https://example.com/maria.jpg', TRUE)
+RETURNING id_persona;
+
+-- id_persona = 4
+INSERT INTO administrador (id_persona, cargo, direccion)
+VALUES (4, 'Directora', 'Calle Secundaria 321');
+
+-- -------------------------------
+-- Administrador 5
+-- -------------------------------
+INSERT INTO persona (fecha_nacimiento, nombre, a_paterno, a_materno, telefono, email, url_imagen, estado)
+VALUES ('1995-09-30', 'Jorge', 'Gonzalez', 'Perez', '71234571', 'jorge.gonzalez@gmail.com', 'https://example.com/jorge.jpg', TRUE)
+RETURNING id_persona;
+
+-- id_persona = 5
+INSERT INTO administrador (id_persona, cargo, direccion)
+VALUES (5, 'Jefe de Área', 'Av. Central 654');
+
+
+--usuario_control
+--invitado
+--cliente
+--persona
+--macrodistrito
+INSERT INTO macrodistrito (nombre_macrodistrito, descripcion, estado) VALUES
+('Centro', 'Zona central de la ciudad', true),
+('Sur', 'Área residencial y comercial', true),
+('Norte', 'Zona industrial y de transporte', true),
+('Este', 'Área en expansión urbana', true),
+('Oeste', 'Zona con parques y áreas verdes', true);
+
+--zona
+--areadeportiva
+--cancha
+--disciplina
+--reserva
+--pago
+--qr
+--cancelacion
+--comentario
+
+
 -- 25 registros para PERSONA
 
 INSERT INTO persona (

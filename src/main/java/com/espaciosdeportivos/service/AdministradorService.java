@@ -1,7 +1,7 @@
 package com.espaciosdeportivos.service;
 
 import com.espaciosdeportivos.dto.AdministradorDTO;
-import com.espaciosdeportivos.model.Administrador;
+//import com.espaciosdeportivos.model.Administrador;
 
 import java.time.LocalDate;
 import java.util.List;
