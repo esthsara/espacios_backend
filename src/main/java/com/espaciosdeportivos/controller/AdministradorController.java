@@ -15,25 +15,30 @@ import java.util.List;
 public class AdministradorController {
 
     private final AdministradorService administradorService;
-
-    @PostMapping
-    public AdministradorDTO crear(@Valid @RequestBody AdministradorDTO dto) {
-        return administradorService.crearAdministrador(dto);
+    //solo los activos
+    @GetMapping("/activos")
+    public List<AdministradorDTO> listarAdminitradoresActivos() {
+        return administradorService.obtenerTodoslosAdministradores();
     }
 
-    /*@GetMapping("/{id}")
-    public AdministradorDTO obtenerPorId(@PathVariable Long id) {
-        return administradorService.obtenerPorId(id);
-    }*/
-
+    //Listar todos, incluyendo desactivados 
     @GetMapping
     public List<AdministradorDTO> listarTodos() {
         return administradorService.listarTodos();
     }
+    @GetMapping("/{id}")
+    public AdministradorDTO obtenerPorId(@PathVariable Long id) {
+        return administradorService.obtenerAdministradorPorId(id);
+    }
 
-    @PatchMapping("/{id}/estado")
-    public AdministradorDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
-        return administradorService.cambiarEstado(id, estado);
+    @GetMapping("/buscar/{nombre}")
+    public List<AdministradorDTO> buscarPorNombre(@PathVariable String nombre) {
+        return administradorService.buscarPorNombre(nombre);
+    }
+
+    @PostMapping
+    public AdministradorDTO crear(@Valid @RequestBody AdministradorDTO dto) {
+        return administradorService.crearAdministrador(dto);
     }
 
     @PutMapping("/{id}")
@@ -46,8 +51,8 @@ public class AdministradorController {
         administradorService.eliminarAdministrador(id);
     }
 
-    @GetMapping("/buscar/{nombre}")
-    public List<AdministradorDTO> buscarPorNombre(@PathVariable String nombre) {
-        return administradorService.buscarPorNombre(nombre);
+    @PatchMapping("/{id}/estado")
+    public AdministradorDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
+        return administradorService.cambiarEstado(id, estado);
     }
 }
