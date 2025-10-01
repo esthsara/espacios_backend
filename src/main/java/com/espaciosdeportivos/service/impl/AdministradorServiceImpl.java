@@ -23,8 +23,29 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    public List<AdministradorDTO> obtenerTodoslosAdministradores() {
+        return administradorRepository.findByEstadoTrue().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<AdministradorDTO> listarTodos() {
         return administradorRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public AdministradorDTO obtenerAdministradorPorId(Long id) {
+        Administrador admin = administradorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+        return mapToDTO(admin);
+    }
+
+    @Override
+    public List<AdministradorDTO> buscarPorNombre(String nombre) {
+        return administradorRepository.findByNombreContainingIgnoreCase(nombre).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -38,18 +59,22 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
-    public List<AdministradorDTO> obtenerTodoslosAdministradores() {
-        return administradorRepository.findByEstadoTrue().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
-    public AdministradorDTO cambiarEstado(Long id, Boolean nuevoEstado) {
+    public AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto) {
         Administrador admin = administradorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
-        admin.setEstado(nuevoEstado);
+
+        admin.setNombre(dto.getNombre());
+        admin.setAPaterno(dto.getAPaterno());
+        admin.setAMaterno(dto.getAMaterno());
+        admin.setFechaNacimiento(dto.getFechaNacimiento());
+        admin.setTelefono(dto.getTelefono()); 
+        admin.setEmail(dto.getEmail());
+        admin.setUrlImagen(dto.getUrlImagen());
+        admin.setEstado(dto.getEstado());
+        admin.setCargo(dto.getCargo());
+        admin.setDireccion(dto.getDireccion());
+
         administradorRepository.save(admin);
         return mapToDTO(admin);
     }
@@ -62,32 +87,15 @@ public class AdministradorServiceImpl implements AdministradorService {
         administradorRepository.save(admin);
     }
 
+
     @Override
     @Transactional
-    public AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto) {
+    public AdministradorDTO cambiarEstado(Long id, Boolean nuevoEstado) {
         Administrador admin = administradorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
-
-        admin.setNombre(dto.getNombre());
-        admin.setAPaterno(dto.getAPaterno());
-        admin.setAMaterno(dto.getAMaterno());
-        admin.setFechaNacimiento(dto.getFechaNacimiento());
-        admin.setTelefono(dto.getTelefono()); // ✅ ya es Integer
-        admin.setEmail(dto.getEmail());
-        admin.setUrlImagen(dto.getUrlImagen());
-        admin.setEstado(dto.getEstado());
-        admin.setCargo(dto.getCargo());
-        admin.setDireccion(dto.getDireccion());
-
+        admin.setEstado(nuevoEstado);
         administradorRepository.save(admin);
         return mapToDTO(admin);
-    }
-
-    @Override
-    public List<AdministradorDTO> buscarPorNombre(String nombre) {
-        return administradorRepository.findByNombreContainingIgnoreCase(nombre).stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
     }
 
     // --- Métodos privados de mapeo ---
@@ -98,7 +106,7 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .aPaterno(a.getAPaterno())
                 .aMaterno(a.getAMaterno())
                 .fechaNacimiento(a.getFechaNacimiento())
-                .telefono(a.getTelefono()) // ✅ ya es Integer
+                .telefono(a.getTelefono()) 
                 .email(a.getEmail())
                 .urlImagen(a.getUrlImagen())
                 .estado(a.getEstado())
@@ -114,7 +122,7 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .aPaterno(d.getAPaterno())
                 .aMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
-                .telefono(d.getTelefono()) // ✅ ya es Integer
+                .telefono(d.getTelefono()) 
                 .email(d.getEmail())
                 .urlImagen(d.getUrlImagen())
                 .estado(d.getEstado())

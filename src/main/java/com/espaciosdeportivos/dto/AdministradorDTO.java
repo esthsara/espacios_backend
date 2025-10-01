@@ -24,6 +24,7 @@ public class AdministradorDTO implements Serializable {
     @Size(max = 100, message = "El nombre no puede exceder los 100 caracteres.")
     private String nombre;
 
+    @NotBlank(message = "El apellido paterno es obligatorio.")
     @Size(max = 100, message = "El apellido paterno no puede exceder los 100 caracteres.")
     private String aPaterno;
 

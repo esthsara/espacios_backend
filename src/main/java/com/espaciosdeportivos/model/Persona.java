@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 @Table(name = "persona")
-@Inheritance(strategy = InheritanceType.JOINED)  // Este es el tipo de herencia que usas
+@Inheritance(strategy = InheritanceType.JOINED) 
 public class Persona {
 
     @Id
@@ -30,7 +30,7 @@ public class Persona {
     @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @Column(name = "a_paterno")
+    @Column(name = "a_paterno",nullable = false)
     private String aPaterno;
 
     @Column(name = "a_materno")
