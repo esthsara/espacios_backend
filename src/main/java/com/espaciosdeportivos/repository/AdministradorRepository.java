@@ -11,4 +11,6 @@ public interface AdministradorRepository extends JpaRepository<Administrador, Lo
     List<Administrador> findByNombreContainingIgnoreCase(String nombre);
     //relacion con area deportiva
     boolean existsById(Long id);
+    List<Administrador> findByEstadoTrue();
+
 }

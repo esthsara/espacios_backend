@@ -21,14 +21,19 @@ public class AdministradorController {
         return administradorService.crearAdministrador(dto);
     }
 
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public AdministradorDTO obtenerPorId(@PathVariable Long id) {
         return administradorService.obtenerPorId(id);
-    }
+    }*/
 
     @GetMapping
     public List<AdministradorDTO> listarTodos() {
         return administradorService.listarTodos();
+    }
+
+    @PatchMapping("/{id}/estado")
+    public AdministradorDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
+        return administradorService.cambiarEstado(id, estado);
     }
 
     @PutMapping("/{id}")

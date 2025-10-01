@@ -4,30 +4,22 @@ import com.espaciosdeportivos.dto.AdministradorDTO;
 import com.espaciosdeportivos.model.Administrador;
 import com.espaciosdeportivos.repository.AdministradorRepository;
 import com.espaciosdeportivos.service.AdministradorService;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
 
-    @Override
-    public AdministradorDTO crearAdministrador(AdministradorDTO dto) {
-        Administrador admin = mapToEntity(dto);
-        administradorRepository.save(admin);
-        return mapToDTO(admin);
-    }
-
-    @Override
-    public AdministradorDTO obtenerPorId(Long id) {
-        return administradorRepository.findById(id)
-                .map(this::mapToDTO)
-                .orElse(null);
+    @Autowired
+    public AdministradorServiceImpl(AdministradorRepository administradorRepository) {
+        this.administradorRepository = administradorRepository;
     }
 
     @Override
@@ -38,26 +30,57 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
-    public AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto) {
+    @Transactional
+    public AdministradorDTO crearAdministrador(AdministradorDTO dto) {
+        Administrador admin = mapToEntity(dto);
+        Administrador guardado = administradorRepository.save(admin);
+        return mapToDTO(guardado);
+    }
+
+    @Override
+    public List<AdministradorDTO> obtenerTodoslosAdministradores() {
+        return administradorRepository.findByEstadoTrue().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AdministradorDTO cambiarEstado(Long id, Boolean nuevoEstado) {
         Administrador admin = administradorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
-        admin.setNombre(dto.getNombre());
-        admin.setAPaterno(dto.getAPaterno());
-        admin.setAMaterno(dto.getAMaterno());
-        admin.setFechaNacimiento(dto.getFechaNacimiento());
-        admin.setTelefono(dto.getTelefono());
-        admin.setEmail(dto.getEmail());
-        admin.setUrlImagen(dto.getUrlImagen());
-        //admin.setCi(dto.getCi());
-        admin.setCargo(dto.getCargo());
-        admin.setDireccion(dto.getDireccion());
+        admin.setEstado(nuevoEstado);
         administradorRepository.save(admin);
         return mapToDTO(admin);
     }
 
     @Override
     public void eliminarAdministrador(Long id) {
-        administradorRepository.deleteById(id);
+        Administrador admin = administradorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+        admin.setEstado(false);
+        administradorRepository.save(admin);
+    }
+
+    @Override
+    @Transactional
+    public AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto) {
+        Administrador admin = administradorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+
+        admin.setNombre(dto.getNombre());
+        admin.setAPaterno(dto.getAPaterno());
+        admin.setAMaterno(dto.getAMaterno());
+        admin.setFechaNacimiento(dto.getFechaNacimiento());
+        admin.setTelefono(dto.getTelefono()); // ✅ ya es Integer
+        admin.setEmail(dto.getEmail());
+        admin.setUrlImagen(dto.getUrlImagen());
+        admin.setEstado(dto.getEstado());
+        admin.setCargo(dto.getCargo());
+        admin.setDireccion(dto.getDireccion());
+
+        administradorRepository.save(admin);
+        return mapToDTO(admin);
     }
 
     @Override
@@ -70,15 +93,15 @@ public class AdministradorServiceImpl implements AdministradorService {
     // --- Métodos privados de mapeo ---
     private AdministradorDTO mapToDTO(Administrador a) {
         return AdministradorDTO.builder()
-                .idPersona(a.getIdPersona())
+                .id(a.getId())
                 .nombre(a.getNombre())
                 .aPaterno(a.getAPaterno())
                 .aMaterno(a.getAMaterno())
                 .fechaNacimiento(a.getFechaNacimiento())
-                .telefono(a.getTelefono())
+                .telefono(a.getTelefono()) // ✅ ya es Integer
                 .email(a.getEmail())
                 .urlImagen(a.getUrlImagen())
-                //.ci(a.getCi())
+                .estado(a.getEstado())
                 .cargo(a.getCargo())
                 .direccion(a.getDireccion())
                 .build();
@@ -86,15 +109,15 @@ public class AdministradorServiceImpl implements AdministradorService {
 
     private Administrador mapToEntity(AdministradorDTO d) {
         return Administrador.builder()
-                .idPersona(d.getIdPersona())
+                .id(d.getId())
                 .nombre(d.getNombre())
                 .aPaterno(d.getAPaterno())
                 .aMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
-                .telefono(d.getTelefono())
+                .telefono(d.getTelefono()) // ✅ ya es Integer
                 .email(d.getEmail())
                 .urlImagen(d.getUrlImagen())
-                //.ci(d.getCi())
+                .estado(d.getEstado())
                 .cargo(d.getCargo())
                 .direccion(d.getDireccion())
                 .build();

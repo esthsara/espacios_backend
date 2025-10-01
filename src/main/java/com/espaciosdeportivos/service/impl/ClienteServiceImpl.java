@@ -69,7 +69,7 @@ public class ClienteServiceImpl implements ClienteService {
     // --- Métodos privados de mapeo ---
     private ClienteDTO mapToDTO(Cliente c) {
         return ClienteDTO.builder()
-                .idPersona(c.getIdPersona()) // en DB se renombra, pero en la clase base es idPersona
+                .id(c.getId()) // en DB se renombra, pero en la clase base es id
                 .nombre(c.getNombre())
                 .aPaterno(c.getAPaterno())
                 .aMaterno(c.getAMaterno())
@@ -84,7 +84,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     private Cliente mapToEntity(ClienteDTO d) {
         return Cliente.builder()
-                .idPersona(d.getIdPersona()) // importante para update
+                .id(d.getId()) // importante para update
                 .nombre(d.getNombre())
                 .aPaterno(d.getAPaterno())
                 .aMaterno(d.getAMaterno())

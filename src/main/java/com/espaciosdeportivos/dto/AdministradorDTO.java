@@ -35,7 +35,8 @@ public class AdministradorDTO implements Serializable {
     @Past(message = "La fecha de nacimiento debe ser una fecha pasada.")
     private LocalDate fechaNacimiento;
 
-    @Pattern(regexp = "^\\+591(7|6|4|3)\\d{7}$", message = "El teléfono debe ser un número válido de Bolivia.")
+    @NotBlank(message = "El teléfono es obligatorio.")
+    @Pattern(regexp = "^[0-9]{8}$", message = "El teléfono debe tener exactamente 8 dígitos.")
     private String telefono;
 
     @Email(message = "El email debe ser válido.")
@@ -44,10 +45,9 @@ public class AdministradorDTO implements Serializable {
 
     @NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
-    
-    /*@NotBlank(message = "El número de cédula de identidad (CI) es obligatorio.")
-    @Pattern(regexp = "^[0-9]{6,10}$", message = "El CI debe tener entre 6 y 10 dígitos numéricos.")
-    private String ci;*/
+
+    @NotBlank(message = "El estado es obligatorio.")
+    private Boolean estado;
 
     @NotBlank(message = "El cargo es obligatorio.")
     @Size(max = 100, message = "El cargo no puede exceder los 100 caracteres.")
@@ -57,3 +57,4 @@ public class AdministradorDTO implements Serializable {
     @Size(max = 255, message = "La dirección no puede exceder los 255 caracteres.")
     private String direccion;
 }
+

@@ -19,18 +19,18 @@ public class AdministradorValidator {
     }
 
     // Validación del CI (Cédula de Identidad en Bolivia)
-    public void validarCi(String ci) {
+    /*public void validarCi(String ci) {
         if (ci == null || !ci.matches("^[0-9]{6,10}$")) {
             throw new BusinessException("El CI debe tener entre 6 y 10 dígitos numéricos.");
         }
-    }
+    }*/
 
     // Validación de la fecha de nacimiento
-    public void validarFechaNacimiento(java.time.LocalDate fechaNacimiento) {
+    /*public void validarFechaNacimiento(java.time.LocalDate fechaNacimiento) {
         if (fechaNacimiento == null || fechaNacimiento.isAfter(java.time.LocalDate.now())) {
             throw new BusinessException("La fecha de nacimiento no puede ser una fecha futura.");
         }
-    }
+    }*/
 
     // Validación de los apellidos (apellido paterno opcional, apellido materno obligatorio)
     public void validarApellidos(String aPaterno, String aMaterno) {
@@ -105,7 +105,7 @@ public class AdministradorValidator {
         // Validaciones adicionales de formato
         validarTelefono(administradorDTO.getTelefono());
         //validarCi(administradorDTO.getCi());
-        validarFechaNacimiento(administradorDTO.getFechaNacimiento());
+        //validarFechaNacimiento(administradorDTO.getFechaNacimiento());
         validarApellidos(administradorDTO.getAPaterno(), administradorDTO.getAMaterno());
         validarCargo(administradorDTO.getCargo());
         validarDireccion(administradorDTO.getDireccion());

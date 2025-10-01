@@ -4,10 +4,27 @@ import com.espaciosdeportivos.dto.AdministradorDTO;
 import java.util.List;
 
 public interface AdministradorService {
-    AdministradorDTO crearAdministrador(AdministradorDTO dto);
-    AdministradorDTO obtenerPorId(Long id);
+    // 🔍 Listar todos los administradores activos
+    List<AdministradorDTO> obtenerTodoslosAdministradores();
+
+    // 🔍 Listar todos, incluyendo desactivados (opcional)
     List<AdministradorDTO> listarTodos();
-    AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto);
-    void eliminarAdministrador(Long id);
+
+    // 🔍 Buscar por ID
+    //AdministradorDTO obtenerAdministradorPorId(Long id);
+
+    // 🔍 Buscar por nombre
     List<AdministradorDTO> buscarPorNombre(String nombre);
+
+    // 🆕 Crear nuevo administrador
+    AdministradorDTO crearAdministrador(AdministradorDTO dto);
+
+    // ✏️ Editar administrador existente
+    AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto);
+
+    // ❌ Eliminar físicamente (solo si realmente quieres borrar)
+    void eliminarAdministrador(Long id);
+
+    // 🚫 Desactivar (eliminación lógica)
+    AdministradorDTO cambiarEstado(Long id, Boolean nuevoEstado);
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-//import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -15,8 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 @Table(name = "persona")
-@Inheritance(strategy = InheritanceType.JOINED)
-
+@Inheritance(strategy = InheritanceType.JOINED)  // Este es el tipo de herencia que usas
 public class Persona {
 
     @Id
@@ -29,32 +27,29 @@ public class Persona {
     private LocalDate fechaNacimiento;
     
     @NotNull
-    @Column(name = "nombre",nullable = false)
+    @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @NotNull
     @Column(name = "a_paterno")
     private String aPaterno;
 
-    @Column(name = "a_materno", nullable = false)
+    @Column(name = "a_materno")
     private String aMaterno;
 
     @NotNull
-    @Column(name = "telefono",nullable = false)
+    @Column(name = "telefono", nullable = false)
     private String telefono;
 
     @Email
     @NotNull
-    @Column(name ="email" ,nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @NotNull
-    @Column(name ="url_imagen" ,nullable = false)
+    @Column(name = "url_imagen", nullable = false)
     private String urlImagen;
 
-    //private String ci;
-
-    /*@OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<Comentario> comentario;*/
-
+    @NotNull
+    @Column(name = "estado", nullable = false, length = 20)
+    private Boolean estado;
 }

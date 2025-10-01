@@ -18,7 +18,7 @@ public class UsuarioControlServiceImpl implements UsuarioControlService {
 
     private UsuarioControlDTO mapToDTO(UsuarioControl u){
         return UsuarioControlDTO.builder()
-                .idPersona(u.getIdPersona()) // PK heredada, renombrada
+                .id(u.getId()) // PK heredada, renombrada
                 .nombre(u.getNombre())
                 .aPaterno(u.getAPaterno())
                 .aMaterno(u.getAMaterno())
@@ -36,7 +36,7 @@ public class UsuarioControlServiceImpl implements UsuarioControlService {
 
     private UsuarioControl mapToEntity(UsuarioControlDTO dto){
         return UsuarioControl.builder()
-                .idPersona(dto.getIdPersona())
+                .id(dto.getId())
                 .nombre(dto.getNombre())
                 .aPaterno(dto.getAPaterno())
                 .aMaterno(dto.getAMaterno())

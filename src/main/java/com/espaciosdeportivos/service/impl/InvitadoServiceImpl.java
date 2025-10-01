@@ -69,7 +69,7 @@ public class InvitadoServiceImpl implements InvitadoService {
     // --- Métodos privados de mapeo ---
     private InvitadoDTO mapToDTO(Invitado i) {
         return InvitadoDTO.builder()
-                .idPersona(i.getIdPersona()) // en DB se renombra, pero en la clase base es idPersona
+                .id(i.getId()) // en DB se renombra, pero en la clase base es id
                 .nombre(i.getNombre())
                 .aPaterno(i.getAPaterno())
                 .aMaterno(i.getAMaterno())
@@ -84,7 +84,7 @@ public class InvitadoServiceImpl implements InvitadoService {
 
     private Invitado mapToEntity(InvitadoDTO d) {
         return Invitado.builder()
-                .idPersona(d.getIdPersona()) // importante para update
+                .id(d.getId()) // importante para update
                 .nombre(d.getNombre())
                 .aPaterno(d.getAPaterno())
                 .aMaterno(d.getAMaterno())
