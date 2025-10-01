@@ -27,10 +27,20 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
         this.macrodistritoRepository = macrodistritoRepository;
         this.macrodistritoValidator = macrodistritoValidator;
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<MacrodistritoDTO> obtenerTodosLosMacrodistritos() {
+        return macrodistritoRepository.findByEstadoTrue()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+                //aqui dice que funciona desde java 8 pero podria usar el tolist directamente
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MacrodistritoDTO> ListarTodos() {
         return macrodistritoRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
@@ -38,11 +48,6 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
                 //aqui dice que funciona desde java 8 pero podria usar el tolist directamente
     }
 
-    // public List<MacrodistritoDTO> obtenerActivos() {
-    // return macrodistritoRepository.findByEstadoTrue().stream()
-    //     .map(this::convertToDTO)
-    //     .collect(Collectors.toList());
-    // }
 
     @Override
     @Transactional(readOnly = true)
@@ -52,21 +57,14 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
         return convertToDTO(macrodistrito);
     }
 
-//    es por si quiero solo los activos 
-// Macrodistrito m = macrodistritoRepository
-//     .findByIdMacrodistritoAndEstadoTrue(idMacrodistrito)
-//     .orElseThrow(() -> new RuntimeException("Macrodistrito no encontrado con ID: " + idMacrodistrito));
-// return toDto(m);
 
     @Override
     @Transactional
     public MacrodistritoDTO crearMacrodistrito(MacrodistritoDTO macrodistritoDTO) {
         macrodistritoValidator.validarMacrodistrito(macrodistritoDTO);
-
         // if (macrodistritoRepository.existsByNombreIgnoreCase(macrodistritoDTO.getNombre())) {
         //     throw new MacrodistritoValidator.BusinessException("Ya existe un macrodistrito con ese nombre.");
         // }
-
         Macrodistrito macrodistrito = convertToEntity(macrodistritoDTO);
         macrodistrito.setIdMacrodistrito(null);//Esto fuerza a JPA a generar un nuevo ID cuando guardas la entidad.
         macrodistrito.setEstado(Boolean.TRUE);
@@ -74,6 +72,7 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
         Macrodistrito guardado = macrodistritoRepository.save(macrodistrito);
         return convertToDTO(guardado);
     }
+
 
     @Override
     @Transactional
@@ -97,6 +96,15 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
 
     @Override
     @Transactional
+    public void eliminarMacrodistritoFisicamente(Long id) {
+        Macrodistrito existente = macrodistritoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Macrodistrito no encontrado con ID: " + id));
+        macrodistritoRepository.delete(existente);
+        
+    }
+
+    @Override
+    @Transactional
     public MacrodistritoDTO eliminarMacrodistrito(Long id) {
         Macrodistrito existente = macrodistritoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Macrodistrito no encontrado con ID: " + id));
@@ -104,6 +112,15 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
         existente.setEstado(Boolean.FALSE);
         Macrodistrito eliminada = macrodistritoRepository.save(existente);
         return convertToDTO(eliminada);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MacrodistritoDTO> buscarPorNombre(String nombre) {
+        return macrodistritoRepository.buscarPorNombre(nombre)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -117,14 +134,6 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
             Thread.currentThread().interrupt();
         }
         return macrodistrito;
-    }
-
-    @Override
-    @Transactional
-    public void eliminarMacrodistritoFisicamente(Long id) {
-        Macrodistrito existente = macrodistritoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Macrodistrito no encontrado con ID: " + id)); 
-        macrodistritoRepository.delete(existente);
     }
 
 
