@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,11 +81,11 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    @Transactional
     public void eliminarAdministrador(Long id) {
         Administrador admin = administradorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
-        admin.setEstado(false);
-        administradorRepository.save(admin);
+        administradorRepository.delete(admin);
     }
 
 
@@ -97,6 +98,22 @@ public class AdministradorServiceImpl implements AdministradorService {
         administradorRepository.save(admin);
         return mapToDTO(admin);
     }
+
+    public List<AdministradorDTO> buscarPorRangoFecha(LocalDate inicio, LocalDate fin) {
+        return administradorRepository.findByFechaNacimientoBetween(inicio, fin)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<AdministradorDTO> buscarPorNombreApellidos(String nombre, String aPaterno, String aMaterno) {
+        return administradorRepository.buscarPorNombreApellidos(nombre, aPaterno, aMaterno)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
     // --- Métodos privados de mapeo ---
     private AdministradorDTO mapToDTO(Administrador a) {
