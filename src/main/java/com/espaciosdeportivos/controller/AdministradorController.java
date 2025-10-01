@@ -5,8 +5,11 @@ import com.espaciosdeportivos.service.AdministradorService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -55,4 +58,23 @@ public class AdministradorController {
     public AdministradorDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
         return administradorService.cambiarEstado(id, estado);
     }
+
+    @GetMapping("/buscar/fechas")
+    public List<AdministradorDTO> buscarPorRangoFecha(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin
+    ) {
+        return administradorService.buscarPorRangoFecha(inicio, fin);
+    }
+
+    @GetMapping("/buscar")
+    public List<AdministradorDTO> buscar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String aPaterno,
+            @RequestParam(required = false) String aMaterno
+    ) {
+        return administradorService.buscarPorNombreApellidos(nombre, aPaterno, aMaterno);
+    }
+
+
 }
