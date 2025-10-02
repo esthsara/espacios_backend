@@ -66,8 +66,8 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
 
         admin.setNombre(dto.getNombre());
-        admin.setAPaterno(dto.getAPaterno());
-        admin.setAMaterno(dto.getAMaterno());
+        admin.setApellidoPaterno(dto.getAPaterno());
+        admin.setApellidoMaterno(dto.getAMaterno());
         admin.setFechaNacimiento(dto.getFechaNacimiento());
         admin.setTelefono(dto.getTelefono()); 
         admin.setEmail(dto.getEmail());
@@ -120,8 +120,8 @@ public class AdministradorServiceImpl implements AdministradorService {
         return AdministradorDTO.builder()
                 .id(a.getId())
                 .nombre(a.getNombre())
-                .aPaterno(a.getAPaterno())
-                .aMaterno(a.getAMaterno())
+                .aPaterno(a.getApellidoPaterno())
+                .aMaterno(a.getApellidoMaterno())
                 .fechaNacimiento(a.getFechaNacimiento())
                 .telefono(a.getTelefono()) 
                 .email(a.getEmail())
@@ -136,8 +136,8 @@ public class AdministradorServiceImpl implements AdministradorService {
         return Administrador.builder()
                 .id(d.getId())
                 .nombre(d.getNombre())
-                .aPaterno(d.getAPaterno())
-                .aMaterno(d.getAMaterno())
+                .apellidoPaterno(d.getAPaterno())
+                .apellidoMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
                 .telefono(d.getTelefono()) 
                 .email(d.getEmail())

@@ -1,6 +1,5 @@
 package com.espaciosdeportivos.model;
 
-//import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import jakarta.persistence.*;
@@ -13,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 @SuperBuilder
 @Entity
 @Table(name = "invitado")
-//@PrimaryKeyJoinColumn(name = "id_invitado")
 @EqualsAndHashCode(callSuper = true)
 public class Invitado extends Persona {
 
@@ -29,3 +27,6 @@ public class Invitado extends Persona {
     /*@OneToMany(mappedBy = "invitado", cascade = CascadeType.ALL, orphanRemoval = true) 
     private List<Qr> qr;*/
 }
+
+
+

@@ -41,15 +41,17 @@ public class InvitadoServiceImpl implements InvitadoService {
     public InvitadoDTO actualizarInvitado(Long id, InvitadoDTO dto) {
         Invitado invitado = invitadoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Invitado no encontrado"));
+
         invitado.setNombre(dto.getNombre());
-        invitado.setAPaterno(dto.getAPaterno());
-        invitado.setAMaterno(dto.getAMaterno());
+        invitado.setApellidoPaterno(dto.getApellidoPaterno());
+        invitado.setApellidoMaterno(dto.getApellidoMaterno());
         invitado.setFechaNacimiento(dto.getFechaNacimiento());
         invitado.setTelefono(dto.getTelefono());
         invitado.setEmail(dto.getEmail());
-        invitado.setUrlImagen(dto.getUrlImagen()); 
-        //invitado.setCi(dto.getCi());
+        invitado.setUrlImagen(dto.getUrlImagen());
+        invitado.setEstado(dto.getEstado());
         invitado.setVerificado(dto.getVerificado());
+
         invitadoRepository.save(invitado);
         return mapToDTO(invitado);
     }
@@ -69,30 +71,30 @@ public class InvitadoServiceImpl implements InvitadoService {
     // --- Métodos privados de mapeo ---
     private InvitadoDTO mapToDTO(Invitado i) {
         return InvitadoDTO.builder()
-                .id(i.getId()) // en DB se renombra, pero en la clase base es id
+                .id(i.getId())
                 .nombre(i.getNombre())
-                .aPaterno(i.getAPaterno())
-                .aMaterno(i.getAMaterno())
+                .apellidoPaterno(i.getApellidoPaterno())
+                .apellidoMaterno(i.getApellidoMaterno())
                 .fechaNacimiento(i.getFechaNacimiento())
                 .telefono(i.getTelefono())
                 .email(i.getEmail())
                 .urlImagen(i.getUrlImagen())
-                //.ci(i.getCi())
+                .estado(i.getEstado())   // ✅ ahora sí se mapea
                 .verificado(i.getVerificado())
                 .build();
     }
 
     private Invitado mapToEntity(InvitadoDTO d) {
         return Invitado.builder()
-                .id(d.getId()) // importante para update
+                .id(d.getId())
                 .nombre(d.getNombre())
-                .aPaterno(d.getAPaterno())
-                .aMaterno(d.getAMaterno())
+                .apellidoPaterno(d.getApellidoPaterno())
+                .apellidoMaterno(d.getApellidoMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
                 .telefono(d.getTelefono())
                 .email(d.getEmail())
                 .urlImagen(d.getUrlImagen())
-                //.ci(d.getCi())
+                .estado(d.getEstado())
                 .verificado(d.getVerificado())
                 .build();
     }

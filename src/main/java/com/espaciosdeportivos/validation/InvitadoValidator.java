@@ -14,11 +14,11 @@ public class InvitadoValidator {
     // Validación del teléfono
     public void validarTelefono(String telefono) {
         if (telefono != null && !TELEFONO_PATTERN.matcher(telefono).matches()) {
-            throw new BusinessException("El teléfono debe ser un número válido de Bolivia. Ejemplo: +591 7XXXXXXXX");
+            throw new BusinessException("El teléfono debe ser un número válido de Bolivia. Ejemplo: +5917XXXXXXX");
         }
     }
 
-    // Validación del CI (Cédula de Identidad en Bolivia)
+    // Validación del CI (Cédula de Identidad en Bolivia) → opcional
     public void validarCi(String ci) {
         if (ci == null || !ci.matches("^[0-9]{6,10}$")) {
             throw new BusinessException("El CI debe tener entre 6 y 10 dígitos numéricos.");
@@ -32,20 +32,20 @@ public class InvitadoValidator {
         }
     }
 
-    // Validación de los apellidos (apellido paterno opcional, apellido materno obligatorio)
-    public void validarApellidos(String aPaterno, String aMaterno) {
+    // Validación de los apellidos
+    public void validarApellidos(String apellidoPaterno, String apellidoMaterno) {
         // El apellido materno es obligatorio
-        if (aMaterno == null || aMaterno.trim().isEmpty()) {
+        if (apellidoMaterno == null || apellidoMaterno.trim().isEmpty()) {
             throw new BusinessException("El apellido materno es obligatorio.");
         }
 
         // El apellido paterno es opcional, pero si se proporciona, no puede exceder 100 caracteres
-        if (aPaterno != null && aPaterno.length() > 100) {
+        if (apellidoPaterno != null && apellidoPaterno.length() > 100) {
             throw new BusinessException("El apellido paterno no puede exceder los 100 caracteres.");
         }
 
         // El apellido materno no puede exceder 100 caracteres
-        if (aMaterno.length() > 100) {
+        if (apellidoMaterno.length() > 100) {
             throw new BusinessException("El apellido materno no puede exceder los 100 caracteres.");
         }
     }
@@ -75,19 +75,18 @@ public class InvitadoValidator {
             throw new BusinessException("El email es obligatorio.");
         }
 
-        /*if (invitadoDTO.getCi() == null || invitadoDTO.getCi().trim().isEmpty()) {
-            throw new BusinessException("El número de CI es obligatorio.");
-        }*/
-
         if (invitadoDTO.getVerificado() == null) {
             throw new BusinessException("El estado de verificación es obligatorio.");
         }
 
+        if (invitadoDTO.getEstado() == null) {
+            throw new BusinessException("El estado es obligatorio.");
+        }
+
         // Validaciones adicionales de formato
         validarTelefono(invitadoDTO.getTelefono());
-        //validarCi(invitadoDTO.getCi());
         validarFechaNacimiento(invitadoDTO.getFechaNacimiento());
-        validarApellidos(invitadoDTO.getAPaterno(), invitadoDTO.getAMaterno());
+        validarApellidos(invitadoDTO.getApellidoPaterno(), invitadoDTO.getApellidoMaterno());
         validarVerificado(invitadoDTO.getVerificado());
     }
 
