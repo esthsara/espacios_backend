@@ -42,8 +42,8 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         cliente.setNombre(dto.getNombre());
-        cliente.setAPaterno(dto.getAPaterno());
-        cliente.setAMaterno(dto.getAMaterno());
+        cliente.setApellidoPaterno(dto.getAPaterno());
+        cliente.setApellidoMaterno(dto.getAMaterno());
         cliente.setFechaNacimiento(dto.getFechaNacimiento());
         cliente.setTelefono(dto.getTelefono());
         cliente.setEmail(dto.getEmail());
@@ -71,8 +71,8 @@ public class ClienteServiceImpl implements ClienteService {
         return ClienteDTO.builder()
                 .id(c.getId()) // en DB se renombra, pero en la clase base es id
                 .nombre(c.getNombre())
-                .aPaterno(c.getAPaterno())
-                .aMaterno(c.getAMaterno())
+                .aPaterno(c.getApellidoPaterno())
+                .aMaterno(c.getApellidoMaterno())
                 .fechaNacimiento(c.getFechaNacimiento())
                 .telefono(c.getTelefono())
                 .email(c.getEmail())
@@ -86,8 +86,8 @@ public class ClienteServiceImpl implements ClienteService {
         return Cliente.builder()
                 .id(d.getId()) // importante para update
                 .nombre(d.getNombre())
-                .aPaterno(d.getAPaterno())
-                .aMaterno(d.getAMaterno())
+                .apellidoPaterno(d.getAPaterno())
+                .apellidoMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
                 .telefono(d.getTelefono())
                 .email(d.getEmail())

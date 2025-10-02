@@ -2,13 +2,7 @@ package com.espaciosdeportivos.dto;
 
 import lombok.*;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 
 @Getter
@@ -24,11 +18,11 @@ public class InvitadoDTO implements Serializable {
     private String nombre;
 
     @Size(max = 100, message = "El apellido paterno no puede exceder los 100 caracteres.")
-    private String aPaterno;
+    private String apellidoPaterno;   // cambiado nombre más claro
 
     @NotBlank(message = "El apellido materno es obligatorio.")
     @Size(max = 100, message = "El apellido materno no puede exceder los 100 caracteres.")
-    private String aMaterno;
+    private String apellidoMaterno;
 
     @NotNull(message = "La fecha de nacimiento es obligatoria.")
     @Past(message = "La fecha de nacimiento debe ser una fecha pasada.")
@@ -43,10 +37,9 @@ public class InvitadoDTO implements Serializable {
 
     @NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
-    
-    /*@NotBlank(message = "El número de cédula de identidad (CI) es obligatorio.")
-    @Pattern(regexp = "^[0-9]{6,10}$", message = "El CI debe tener entre 6 y 10 dígitos numéricos.")
-    private String ci;*/
+
+    @NotNull(message = "El estado es obligatorio.")
+    private Boolean estado;
 
     @NotNull(message = "El estado de verificación es obligatorio.")
     private Boolean verificado;

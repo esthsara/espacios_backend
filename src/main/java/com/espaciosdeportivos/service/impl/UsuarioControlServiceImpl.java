@@ -20,8 +20,8 @@ public class UsuarioControlServiceImpl implements UsuarioControlService {
         return UsuarioControlDTO.builder()
                 .id(u.getId()) // PK heredada, renombrada
                 .nombre(u.getNombre())
-                .aPaterno(u.getAPaterno())
-                .aMaterno(u.getAMaterno())
+                .aPaterno(u.getApellidoPaterno())
+                .aMaterno(u.getApellidoMaterno())
                 .fechaNacimiento(u.getFechaNacimiento())
                 .telefono(u.getTelefono())
                 .email(u.getEmail())
@@ -38,8 +38,8 @@ public class UsuarioControlServiceImpl implements UsuarioControlService {
         return UsuarioControl.builder()
                 .id(dto.getId())
                 .nombre(dto.getNombre())
-                .aPaterno(dto.getAPaterno())
-                .aMaterno(dto.getAMaterno())
+                .apellidoPaterno(dto.getAPaterno())
+                .apellidoMaterno(dto.getAMaterno())
                 .fechaNacimiento(dto.getFechaNacimiento())
                 .telefono(dto.getTelefono())
                 .email(dto.getEmail())
@@ -62,8 +62,8 @@ public class UsuarioControlServiceImpl implements UsuarioControlService {
         UsuarioControl u = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("UsuarioControl no encontrado"));
         u.setNombre(dto.getNombre());
-        u.setAPaterno(dto.getAPaterno());
-        u.setAMaterno(dto.getAMaterno());
+        u.setApellidoPaterno(dto.getAPaterno());
+        u.setApellidoMaterno(dto.getAMaterno());
         u.setFechaNacimiento(dto.getFechaNacimiento());
         u.setTelefono(dto.getTelefono());
         u.setEmail(dto.getEmail());

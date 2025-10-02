@@ -17,10 +17,11 @@ public interface AdministradorRepository extends JpaRepository<Administrador, Lo
     List<Administrador> findByFechaNacimientoBetween(LocalDate fechaInicio, LocalDate fechaFin);
 
     @Query("SELECT a FROM Administrador a " +
-           "WHERE (:nombre IS NULL OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
-           "AND (:aPaterno IS NULL OR LOWER(a.aPaterno) LIKE LOWER(CONCAT('%', :aPaterno, '%'))) " +
-           "AND (:aMaterno IS NULL OR LOWER(a.aMaterno) LIKE LOWER(CONCAT('%', :aMaterno, '%')))")
-    List<Administrador> buscarPorNombreApellidos(@Param("nombre") String nombre,
-                                                 @Param("aPaterno") String aPaterno,
-                                                 @Param("aMaterno") String aMaterno);
+       "WHERE (:nombre IS NULL OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
+       "AND (:apellidoPaterno IS NULL OR LOWER(a.apellidoPaterno) LIKE LOWER(CONCAT('%', :apellidoPaterno, '%'))) " +
+       "AND (:apellidoMaterno IS NULL OR LOWER(a.apellidoMaterno) LIKE LOWER(CONCAT('%', :apellidoMaterno, '%')))")
+       List<Administrador> buscarPorNombreApellidos(@Param("nombre") String nombre,
+                                             @Param("apellidoPaterno") String apellidoPaterno,
+                                             @Param("apellidoMaterno") String apellidoMaterno);
+
 }
