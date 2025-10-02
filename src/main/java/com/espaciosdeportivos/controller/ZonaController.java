@@ -89,6 +89,10 @@ public class ZonaController {
         ZonaDTO eliminada = zonaService.eliminarZona(id);
         return ResponseEntity.ok(eliminada);
     }*/
+    @GetMapping("/buscar/{nombre}")
+    public List<ZonaDTO> buscarPorNombre(@PathVariable String nombre) {
+        return zonaService.buscarPorNombre(nombre);
+    }
 
     @GetMapping("/{id}/lock")
     public ResponseEntity<Zona> obtenerZonaConBloqueo(@PathVariable Long id) {

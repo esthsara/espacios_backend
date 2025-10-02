@@ -70,6 +70,16 @@ INSERT INTO macrodistrito (nombre_macrodistrito, descripcion, estado) VALUES
 ('Oeste', 'Zona con parques y áreas verdes', true);
 
 --zona
+INSERT INTO zona (nombre_zona, descripcion, estado, id_macrodistrito) VALUES
+('Zona A', 'Área deportiva principal', true, 1),
+('Zona B', 'Cancha de fútbol', true, 1),
+('Zona C', 'Piscina olímpica', true, 2),
+('Zona D', 'Gimnasio municipal', true, 2),
+('Zona E', 'Pista de atletismo', true, 3),
+('Zona F', 'Área de yoga y pilates', true, 3),
+('Zona G', 'Zona de entrenamiento funcional', true, 1),
+('Zona H', 'Área de recreación familiar', true, 2);
+
 --areadeportiva
 --cancha
 --disciplina
