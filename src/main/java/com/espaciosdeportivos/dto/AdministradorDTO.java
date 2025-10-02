@@ -47,7 +47,7 @@ public class AdministradorDTO implements Serializable {
     @NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
 
-    @NotBlank(message = "El estado es obligatorio.")
+    //@NotBlank(message = "El estado es obligatorio.")
     private Boolean estado;
 
     @NotBlank(message = "El cargo es obligatorio.")

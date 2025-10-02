@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,8 +66,8 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
 
         admin.setNombre(dto.getNombre());
-        admin.setAPaterno(dto.getAPaterno());
-        admin.setAMaterno(dto.getAMaterno());
+        admin.setApellidoPaterno(dto.getAPaterno());
+        admin.setApellidoMaterno(dto.getAMaterno());
         admin.setFechaNacimiento(dto.getFechaNacimiento());
         admin.setTelefono(dto.getTelefono()); 
         admin.setEmail(dto.getEmail());
@@ -80,11 +81,11 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    @Transactional
     public void eliminarAdministrador(Long id) {
         Administrador admin = administradorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
-        admin.setEstado(false);
-        administradorRepository.save(admin);
+        administradorRepository.delete(admin);
     }
 
 
@@ -98,13 +99,29 @@ public class AdministradorServiceImpl implements AdministradorService {
         return mapToDTO(admin);
     }
 
+    public List<AdministradorDTO> buscarPorRangoFecha(LocalDate inicio, LocalDate fin) {
+        return administradorRepository.findByFechaNacimientoBetween(inicio, fin)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<AdministradorDTO> buscarPorNombreApellidos(String nombre, String aPaterno, String aMaterno) {
+        return administradorRepository.buscarPorNombreApellidos(nombre, aPaterno, aMaterno)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
     // --- Métodos privados de mapeo ---
     private AdministradorDTO mapToDTO(Administrador a) {
         return AdministradorDTO.builder()
                 .id(a.getId())
                 .nombre(a.getNombre())
-                .aPaterno(a.getAPaterno())
-                .aMaterno(a.getAMaterno())
+                .aPaterno(a.getApellidoPaterno())
+                .aMaterno(a.getApellidoMaterno())
                 .fechaNacimiento(a.getFechaNacimiento())
                 .telefono(a.getTelefono()) 
                 .email(a.getEmail())
@@ -119,8 +136,8 @@ public class AdministradorServiceImpl implements AdministradorService {
         return Administrador.builder()
                 .id(d.getId())
                 .nombre(d.getNombre())
-                .aPaterno(d.getAPaterno())
-                .aMaterno(d.getAMaterno())
+                .apellidoPaterno(d.getAPaterno())
+                .apellidoMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
                 .telefono(d.getTelefono()) 
                 .email(d.getEmail())

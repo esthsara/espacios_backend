@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 @Table(name = "persona")
-@Inheritance(strategy = InheritanceType.JOINED) 
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Persona {
 
     @Id
@@ -25,16 +25,16 @@ public class Persona {
     @NotNull
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
-    
+
     @NotNull
     @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @Column(name = "a_paterno",nullable = false)
-    private String aPaterno;
+    @Column(name = "a_paterno", nullable = true)
+    private String apellidoPaterno;
 
-    @Column(name = "a_materno")
-    private String aMaterno;
+    @Column(name = "a_materno", nullable = false)
+    private String apellidoMaterno;
 
     @NotNull
     @Column(name = "telefono", nullable = false)
@@ -50,6 +50,6 @@ public class Persona {
     private String urlImagen;
 
     @NotNull
-    @Column(name = "estado", nullable = false, length = 20)
+    @Column(name = "estado", nullable = false)
     private Boolean estado;
 }
