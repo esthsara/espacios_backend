@@ -27,7 +27,7 @@ public interface IMacrodistritoService {
     void eliminarMacrodistritoFisicamente(Long idMacrodistrito);
 
     //eliminar macrodistrito (eliminacion logica)
-    MacrodistritoDTO eliminarMacrodistrito(Long idMacrodistrito);
+    MacrodistritoDTO eliminarMacrodistrito(Long idMacrodistrito, Boolean nuevoEstado);
 
     //buscar macrodistrito por nombre
     List<MacrodistritoDTO> buscarPorNombre(String nombre);
