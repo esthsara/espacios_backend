@@ -105,11 +105,11 @@ public class MacrodistritoServiceImpl implements IMacrodistritoService {
 
     @Override
     @Transactional
-    public MacrodistritoDTO eliminarMacrodistrito(Long id) {
+    public MacrodistritoDTO eliminarMacrodistrito(Long id, Boolean nuevoEstado) {
         Macrodistrito existente = macrodistritoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Macrodistrito no encontrado con ID: " + id));
 
-        existente.setEstado(Boolean.FALSE);
+        existente.setEstado(nuevoEstado);
         Macrodistrito eliminada = macrodistritoRepository.save(existente);
         return convertToDTO(eliminada);
     }

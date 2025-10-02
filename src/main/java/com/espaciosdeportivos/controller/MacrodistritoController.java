@@ -78,8 +78,8 @@ public class MacrodistritoController {
     }
 
     @PatchMapping("/{id}/estado")
-    public MacrodistritoDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
-        return macrodistritoService.eliminarMacrodistrito(id);
+    public MacrodistritoDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean nuevoEstado) {
+        return macrodistritoService.eliminarMacrodistrito(id, nuevoEstado);
     }
 
     // Baja lógica
