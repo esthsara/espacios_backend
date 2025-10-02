@@ -1,11 +1,9 @@
 package com.espaciosdeportivos.model;
 
-//import java.util.List;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 
 @Getter
 @Setter
@@ -14,9 +12,7 @@ import jakarta.validation.constraints.NotNull;
 @SuperBuilder
 @Entity
 @Table(name = "cliente")
-//@PrimaryKeyJoinColumn(name = "id_cliente")
 @EqualsAndHashCode(callSuper = true)
-
 public class Cliente extends Persona {
 
     public Cliente(Long id) {
