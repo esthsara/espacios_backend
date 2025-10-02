@@ -24,8 +24,10 @@ public class ClienteDTO implements Serializable {
     @Size(max = 100, message = "El nombre no puede exceder los 100 caracteres.")
     private String nombre;
 
+    @NotBlank(message = "El apellido paterno es obligatorio.")
     @Size(max = 100, message = "El apellido paterno no puede exceder los 100 caracteres.")
     private String aPaterno;
+
 
     @NotBlank(message = "El apellido materno es obligatorio.")
     @Size(max = 100, message = "El apellido materno no puede exceder los 100 caracteres.")
@@ -35,21 +37,22 @@ public class ClienteDTO implements Serializable {
     @Past(message = "La fecha de nacimiento debe ser una fecha pasada.")
     private LocalDate fechaNacimiento;
 
-    @Pattern(regexp = "^\\+591(7|6|4|3)\\d{7}$", message = "El teléfono debe ser un número válido de Bolivia.")
+    @NotBlank(message = "El teléfono es obligatorio.")
+    @Pattern(regexp = "^[0-9]{8}$", message = "El teléfono debe tener exactamente 8 dígitos.")
     private String telefono;
 
     @Email(message = "El email debe ser válido.")
+    @NotBlank(message = "El email es obligatorio.")
     @Size(max = 150, message = "El email no puede exceder los 150 caracteres.")
     private String email;
-
-    /*@NotBlank(message = "El número de cédula de identidad (CI) es obligatorio.")
-    @Pattern(regexp = "^[0-9]{6,10}$", message = "El CI debe tener entre 6 y 10 dígitos numéricos.")
-    private String ci;*/
 
     @NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
 
+    @NotNull(message = "El estado es obligatorio.")
+    private Boolean estado;
+
     @NotBlank(message = "El estado del cliente es obligatorio.")
-    @Pattern(regexp = "^(ACTIVO|INACTIVO)$", message = "El estado del cliente debe ser 'ACTIVO' o 'INACTIVO'.")
+    @Size(max = 50, message = "El estado del cliente no puede exceder los 50 caracteres.")
     private String estadoCliente;
 }

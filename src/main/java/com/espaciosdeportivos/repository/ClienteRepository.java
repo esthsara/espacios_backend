@@ -8,5 +8,15 @@ import java.util.List;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
+    
+    // Buscar clientes por coincidencia en el nombre (ignora mayúsculas/minúsculas)
     List<Cliente> findByNombreContainingIgnoreCase(String nombre);
+
+    // Verificar existencia por ID
+    boolean existsById(Long id);
+
+    // Listar solo clientes activos (estado = true en Persona)
+    List<Cliente> findByEstadoTrue();
+
+
 }
