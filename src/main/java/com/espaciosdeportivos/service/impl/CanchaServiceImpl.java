@@ -13,13 +13,14 @@ import com.espaciosdeportivos.validation.CanchaValidator;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 //import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
-
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,8 +81,7 @@ public class CanchaServiceImpl implements ICanchaService {
 
         Cancha cancha = convertToEntity(dto);
         cancha.setIdCancha(null);
-        cancha.setEstadobool(Boolean.TRUE);
-        
+        cancha.setEstado(Boolean.TRUE);
         Cancha guardada = canchaRepository.save(cancha);
 
         return convertToDTO(guardada);
@@ -100,8 +100,8 @@ public class CanchaServiceImpl implements ICanchaService {
         existente.setNombre(dto.getNombre());
         existente.setCostoHora(dto.getCostoHora());
         existente.setCapacidad(dto.getCapacidad());
+        //existente.setEstado(dto.getEstado());
         existente.setEstado(dto.getEstado());
-        existente.setEstadobool(dto.getEstadobool());
         existente.setMantenimiento(dto.getMantenimiento());
         existente.setHoraInicio(dto.getHoraInicio());
         existente.setHoraFin(dto.getHoraFin());
@@ -128,7 +128,7 @@ public class CanchaServiceImpl implements ICanchaService {
     public CanchaDTO eliminarCancha(Long id, Boolean nuevoEstado) {
         Cancha existente = canchaRepository.findByIdCanchaAndEstadoboolTrue(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
-        existente.setEstadobool(nuevoEstado); // baja lógica
+        existente.setEstado(nuevoEstado); // baja lógica
         return convertToDTO(canchaRepository.save(existente));
     }
 
@@ -154,6 +154,19 @@ public class CanchaServiceImpl implements ICanchaService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<CanchaDTO> BuscarConFiltros(LocalTime horaInicio, LocalTime horaFin, Double costo, Integer capacidad,
+                                            String tamano, String iluminacion, String cubierta) {
+        
+        return canchaRepository.buscarFiltros(horaInicio, horaFin, costo, capacidad, tamano, iluminacion, cubierta)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
     // --------- mapping ----------
     private CanchaDTO convertToDTO(Cancha c) {
         return CanchaDTO.builder()
@@ -161,8 +174,8 @@ public class CanchaServiceImpl implements ICanchaService {
                 .nombre(c.getNombre())
                 .costoHora(c.getCostoHora())
                 .capacidad(c.getCapacidad())
+                //.estado(c.getEstado())
                 .estado(c.getEstado())
-                .estadobool(c.getEstadobool())
                 .mantenimiento(c.getMantenimiento())
                 .horaInicio(c.getHoraInicio())
                 .horaFin(c.getHoraFin())
@@ -183,8 +196,8 @@ public class CanchaServiceImpl implements ICanchaService {
                 .nombre(d.getNombre())
                 .costoHora(d.getCostoHora())
                 .capacidad(d.getCapacidad())
-                .estado(d.getEstado())
-                .estadobool(d.getEstadobool() != null ? d.getEstadobool() : Boolean.TRUE)
+                //.estado(d.getEstado())
+                .estado(d.getEstado() != null ? d.getEstado() : Boolean.TRUE)
                 .mantenimiento(d.getMantenimiento())
                 .horaInicio(d.getHoraInicio())
                 .horaFin(d.getHoraFin())

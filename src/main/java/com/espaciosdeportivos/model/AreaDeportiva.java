@@ -2,7 +2,7 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
-//import java.util.List;
+import java.util.List;
 
 @Getter
 @Setter
@@ -57,8 +57,8 @@ public class AreaDeportiva {
     @JoinColumn(name = "id_persona",nullable = false)
     private Administrador administrador;
 
-    /*@OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cancha> cancha;*/
+    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Cancha> cancha;
 
     
 }

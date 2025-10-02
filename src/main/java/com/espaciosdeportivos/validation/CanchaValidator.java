@@ -1,6 +1,9 @@
 package com.espaciosdeportivos.validation;
 
 import com.espaciosdeportivos.dto.CanchaDTO;
+
+import java.time.LocalTime;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,18 +30,15 @@ public class CanchaValidator {
         }
     }
 
-    public void validarHoras(String inicio, String fin) {
-        if (inicio == null || inicio.isBlank() || fin == null || fin.isBlank()) {
-            throw new BusinessException("Las horas de inicio y fin son obligatorias (HH:mm).");
-        }
-        // Validación simple de formato y orden "HH:mm"
-        if (!inicio.matches("^\\d{2}:\\d{2}$") || !fin.matches("^\\d{2}:\\d{2}$")) {
-            throw new BusinessException("Formato de hora inválido. Use HH:mm.");
-        }
-        if (fin.compareTo(inicio) <= 0) {
-            throw new BusinessException("La hora de fin debe ser posterior a la de inicio.");
-        }
+    public void validarHoras(LocalTime inicio, LocalTime fin) {
+    if (inicio == null || fin == null) {
+        throw new BusinessException("Las horas de inicio y fin son obligatorias (HH:mm).");
     }
+
+    if (!fin.isAfter(inicio)) {
+        throw new BusinessException("La hora de fin debe ser posterior a la de inicio.");
+    }
+}
 
     public void validarTexto(String valor, String campo, int maxLen) {
         if (valor == null || valor.isBlank()) {
@@ -55,7 +55,7 @@ public class CanchaValidator {
         }
     }
 
-    public void validarEstadoBool(Boolean estado) {
+    public void validarEstado(Boolean estado) {
         if (estado == null) {
             throw new BusinessException("El estado booleano es obligatorio.");
         }
@@ -65,7 +65,7 @@ public class CanchaValidator {
         validarNombre(dto.getNombre());
         validarCosto(dto.getCostoHora());
         validarCapacidad(dto.getCapacidad());
-        validarTexto(dto.getEstado(), "estado", 100);
+        //validarTexto(dto.getEstado(), "estado", 100);
         validarTexto(dto.getMantenimiento(), "mantenimiento", 100);
         validarHoras(dto.getHoraInicio(), dto.getHoraFin());
         validarTexto(dto.getTipoSuperficie(), "tipoSuperficie", 100);
@@ -76,7 +76,7 @@ public class CanchaValidator {
             throw new BusinessException("La URL de imagen no puede exceder 800 caracteres.");
         }
         validarIds(dto.getIdAreadeportiva());
-        validarEstadoBool(dto.getEstadobool());
+        validarEstado(dto.getEstado());
     }
 
     public static class BusinessException extends RuntimeException {

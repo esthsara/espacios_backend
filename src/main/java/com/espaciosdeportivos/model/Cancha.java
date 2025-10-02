@@ -1,6 +1,9 @@
 package com.espaciosdeportivos.model;
 
 import lombok.*;
+
+import java.time.LocalTime;
+
 import jakarta.persistence.*;
 //import java.util.List;
 
@@ -27,17 +30,17 @@ public class Cancha {
     @Column(name = "capacidad", nullable = false)
     private Integer capacidad;
 
-    @Column(name = "estado_cancha", nullable = false, length = 100)
-    private String estado;
+    /*@Column(name = "estado_cancha", nullable = false, length = 100)
+    private String estado;*/
 
     @Column(name = "mantenimiento", nullable = false, length = 100)
     private String mantenimiento;
 
     @Column(name = "hora_inicio")
-    private String horaInicio;
+    private LocalTime horaInicio;
 
     @Column(name = "hora_fin")
-    private String horaFin;
+    private LocalTime horaFin;
 
     @Column(name = "tipo_superficie", nullable = false, length = 100)
     private String tipoSuperficie;
@@ -55,7 +58,7 @@ public class Cancha {
     private String urlImagen;
 
     @Column(name = "estado", nullable = false)
-    private Boolean estadobool;
+    private Boolean estado;
 
     @ManyToOne
     @JoinColumn(name = "id_areadeportiva")

@@ -1,6 +1,8 @@
 package com.espaciosdeportivos.dto;
 
 import java.io.Serializable;
+import java.time.LocalTime;
+
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
@@ -24,22 +26,22 @@ public class CanchaDTO implements Serializable {
     @Positive(message = "La capacidad debe ser un valor positivo")
     private Integer capacidad;
 
-    @NotBlank(message = "El estado es obligatorio")
-    private String estado;
+   /* @NotBlank(message = "El estado es obligatorio")
+    private String estado;*/
 
     @NotNull(message = "El estado es obligatorio")
-    private Boolean estadobool;
+    private Boolean estado;
 
     @NotBlank(message = "El mantenimiento es obligatorio")
     private String mantenimiento;
 
     @NotBlank(message = "La hora de inicio es obligatoria")
     @JsonFormat(pattern = "HH:mm")
-    private String horaInicio;
+    private LocalTime horaInicio;
 
     @NotBlank(message = "La hora de fin es obligatoria") 
     @JsonFormat(pattern = "HH:mm")
-    private String horaFin;
+    private LocalTime horaFin;
 
     @NotBlank(message = "El tipo de superficie es obligatorio")
     private String tipoSuperficie;

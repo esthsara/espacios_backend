@@ -16,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -100,6 +102,24 @@ public class CanchaController {
        Cancha cancha =canchaService.obtenerCanchaConBloqueo(id);
         return ResponseEntity.ok(cancha);
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<CanchaDTO>> buscarFiltrosCanchas(
+            @PathVariable(required = false) LocalTime horaInicio,
+            @PathVariable(required = false) LocalTime horaFin,
+            @PathVariable(required = false) Double costo,
+            @PathVariable(required = false) Integer capacidad,
+            @PathVariable(required = false) String tamano,
+            @PathVariable(required = false) String iluminacion,
+            @PathVariable(required = false) String cubierta
+    ) {
+        List<CanchaDTO> resultados = canchaService.BuscarConFiltros(horaInicio, horaFin, costo, capacidad, tamano, iluminacion, cubierta);
+        return ResponseEntity.ok(resultados);
+    }
+    
+
+    
+
 
     /*// Baja lógica (estadobool = false)
     @PutMapping("/{id}/eliminar")
