@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.controller;
 
+
 import com.espaciosdeportivos.dto.MacrodistritoDTO;
 import com.espaciosdeportivos.model.Macrodistrito;
 import com.espaciosdeportivos.service.IMacrodistritoService;
@@ -92,7 +93,8 @@ public class MacrodistritoController {
 
     @GetMapping("/buscar/{nombre}")
     public List<MacrodistritoDTO> buscarPorNombre(@PathVariable String nombre) {
-        return macrodistritoService.buscarPorNombre(nombre);
+        List<MacrodistritoDTO> resultados = macrodistritoService.buscarPorNombre(nombre);
+        return resultados;
     }
 
     @GetMapping("/{id}/lock")

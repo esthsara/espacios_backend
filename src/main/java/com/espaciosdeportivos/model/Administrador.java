@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,4 +27,8 @@ public class Administrador extends Persona {
     @NotNull
     @Column(name = "direccion", nullable = false, length = 200)
     private String direccion;
+
+    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AreaDeportiva> areaDeportiva;
+
 }

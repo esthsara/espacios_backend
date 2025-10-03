@@ -71,9 +71,8 @@ public class ZonaController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<String> eliminarZonaFisicamente(@PathVariable Long id) {
+    public void eliminar(@PathVariable Long id) {
         zonaService.eliminarZonaFisicamente(id);
-        return ResponseEntity.ok("Zona eliminada físicamente");
     }
 
     @PatchMapping("/{id}/estado")
@@ -82,6 +81,7 @@ public class ZonaController {
         ZonaDTO actualizada = zonaService.eliminarZona(id, nuevoEstado);
         return ResponseEntity.ok(actualizada);
     }
+
     // Baja lógica (estado=false)
     /*@PutMapping("/{id}/eliminar")
     @Transactional

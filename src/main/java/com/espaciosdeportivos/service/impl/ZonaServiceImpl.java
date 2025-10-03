@@ -72,7 +72,7 @@ public class ZonaServiceImpl implements IZonaService {
     @Override
     @Transactional(readOnly = true)
     public List<ZonaDTO> buscarPorNombre(String nombre) {
-        return zonaRepository.findByNombreContainingIgnoreCase(nombre)
+        return zonaRepository.buscarPorNombre(nombre)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
