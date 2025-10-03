@@ -84,7 +84,7 @@ INSERT INTO zona (nombre_zona, descripcion, estado, id_macrodistrito) VALUES
 INSERT INTO AreaDeportiva (
   nombre_area, descripcion_area, email_area, telefono_area,
   hora_inicio_area, hora_fin_area, url_imagen,
-  latitud, longitud, id_zona, id_administrador, estado
+  latitud, longitud, id_zona, id_persona, estado
 ) VALUES
 ('Cancha Sintética Norte', 'Cancha de fútbol 8 con césped sintético.', 'contacto1@deportes.com', '70123456',
  '08:00:00', '22:00:00', 'cancha_norte.jpg', -16.500, -68.150, 1, 1, TRUE),
@@ -101,12 +101,12 @@ INSERT INTO AreaDeportiva (
 ('Gimnasio Central', 'Área equipada con pesas y máquinas.', 'gym@deportes.com', '70567890',
  '05:30:00', '23:00:00', 'gimnasio.jpg', -16.480, -68.125, 2, 3, TRUE);
 
+
 --cancha
 INSERT INTO cancha (
     nombre_cancha,
     costo_hora,
     capacidad,
-    estado_cancha,
     mantenimiento,
     hora_inicio,
     hora_fin,
@@ -118,18 +118,16 @@ INSERT INTO cancha (
     estado,
     id_areadeportiva
 ) VALUES
-('Cancha Fútbol Norte', 80.0, 22, 'activo', 'ninguno', '08:00', '18:00', 'césped sintético', '30x50', 'LED', 'techada', 'img/cancha1.jpg', true, 51),
-('Cancha Básquet Sur', 60.0, 12, 'activo', 'preventivo', '09:00', '17:00', 'parquet', '20x30', 'fluorescente', 'abierta', 'img/cancha2.jpg', true, 51),
-('Cancha Vóley Arena', 50.0, 10, 'activo', 'correctivo', '07:00', '15:00', 'arena', '18x25', 'natural', 'abierta', 'img/cancha3.jpg', true, 52),
-('Cancha Multideporte', 70.0, 16, 'activo', 'ninguno', '06:00', '14:00', 'cemento', '25x40', 'LED', 'techada', 'img/cancha4.jpg', true, 52),
-('Cancha Tenis', 90.0, 4, 'activo', 'preventivo', '10:00', '18:00', 'arcilla', '23x10', 'LED', 'techada', 'img/cancha5.jpg', true, 53),
-('Cancha Fútbol 7', 85.0, 14, 'activo', 'correctivo', '08:00', '16:00', 'césped natural', '40x60', 'fluorescente', 'abierta', 'img/cancha6.jpg', true, 54),
-('Cancha Indoor', 75.0, 10, 'activo', 'ninguno', '07:30', '15:30', 'parquet', '20x20', 'LED', 'techada', 'img/cancha7.jpg', true, 55),
-('Cancha Rugby', 100.0, 30, 'activo', 'preventivo', '06:00', '14:00', 'césped natural', '60x100', 'natural', 'abierta', 'img/cancha8.jpg', true, 55),
-('Cancha Ping Pong', 40.0, 4, 'activo', 'ninguno', '09:00', '17:00', 'madera', '5x10', 'LED', 'techada', 'img/cancha9.jpg', true, 55),
-('Cancha Patinaje', 65.0, 20, 'activo', 'correctivo', '08:00', '16:00', 'cemento', '30x60', 'fluorescente', 'abierta', 'img/cancha10.jpg', true, 55);
-
-
+('Cancha Fútbol Norte', 80.0, 22, 'ninguno', '08:00', '18:00', 'césped sintético', '30x50', 'LED', 'techada', 'img/cancha1.jpg', true, 1),
+('Cancha Básquet Sur', 60.0, 12, 'preventivo', '09:00', '17:00', 'parquet', '20x30', 'fluorescente', 'abierta', 'img/cancha2.jpg', true, 1),
+('Cancha Vóley Arena', 50.0, 10, 'correctivo', '07:00', '15:00', 'arena', '18x25', 'natural', 'abierta', 'img/cancha3.jpg', true, 2),
+('Cancha Multideporte', 70.0, 16, 'ninguno', '06:00', '14:00', 'cemento', '25x40', 'LED', 'techada', 'img/cancha4.jpg', true, 2),
+('Cancha Tenis', 90.0, 4, 'preventivo', '10:00', '18:00', 'arcilla', '23x10', 'LED', 'techada', 'img/cancha5.jpg', true, 3),
+('Cancha Fútbol 7', 85.0, 14, 'correctivo', '08:00', '16:00', 'césped natural', '40x60', 'fluorescente', 'abierta', 'img/cancha6.jpg', true, 4),
+('Cancha Indoor', 75.0, 10, 'ninguno', '07:30', '15:30', 'parquet', '20x20', 'LED', 'techada', 'img/cancha7.jpg', true, 5),
+('Cancha Rugby', 100.0, 30, 'preventivo', '06:00', '14:00', 'césped natural', '60x100', 'natural', 'abierta', 'img/cancha8.jpg', true, 5),
+('Cancha Ping Pong', 40.0, 4, 'ninguno', '09:00', '17:00', 'madera', '5x10', 'LED', 'techada', 'img/cancha9.jpg', true, 5),
+('Cancha Patinaje', 65.0, 20, 'correctivo', '08:00', '16:00', 'cemento', '30x60', 'fluorescente', 'abierta', 'img/cancha10.jpg', true, 5);
 
 --disciplina
 --reserva

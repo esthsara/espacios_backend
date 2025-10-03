@@ -45,7 +45,7 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional(readOnly = true)
     public List<CanchaDTO> obtenerTodasLasCanchas() {
-        return canchaRepository.findByEstadoboolTrue()
+        return canchaRepository.findByEstadoTrue()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional(readOnly = true)
     public CanchaDTO obtenerCanchaPorId(Long id) {
-        Cancha cancha = canchaRepository.findByIdCanchaAndEstadoboolTrue(id)
+        Cancha cancha = canchaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
         return convertToDTO(cancha);
     }
@@ -126,7 +126,7 @@ public class CanchaServiceImpl implements ICanchaService {
 
     @Override
     public CanchaDTO eliminarCancha(Long id, Boolean nuevoEstado) {
-        Cancha existente = canchaRepository.findByIdCanchaAndEstadoboolTrue(id)
+        Cancha existente = canchaRepository.findByIdCanchaAndEstadoTrue(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
         existente.setEstado(nuevoEstado); // baja lógica
         return convertToDTO(canchaRepository.save(existente));

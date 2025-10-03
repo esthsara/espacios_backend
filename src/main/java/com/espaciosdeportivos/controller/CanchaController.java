@@ -21,7 +21,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/canchas")
+@RequestMapping("/api/cancha")
 @Validated
 public class CanchaController {
 
@@ -105,17 +105,18 @@ public class CanchaController {
 
     @GetMapping("/buscar")
     public ResponseEntity<List<CanchaDTO>> buscarFiltrosCanchas(
-            @PathVariable(required = false) LocalTime horaInicio,
-            @PathVariable(required = false) LocalTime horaFin,
-            @PathVariable(required = false) Double costo,
-            @PathVariable(required = false) Integer capacidad,
-            @PathVariable(required = false) String tamano,
-            @PathVariable(required = false) String iluminacion,
-            @PathVariable(required = false) String cubierta
+            @RequestParam(required = false) LocalTime horaInicio,
+            @RequestParam(required = false) LocalTime horaFin,
+            @RequestParam(required = false) Double costo,
+            @RequestParam(required = false) Integer capacidad,
+            @RequestParam(required = false) String tamano,
+            @RequestParam(required = false) String iluminacion,
+            @RequestParam(required = false) String cubierta
     ) {
         List<CanchaDTO> resultados = canchaService.BuscarConFiltros(horaInicio, horaFin, costo, capacidad, tamano, iluminacion, cubierta);
         return ResponseEntity.ok(resultados);
     }
+
     
 
     

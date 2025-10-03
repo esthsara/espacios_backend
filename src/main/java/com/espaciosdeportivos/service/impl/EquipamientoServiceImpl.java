@@ -35,7 +35,7 @@ public class EquipamientoServiceImpl implements IEquipamientoService {
     @Override
     @Transactional(readOnly = true)
     public List<EquipamientoDTO> obtenerTodosLosEquipamientos() {
-        return equipamientoRepository.findByEstadoboolTrue()
+        return equipamientoRepository.findByEstadoTrue()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -91,7 +91,7 @@ public class EquipamientoServiceImpl implements IEquipamientoService {
 
     @Override
     public EquipamientoDTO eliminarEquipamiento(Long id) {
-        Equipamiento existente = equipamientoRepository.findByIdEquipamientoAndEstadoboolTrue(id)
+        Equipamiento existente = equipamientoRepository.findByIdEquipamientoAndEstadoTrue(id)
                 .orElseThrow(() -> new RuntimeException("Equipamiento no encontrado con ID: " + id));
         existente.setEstado(Boolean.FALSE); // baja lógica
         return convertToDTO(equipamientoRepository.save(existente));
@@ -137,7 +137,7 @@ public class EquipamientoServiceImpl implements IEquipamientoService {
                 .nombreEquipamiento(d.getNombreEquipamiento())
                 .tipoEquipamiento(d.getTipoEquipamiento())
                 .descripcion(d.getDescripcion())
-                .estado(d.getEstado())
+                //.estado(d.getEstado())
                 .urlImagen(d.getUrlImagen())
                 .estado(d.getEstado() != null ? d.getEstado() : Boolean.TRUE)
                 .build();

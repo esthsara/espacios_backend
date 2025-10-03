@@ -50,7 +50,7 @@ public class EquipamientoValidator {
         validarNombre(dto.getNombreEquipamiento());
         validarTipo(dto.getTipoEquipamiento());
         validarDescripcion(dto.getDescripcion());
-        //validarEstadoTexto(dto.getEstado());
+        validarEstado(dto.getEstado());
         validarEstado(dto.getEstado());
         if (dto.getUrlImagen() != null && dto.getUrlImagen().length() > 800) {
             throw new BusinessException("La URL de imagen no puede exceder 800 caracteres.");

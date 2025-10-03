@@ -11,14 +11,14 @@ import java.util.Optional;
 public interface EquipamientoRepository extends JpaRepository<Equipamiento, Long> {
 
     // Solo activos
-    List<Equipamiento> findByEstadoboolTrue();
+    List<Equipamiento> findByEstadoTrue();
 
     // Activo por id
-    Optional<Equipamiento> findByIdEquipamientoAndEstadoboolTrue(Long idEquipamiento);
+    Optional<Equipamiento> findByIdEquipamientoAndEstadoTrue(Long idEquipamiento);
 
     // Unicidad por nombre
     boolean existsByNombreEquipamientoIgnoreCase(String nombre);
 
     // (Opcional) por estado textual
-    List<Equipamiento> findByEstadoAndEstadoboolTrue(String estado);
+    //List<Equipamiento> findByEstadoAndEstadoTrue(Boolean estado);
 }

@@ -13,18 +13,18 @@ import java.util.Optional;
 public interface CanchaRepository extends JpaRepository<Cancha, Long> {
 
     // Solo activas (soft delete)
-    List<Cancha> findByEstadoboolTrue();
+    List<Cancha> findByEstadoTrue();
 
-    // Activa por id
-    Optional<Cancha> findByIdCanchaAndEstadoboolTrue(Long idCancha);
+    // Activa por idfindByIdCanchaAndEstadoTrue
+    Optional<Cancha> findByIdCanchaAndEstadoTrue(Long idCancha);
 
     // Por área deportiva (solo activas)
     //List<Cancha> findByAreaDeportiva_IdAreaDeportivaAndEstadoboolTrue(Long idAreaDeportiva);
 
-    @Query("SELECT a FROM cancha a WHERE LOWER(a.nombreArea) LIKE LOWER(CONCAT('%', :nombre, '%')) ")
+    @Query("SELECT a FROM Cancha a WHERE LOWER(a.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))")
     List<Cancha> buscarPorNombre(@Param("nombre") String nombre);
 
-    @Query("SELECT c FROM cancha c WHERE " +
+    @Query("SELECT c FROM Cancha c WHERE " +
             "(:horaInicio IS NULL OR c.horaInicio >= :horaInicio) AND " +
             "(:horaFin IS NULL OR c.horaFin <= :horaFin) AND " +
             "(:costo IS NULL OR c.costoHora <= :costo) AND " +
@@ -32,7 +32,7 @@ public interface CanchaRepository extends JpaRepository<Cancha, Long> {
             "(:tamano IS NULL OR LOWER(c.tamano) = LOWER(:tamano)) AND " +
             "(:iluminacion IS NULL OR LOWER(c.iluminacion) = LOWER(:iluminacion)) AND " +
             "(:cubierta IS NULL OR LOWER(c.cubierta) = LOWER(:cubierta)) AND " +
-            "c.estadobool = true")
+            "c.estado = true")
     List<Cancha> buscarFiltros(@Param("horaInicio") java.time.LocalTime horaInicio,
                                @Param("horaFin") java.time.LocalTime horaFin,
                                @Param("costo") Double costo,
