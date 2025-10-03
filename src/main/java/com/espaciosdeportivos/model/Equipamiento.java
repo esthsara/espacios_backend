@@ -2,7 +2,7 @@ package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-//import java.util.List;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,7 +35,7 @@ public class Equipamiento {
     @Column(name ="url_imagen" , length = 800)
     private String urlImagen;
 
-    //@OneToMany(mappedBy = "equipamiento")
-    //private List<dispone> cancha;
+    @OneToMany(mappedBy = "equipamiento")
+    private List<dispone> cancha;
 
 }
