@@ -3,9 +3,10 @@ package com.espaciosdeportivos.model;
 import lombok.*;
 
 import java.time.LocalTime;
+//import java.util.ArrayList;
 
 import jakarta.persistence.*;
-//import java.util.List;
+import java.util.List;
 
 @Getter
 @Setter
@@ -63,6 +64,9 @@ public class Cancha {
     @ManyToOne
     @JoinColumn(name = "id_areadeportiva")
     private AreaDeportiva areaDeportiva;
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<dispone> equipamiento;
 
     /*@OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comentario> comentario;*/
