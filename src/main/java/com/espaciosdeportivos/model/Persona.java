@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -52,4 +54,7 @@ public class Persona {
     @NotNull
     @Column(name = "estado", nullable = false)
     private Boolean estado;
+
+    @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Comentario> comentario;
 }

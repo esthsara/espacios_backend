@@ -34,9 +34,9 @@ public class Comentario {
     @JoinColumn(name = "id_persona", referencedColumnName = "id_persona")
     private Persona persona;
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "id_cancha", referencedColumnName = "id_cancha")
-    private Cancha cancha;*/
+    private Cancha cancha;
 
-    //k
+    
 }
