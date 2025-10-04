@@ -68,7 +68,7 @@ public class Cancha {
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<dispone> equipamiento;
 
-    /*@OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comentario> comentario;*/
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comentario> comentario;
 
 }
