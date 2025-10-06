@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,6 +25,6 @@ public class Cliente extends Persona {
     private String estadoCliente;
 
     //k
-    /*@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<Cancelacion> cancelacion;*/
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Cancelacion> cancelacion;
 }
