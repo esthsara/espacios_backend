@@ -33,13 +33,13 @@ public class Qr {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "id_us_control", referencedColumnName = "id_persona")
-    private UsuarioControl usuarioControl;*/
+    private UsuarioControl usuarioControl;
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "id_reserva", referencedColumnName = "id_reserva")
-    private Reserva reserva;*/
+    private Reserva reserva;
 
     @ManyToOne
     @JoinColumn(name = "id_invitado", referencedColumnName = "id_persona")

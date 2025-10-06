@@ -32,9 +32,9 @@ public class Cancelacion {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    /*@OneToOne
+    @OneToOne
     @JoinColumn(name = "id_reserva", nullable = false, unique = true)
-    private Reserva reserva;*/
+    private Reserva reserva;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona")
