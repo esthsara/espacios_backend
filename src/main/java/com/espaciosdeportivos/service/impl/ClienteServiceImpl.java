@@ -72,7 +72,7 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setEmail(dto.getEmail());
         cliente.setUrlImagen(dto.getUrlImagen());
         cliente.setEstado(dto.getEstado());
-        cliente.setEstadoCliente(dto.getEstadoCliente());
+        cliente.setCategoria(dto.getCategoria());
 
         clienteRepository.save(cliente);
         return mapToDTO(cliente);
@@ -92,9 +92,11 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         cliente.setEstado(nuevoEstado);
+
         clienteRepository.save(cliente);
         return mapToDTO(cliente);
     }
+
 
     // --- Métodos privados de mapeo ---
     private ClienteDTO mapToDTO(Cliente c) {
@@ -108,7 +110,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .email(c.getEmail())
                 .urlImagen(c.getUrlImagen())
                 .estado(c.getEstado())
-                .estadoCliente(c.getEstadoCliente())
+                .categoria(c.getCategoria())
                 .build();
     }
 
@@ -123,7 +125,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .email(d.getEmail())
                 .urlImagen(d.getUrlImagen())
                 .estado(d.getEstado())
-                .estadoCliente(d.getEstadoCliente())
+                .categoria(d.getCategoria())
                 .build();
     }
 }
