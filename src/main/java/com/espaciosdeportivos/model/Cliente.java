@@ -21,10 +21,10 @@ public class Cliente extends Persona {
     }
 
     @NotNull
-    @Column(name = "estado_cliente", nullable = false, length = 50)
-    private String estadoCliente;
+    @Column(name = "categoria", nullable = false, length = 50)
+    private String categoria;
 
-    //k
+    // k
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Cancelacion> cancelacion;
 }

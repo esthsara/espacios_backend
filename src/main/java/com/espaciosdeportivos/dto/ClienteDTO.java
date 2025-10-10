@@ -52,7 +52,7 @@ public class ClienteDTO implements Serializable {
     @NotNull(message = "El estado es obligatorio.")
     private Boolean estado;
 
-    @NotBlank(message = "El estado del cliente es obligatorio.")
-    @Size(max = 50, message = "El estado del cliente no puede exceder los 50 caracteres.")
-    private String estadoCliente;
+    @NotBlank(message = "La categoria es muy necesaria")
+    @Size(max = 50, message = "La categoria del cliente no puede exceder los 50 caracteres.")
+    private String categoria;
 }

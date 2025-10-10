@@ -59,11 +59,11 @@ public class ClienteValidator {
         }
     }
 
-    public void validarEstadoCliente(String estadoCliente) {
-        if (estadoCliente == null || estadoCliente.trim().isEmpty()) {
-            throw new BusinessException("El estado del cliente es obligatorio.");
+    public void validarCategoria(String categoria) {
+        if (categoria == null || categoria.trim().isEmpty()) {
+            throw new BusinessException("La categoria del cliente es obligatorio.");
         }
-        if (estadoCliente.length() > 50) {
+        if (categoria.length() > 50) {
             throw new BusinessException("El estado del cliente no puede exceder los 50 caracteres.");
         }
     }
@@ -75,7 +75,7 @@ public class ClienteValidator {
         validarFechaNacimiento(clienteDTO.getFechaNacimiento());
         validarTelefono(clienteDTO.getTelefono());
         validarEmail(clienteDTO.getEmail());
-        validarEstadoCliente(clienteDTO.getEstadoCliente());
+        validarCategoria(clienteDTO.getCategoria());
     }
 
     // Excepción personalizada
