@@ -9,11 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "disciplina")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data // Usamos @Data que es equivalente a @Getter, @Setter, @ToString, etc.
 public class Disciplina {
 
     @Id
@@ -21,14 +17,14 @@ public class Disciplina {
     @Column(name = "id_disciplina")
     private Long idDisciplina;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "nombre", nullable = false, unique = true)
     private String nombre;
 
-    @Column(length = 500)
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(name = "estado")
-    private Boolean estado = true;
+    private Boolean estado = true; // Valor por defecto a 'true'
 
     @CreationTimestamp
     @Column(name = "fecha_creacion")
@@ -45,5 +41,4 @@ public class Disciplina {
     // Relación con Reserva (a través de la tabla intermedia incluye)
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<incluye> reservas;
-    
 }
