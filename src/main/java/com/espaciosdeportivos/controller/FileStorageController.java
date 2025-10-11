@@ -27,13 +27,13 @@ public class FileStorageController {
             @Parameter(description = "Ruta completa del archivo") 
             @PathVariable String rutaArchivo) {
         
-        log.info("🔍 Verificando existencia de archivo: {}", rutaArchivo);
+        log.info("Verificando existencia de archivo: {}", rutaArchivo);
         
         try {
             boolean existe = fileStorageService.existeArchivo(rutaArchivo);
             return ResponseEntity.ok(existe);
         } catch (Exception e) {
-            log.error("❌ Error verificando archivo: {}", e.getMessage());
+            log.error("Error verificando archivo: {}", e.getMessage());
             return ResponseEntity.ok(false);
         }
     }
@@ -44,13 +44,13 @@ public class FileStorageController {
             @Parameter(description = "Ruta completa del archivo") 
             @PathVariable String rutaArchivo) {
         
-        log.info("📏 Obteniendo tamaño de archivo: {}", rutaArchivo);
+        log.info("Obteniendo tamaño de archivo: {}", rutaArchivo);
         
         try {
             long tamanio = fileStorageService.obtenerTamanioArchivo(rutaArchivo);
             return ResponseEntity.ok(tamanio);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo tamaño: {}", e.getMessage());
+            log.error("Error obteniendo tamaño: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -61,13 +61,13 @@ public class FileStorageController {
             @Parameter(description = "Ruta a validar") 
             @PathVariable String rutaArchivo) {
         
-        log.info("🔒 Validando ruta de archivo: {}", rutaArchivo);
+        log.info("Validando ruta de archivo: {}", rutaArchivo);
         
         try {
             boolean esValida = fileStorageService.validarRutaArchivo(rutaArchivo);
             return ResponseEntity.ok(esValida);
         } catch (Exception e) {
-            log.error("❌ Error validando ruta: {}", e.getMessage());
+            log.error("Error validando ruta: {}", e.getMessage());
             return ResponseEntity.ok(false);
         }
     }
@@ -78,13 +78,13 @@ public class FileStorageController {
             @Parameter(description = "Nombre del archivo") 
             @RequestParam String nombreArchivo) {
         
-        log.info("📄 Obteniendo extensión de: {}", nombreArchivo);
+        log.info("Obteniendo extensión de: {}", nombreArchivo);
         
         try {
             String extension = fileStorageService.obtenerExtension(nombreArchivo);
             return ResponseEntity.ok(extension);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo extensión: {}", e.getMessage());
+            log.error("Error obteniendo extensión: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -95,7 +95,7 @@ public class FileStorageController {
             @Parameter(description = "Ruta completa del archivo") 
             @PathVariable String rutaArchivo) {
         
-        log.info("📥 Descargando archivo directo: {}", rutaArchivo);
+        log.info("Descargando archivo directo: {}", rutaArchivo);
         
         try {
             Resource resource = fileStorageService.cargarArchivo(rutaArchivo);
@@ -108,7 +108,7 @@ public class FileStorageController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .body(resource);
         } catch (Exception e) {
-            log.error("❌ Error descargando archivo: {}", e.getMessage());
+            log.error("Error descargando archivo: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }

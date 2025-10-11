@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface ImagenRelacionService {
     
-    // ✅ Operaciones CRUD básicas
+    // Operaciones CRUD básicas
     ImagenRelacionDTO crearRelacion(ImagenRelacionDTO relacionDTO);
     ImagenRelacionDTO obtenerRelacionPorId(Long idImagenRelacion);
     List<ImagenRelacionDTO> obtenerRelacionesPorEntidad(String entidadTipo, Long entidadId);
@@ -15,14 +15,14 @@ public interface ImagenRelacionService {
     void eliminarRelacionLogicamente(Long idImagenRelacion);
     void eliminarRelacionFisicamente(Long idImagenRelacion);
     
-    // ✅ Operaciones de ordenamiento
+    // Operaciones de ordenamiento
     ImagenRelacionDTO actualizarOrdenRelacion(Long idImagenRelacion, Integer nuevoOrden);
     void reordenarRelaciones(String entidadTipo, Long entidadId, List<Long> idsEnOrden);
     Integer obtenerSiguienteOrdenDisponible(String entidadTipo, Long entidadId);
     ImagenRelacionDTO moverRelacionAPosicion(Long idImagenRelacion, Integer nuevaPosicion);
     void intercambiarPosiciones(Long idImagenRelacion1, Long idImagenRelacion2);
     
-    // ✅ Operaciones de validación y verificación
+    // Operaciones de validación y verificación
     boolean existeRelacionActiva(String entidadTipo, Long entidadId, Long idImagen);
     int contarRelacionesPorEntidad(String entidadTipo, Long entidadId);
     boolean verificarRelacionDuplicada(String entidadTipo, Long entidadId, Long idImagen);
@@ -30,7 +30,7 @@ public interface ImagenRelacionService {
     boolean estaImagenEnUso(Long idImagen);
     int contarEntidadesQueUsanImagen(Long idImagen);
     
-    // ✅ Operaciones de migración y transferencia
+    // Operaciones de migración y transferencia
     ImagenRelacionDTO migrarRelacion(Long idImagenRelacion, String nuevaEntidadTipo, Long nuevaEntidadId);
     void transferirTodasLasRelaciones(String entidadTipoOrigen, Long entidadIdOrigen, 
                                      String entidadTipoDestino, Long entidadIdDestino);
@@ -39,14 +39,14 @@ public interface ImagenRelacionService {
     void fusionarRelaciones(List<String> tiposEntidadesOrigen, List<Long> idsEntidadesOrigen,
                            String entidadTipoDestino, Long entidadIdDestino);
     
-    // ✅ Operaciones de reportes y estadísticas
+    // Operaciones de reportes y estadísticas
     List<Object[]> obtenerEstadisticasPorTipoEntidad();
     List<ImagenRelacionDTO> encontrarRelacionesDuplicadas();
     List<ImagenRelacionDTO> encontrarRelacionesSinImagen();
     List<ImagenRelacionDTO> obtenerRelacionesConEstadisticas();
     List<ImagenRelacionDTO> obtenerRelacionesPorRangoFechas(String fechaInicio, String fechaFin);
     
-    // ✅ Operaciones de mantenimiento
+    // Operaciones de mantenimiento
     void desactivarRelacionesPorEntidad(String entidadTipo, Long entidadId);
     void eliminarRelacionesPorEntidad(String entidadTipo, Long entidadId);
     void limpiarRelacionesInactivas();
@@ -54,7 +54,7 @@ public interface ImagenRelacionService {
     void sincronizarConEstadoImagenes();
     List<String> validarIntegridadRelaciones();
     
-    // ✅ Operaciones de búsqueda avanzada
+    // Operaciones de búsqueda avanzada
     List<ImagenRelacionDTO> buscarRelaciones(String entidadTipo, Long entidadId, 
                                            Boolean estado, Integer ordenMin, Integer ordenMax);
     List<ImagenRelacionDTO> obtenerRelacionesPaginadas(int pagina, int tamanio);

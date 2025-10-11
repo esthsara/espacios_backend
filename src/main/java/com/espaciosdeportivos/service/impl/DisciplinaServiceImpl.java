@@ -46,7 +46,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         disciplina.setEstado(true);
         disciplina = disciplinaRepository.save(disciplina);
         
-        log.info("✅ Disciplina creada con ID: {}", disciplina.getIdDisciplina());
+        log.info("Disciplina creada con ID: {}", disciplina.getIdDisciplina());
         
         // Procesar imágenes si existen
         procesarImagenesDisciplina(disciplinaDTO, disciplina.getIdDisciplina());
@@ -57,11 +57,11 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     @Override
     @Transactional(readOnly = true)
     public DisciplinaDTO obtenerDisciplinaPorId(Long idDisciplina) {
-        log.info("📥 Obteniendo disciplina ID: {}", idDisciplina);
+        log.info("Obteniendo disciplina ID: {}", idDisciplina);
         
         Disciplina disciplina = disciplinaRepository.findByIdDisciplinaAndEstadoTrue(idDisciplina)
             .orElseThrow(() -> {
-                log.error("❌ Disciplina no encontrada con ID: {}", idDisciplina);
+                log.error("Disciplina no encontrada con ID: {}", idDisciplina);
                 return new RuntimeException("Disciplina no encontrada con id: " + idDisciplina);
             });
         
@@ -71,7 +71,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     @Override
     @Transactional(readOnly = true)
     public List<DisciplinaDTO> obtenerTodasLasDisciplinas() {
-        log.info("📥 Obteniendo todas las disciplinas activas");
+        log.info("Obteniendo todas las disciplinas activas");
         
         List<Disciplina> disciplinas = disciplinaRepository.findByEstadoTrue();
         return disciplinas.stream()
@@ -81,7 +81,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     
     @Override
     public DisciplinaDTO actualizarDisciplina(Long idDisciplina, DisciplinaDTO disciplinaDTO) {
-        log.info("✏️ Actualizando disciplina ID: {}", idDisciplina);
+        log.info("Actualizando disciplina ID: {}", idDisciplina);
         
         Disciplina disciplina = disciplinaRepository.findByIdDisciplinaAndEstadoTrue(idDisciplina)
             .orElseThrow(() -> new RuntimeException("Disciplina no encontrada con id: " + idDisciplina));
@@ -105,7 +105,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         }
         
         disciplina = disciplinaRepository.save(disciplina);
-        log.info("✅ Disciplina actualizada");
+        log.info("Disciplina actualizada");
         
         // Procesar nuevas imágenes si existen
         procesarImagenesDisciplina(disciplinaDTO, idDisciplina);
@@ -115,19 +115,19 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     
     @Override
     public void eliminarDisciplinaLogicamente(Long idDisciplina) {
-        log.info("🚫 Eliminando lógicamente disciplina ID: {}", idDisciplina);
+        log.info("Eliminando lógicamente disciplina ID: {}", idDisciplina);
         
         Disciplina disciplina = disciplinaRepository.findById(idDisciplina)
             .orElseThrow(() -> new RuntimeException("Disciplina no encontrada con id: " + idDisciplina));
         disciplina.setEstado(false);
         disciplinaRepository.save(disciplina);
         
-        log.info("✅ Disciplina desactivada");
+        log.info("Disciplina desactivada");
     }
     
     @Override
     public void eliminarDisciplinaFisicamente(Long idDisciplina) {
-        log.info("🗑️ Eliminando físicamente disciplina ID: {}", idDisciplina);
+        log.info("Eliminando físicamente disciplina ID: {}", idDisciplina);
         
         if (!disciplinaRepository.existsById(idDisciplina)) {
             throw new RuntimeException("Disciplina no encontrada con id: " + idDisciplina);
@@ -136,14 +136,14 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         // Eliminar imágenes primero
         try {
             imagenService.eliminarTodasImagenesDeEntidad(ENTIDAD_TIPO, idDisciplina);
-            log.info("📸 Imágenes de la disciplina eliminadas");
+            log.info("Imágenes de la disciplina eliminadas");
         } catch (Exception e) {
-            log.warn("⚠️ Error eliminando imágenes: {}", e.getMessage());
+            log.warn("Error eliminando imágenes: {}", e.getMessage());
         }
         
         // Eliminar disciplina
         disciplinaRepository.deleteById(idDisciplina);
-        log.info("✅ Disciplina eliminada completamente");
+        log.info("Disciplina eliminada completamente");
     }
     
     // ========== MÉTODOS PRIVADOS ==========
@@ -158,7 +158,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
                 );
                 log.info("📸 {} imágenes procesadas para disciplina", disciplinaDTO.getArchivosImagenes().size());
             } catch (Exception e) {
-                log.error("❌ Error procesando imágenes: {}", e.getMessage());
+                log.error("Error procesando imágenes: {}", e.getMessage());
                 throw new RuntimeException("Error al procesar las imágenes: " + e.getMessage());
             }
         }
@@ -173,14 +173,14 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
             dto.setImagenes(imagenes);
             log.debug("📸 {} imágenes cargadas para disciplina {}", imagenes.size(), disciplina.getIdDisciplina());
         } catch (Exception e) {
-            log.warn("⚠️ Error cargando imágenes para disciplina {}: {}", disciplina.getIdDisciplina(), e.getMessage());
+            log.warn("Error cargando imágenes para disciplina {}: {}", disciplina.getIdDisciplina(), e.getMessage());
             dto.setImagenes(List.of()); // Lista vacía en caso de error
         }
         
         return dto;
     }
     
-    // ✅ Métodos adicionales que podrías necesitar
+    // Métodos adicionales que podrías necesitar
     @Transactional(readOnly = true)
     public boolean existeDisciplinaConNombre(String nombre) {
         return disciplinaRepository.existsByNombreAndEstadoTrue(nombre);
@@ -233,7 +233,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     @Override
     @Transactional
     public DisciplinaDTO activarDisciplina(Long idDisciplina) {
-        log.info("✅ Activando disciplina ID: {}", idDisciplina);
+        log.info("Activando disciplina ID: {}", idDisciplina);
         
         Disciplina disciplina = disciplinaRepository.findById(idDisciplina)
                 .orElseThrow(() -> new RuntimeException("Disciplina no encontrada"));
@@ -241,30 +241,30 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         disciplina.setEstado(true);
         Disciplina disciplinaActivada = disciplinaRepository.save(disciplina);
         
-        log.info("✅ Disciplina activada: {}", disciplinaActivada.getNombre());
+        log.info("Disciplina activada: {}", disciplinaActivada.getNombre());
         return convertirADisciplinaDTO(disciplinaActivada);
     }
 
     @Override
     @Transactional
     public void desactivarMasivo(List<Long> idsDisciplinas) {
-        log.info("🚫 Desactivando {} disciplinas masivamente", idsDisciplinas.size());
+        log.info("Desactivando {} disciplinas masivamente", idsDisciplinas.size());
         
         List<Disciplina> disciplinas = disciplinaRepository.findAllById(idsDisciplinas);
         
         for (Disciplina disciplina : disciplinas) {
             disciplina.setEstado(false);
-            log.debug("➖ Desactivada: {}", disciplina.getNombre());
+            log.debug("Desactivada: {}", disciplina.getNombre());
         }
         
         disciplinaRepository.saveAll(disciplinas);
-        log.info("✅ {} disciplinas desactivadas", disciplinas.size());
+        log.info("{} disciplinas desactivadas", disciplinas.size());
     }
 
     @Override
     @Transactional
     public DisciplinaDTO agregarImagenes(Long idDisciplina, List<MultipartFile> archivosImagenes) {
-        log.info("📸 Agregando {} imágenes a disciplina ID: {}", archivosImagenes.size(), idDisciplina);
+        log.info("Agregando {} imágenes a disciplina ID: {}", archivosImagenes.size(), idDisciplina);
         
         // Verificar que existe
         Disciplina disciplina = disciplinaRepository.findByIdDisciplinaAndEstadoTrue(idDisciplina)
@@ -273,14 +273,14 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         // Usar servicio de imágenes
         imagenService.guardarImagenesParaEntidad(archivosImagenes, ENTIDAD_TIPO, idDisciplina);
         
-        log.info("✅ Imágenes agregadas exitosamente");
+        log.info("Imágenes agregadas exitosamente");
         return convertirADisciplinaDTO(disciplina);
     }
 
     @Override
     @Transactional
     public DisciplinaDTO eliminarImagen(Long idDisciplina, Long idImagenRelacion) {
-        log.info("🗑️ Eliminando imagen {} de disciplina {}", idImagenRelacion, idDisciplina);
+        log.info("Eliminando imagen {} de disciplina {}", idImagenRelacion, idDisciplina);
         
         // Verificar que existe la disciplina
         disciplinaRepository.findByIdDisciplinaAndEstadoTrue(idDisciplina)
@@ -289,14 +289,14 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         // Eliminar usando servicio de imágenes
         imagenService.eliminarImagenLogicamente(idImagenRelacion);
         
-        log.info("✅ Imagen eliminada");
+        log.info("Imagen eliminada");
         return obtenerDisciplinaPorId(idDisciplina);
     }
 
     @Override
     @Transactional
     public DisciplinaDTO reordenarImagenes(Long idDisciplina, List<Long> idsImagenesOrden) {
-        log.info("🔄 Reordenando {} imágenes de disciplina {}", idsImagenesOrden.size(), idDisciplina);
+        log.info("Reordenando {} imágenes de disciplina {}", idsImagenesOrden.size(), idDisciplina);
         
         // Verificar que existe
         disciplinaRepository.findByIdDisciplinaAndEstadoTrue(idDisciplina)
@@ -305,7 +305,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         // Reordenar usando servicio de imágenes
         imagenService.reordenarImagenes(ENTIDAD_TIPO, idDisciplina, idsImagenesOrden);
         
-        log.info("✅ Imágenes reordenadas");
+        log.info("Imágenes reordenadas");
         return obtenerDisciplinaPorId(idDisciplina);
     }
 
@@ -343,7 +343,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     @Override
     @Transactional(readOnly = true)
     public List<DisciplinaDTO> obtenerRecientes(int limite) {
-        log.info("📥 Obteniendo {} disciplinas más recientes", limite);
+        log.info("Obteniendo {} disciplinas más recientes", limite);
         
         List<Disciplina> disciplinas = disciplinaRepository.findByEstadoTrueOrderByFechaCreacionDesc();
         

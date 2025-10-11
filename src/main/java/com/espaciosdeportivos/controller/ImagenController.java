@@ -36,13 +36,13 @@ public class ImagenController {
             @Parameter(description = "Archivos de imagen a subir") 
             @RequestParam("archivos") List<MultipartFile> archivos) {
         
-        log.info("📤 Subiendo {} imágenes para entidad {}:{}", archivos.size(), entidadTipo, entidadId);
+        log.info("Subiendo {} imágenes para entidad {}:{}", archivos.size(), entidadTipo, entidadId);
         
         try {
             List<ImagenDTO> imagenesGuardadas = imagenService.guardarImagenesParaEntidad(archivos, entidadTipo, entidadId);
             return ResponseEntity.ok(imagenesGuardadas);
         } catch (Exception e) {
-            log.error("❌ Error subiendo imágenes: {}", e.getMessage());
+            log.error("Error subiendo imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -55,13 +55,13 @@ public class ImagenController {
             @Parameter(description = "ID de la entidad") 
             @PathVariable Long entidadId) {
         
-        log.info("📥 Obteniendo imágenes para entidad {}:{}", entidadTipo, entidadId);
+        log.info("Obteniendo imágenes para entidad {}:{}", entidadTipo, entidadId);
         
         try {
             List<ImagenDTO> imagenes = imagenService.obtenerImagenesPorEntidad(entidadTipo, entidadId);
             return ResponseEntity.ok(imagenes);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo imágenes: {}", e.getMessage());
+            log.error("Error obteniendo imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -72,7 +72,7 @@ public class ImagenController {
             @Parameter(description = "Ruta completa del archivo") 
             @PathVariable String rutaArchivo) {
         
-        log.info("📥 Descargando archivo: {}", rutaArchivo);
+        log.info("Descargando archivo: {}", rutaArchivo);
         
         try {
             //CREAR METODO EN IMAGENSERVICE
@@ -86,7 +86,7 @@ public class ImagenController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .body(resource);
         } catch (Exception e) {
-            log.error("❌ Error descargando archivo: {}", e.getMessage());
+            log.error("Error descargando archivo: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }*/
@@ -103,7 +103,7 @@ public class ImagenController {
             imagenService.eliminarImagenLogicamente(idImagenRelacion);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error eliminando imagen: {}", e.getMessage());
+            log.error("Error eliminando imagen: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -114,13 +114,13 @@ public class ImagenController {
             @Parameter(description = "ID de la relación de imagen") 
             @PathVariable Long idImagenRelacion) {
         
-        log.info("🗑️ Eliminando físicamente imagen relación: {}", idImagenRelacion);
+        log.info("Eliminando físicamente imagen relación: {}", idImagenRelacion);
         
         try {
             imagenService.eliminarImagenFisicamente(idImagenRelacion);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error eliminando imagen: {}", e.getMessage());
+            log.error("Error eliminando imagen: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -133,13 +133,13 @@ public class ImagenController {
             @Parameter(description = "ID de la entidad") 
             @PathVariable Long entidadId) {
         
-        log.info("🗑️ Eliminando todas las imágenes de entidad {}:{}", entidadTipo, entidadId);
+        log.info("Eliminando todas las imágenes de entidad {}:{}", entidadTipo, entidadId);
         
         try {
             imagenService.eliminarTodasImagenesDeEntidad(entidadTipo, entidadId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error eliminando imágenes: {}", e.getMessage());
+            log.error("Error eliminando imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -150,13 +150,13 @@ public class ImagenController {
             @Parameter(description = "ID de la imagen") 
             @PathVariable Long idImagen) {
         
-        log.info("📥 Obteniendo imagen por ID: {}", idImagen);
+        log.info("Obteniendo imagen por ID: {}", idImagen);
         
         try {
             ImagenDTO imagen = imagenService.obtenerImagenPorId(idImagen);
             return ResponseEntity.ok(imagen);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo imagen: {}", e.getMessage());
+            log.error("Error obteniendo imagen: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -164,13 +164,13 @@ public class ImagenController {
     @Operation(summary = "Obtener todas las imágenes activas", description = "Recupera todas las imágenes activas del sistema")
     @GetMapping("/activas")
     public ResponseEntity<List<ImagenDTO>> obtenerTodasLasImagenesActivas() {
-        log.info("📥 Obteniendo todas las imágenes activas");
+        log.info("Obteniendo todas las imágenes activas");
         
         try {
             List<ImagenDTO> imagenes = imagenService.obtenerTodasLasImagenesActivas();
             return ResponseEntity.ok(imagenes);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo imágenes: {}", e.getMessage());
+            log.error("Error obteniendo imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -182,13 +182,13 @@ public class ImagenController {
             @PathVariable Long idImagen,
             @RequestBody ImagenDTO imagenDTO) {
         
-        log.info("✏️ Actualizando imagen ID: {}", idImagen);
+        log.info("Actualizando imagen ID: {}", idImagen);
         
         try {
             ImagenDTO imagenActualizada = imagenService.actualizarImagen(idImagen, imagenDTO);
             return ResponseEntity.ok(imagenActualizada);
         } catch (Exception e) {
-            log.error("❌ Error actualizando imagen: {}", e.getMessage());
+            log.error("Error actualizando imagen: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -199,13 +199,13 @@ public class ImagenController {
             @Parameter(description = "Texto a buscar en el nombre") 
             @RequestParam String nombre) {
         
-        log.info("🔍 Buscando imágenes por nombre: {}", nombre);
+        log.info("Buscando imágenes por nombre: {}", nombre);
         
         try {
             List<ImagenDTO> imagenes = imagenService.buscarImagenesPorNombre(nombre);
             return ResponseEntity.ok(imagenes);
         } catch (Exception e) {
-            log.error("❌ Error buscando imágenes: {}", e.getMessage());
+            log.error("Error buscando imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -216,13 +216,13 @@ public class ImagenController {
             @Parameter(description = "Tipo MIME a buscar") 
             @RequestParam String tipoMime) {
         
-        log.info("🔍 Buscando imágenes por tipo MIME: {}", tipoMime);
+        log.info("Buscando imágenes por tipo MIME: {}", tipoMime);
         
         try {
             List<ImagenDTO> imagenes = imagenService.buscarImagenesPorTipoMime(tipoMime);
             return ResponseEntity.ok(imagenes);
         } catch (Exception e) {
-            log.error("❌ Error buscando imágenes: {}", e.getMessage());
+            log.error("Error buscando imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -237,13 +237,13 @@ public class ImagenController {
             @Parameter(description = "Lista de IDs de relaciones en el nuevo orden") 
             @RequestBody List<Long> idsImagenesRelacionEnOrden) {
         
-        log.info("🔄 Reordenando imágenes para entidad {}:{}", entidadTipo, entidadId);
+        log.info("Reordenando imágenes para entidad {}:{}", entidadTipo, entidadId);
         
         try {
             imagenService.reordenarImagenes(entidadTipo, entidadId, idsImagenesRelacionEnOrden);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error reordenando imágenes: {}", e.getMessage());
+            log.error("Error reordenando imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -258,13 +258,13 @@ public class ImagenController {
             @Parameter(description = "Nuevo ID de entidad") 
             @RequestParam Long nuevaEntidadId) {
         
-        log.info("🚚 Migrando imagen relación {} a {}:{}", idImagenRelacion, nuevaEntidadTipo, nuevaEntidadId);
+        log.info("Migrando imagen relación {} a {}:{}", idImagenRelacion, nuevaEntidadTipo, nuevaEntidadId);
         
         try {
             imagenService.migrarImagenEntreEntidades(idImagenRelacion, nuevaEntidadTipo, nuevaEntidadId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error migrando imagen: {}", e.getMessage());
+            log.error("Error migrando imagen: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -272,13 +272,13 @@ public class ImagenController {
     @Operation(summary = "Limpiar imágenes no utilizadas", description = "Elimina imágenes que no están siendo utilizadas por ninguna entidad")
     @PostMapping("/limpiar/no-utilizadas")
     public ResponseEntity<Void> limpiarImagenesNoUtilizadas() {
-        log.info("🧹 Limpiando imágenes no utilizadas");
+        log.info("Limpiando imágenes no utilizadas");
         
         try {
             imagenService.limpiarImagenesNoUtilizadas();
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error limpiando imágenes: {}", e.getMessage());
+            log.error("Error limpiando imágenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -286,13 +286,13 @@ public class ImagenController {
     @Operation(summary = "Obtener estadísticas de uso", description = "Obtiene estadísticas sobre el uso de imágenes en el sistema")
     @GetMapping("/estadisticas")
     public ResponseEntity<Long> obtenerEstadisticasUsoImagenes() {
-        log.info("📊 Obteniendo estadísticas de uso de imágenes");
+        log.info("Obteniendo estadísticas de uso de imágenes");
         
         try {
             Long estadisticas = imagenService.obtenerEstadisticasUsoImagenes();
             return ResponseEntity.ok(estadisticas);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo estadísticas: {}", e.getMessage());
+            log.error("Error obteniendo estadísticas: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -300,13 +300,13 @@ public class ImagenController {
     @Operation(summary = "Obtener imágenes con problemas", description = "Encuentra imágenes que tienen problemas (archivos faltantes, etc.)")
     @GetMapping("/problemas")
     public ResponseEntity<List<ImagenDTO>> obtenerImagenesConProblemas() {
-        log.info("🔧 Buscando imágenes con problemas");
+        log.info("Buscando imágenes con problemas");
         
         try {
             List<ImagenDTO> imagenesConProblemas = imagenService.obtenerImagenesConProblemas();
             return ResponseEntity.ok(imagenesConProblemas);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo imágenes con problemas: {}", e.getMessage());
+            log.error("Error obteniendo imágenes con problemas: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -317,14 +317,14 @@ public class ImagenController {
             @Parameter(description = "Archivo a validar") 
             @RequestParam("archivo") MultipartFile archivo) {
         
-        log.info("✅ Validando archivo: {}", archivo.getOriginalFilename());
+        log.info("Validando archivo: {}", archivo.getOriginalFilename());
         
         try {
             boolean esValido = imagenService.validarTipoArchivo(archivo) && 
                              imagenService.validarTamanioArchivo(archivo);
             return ResponseEntity.ok(esValido);
         } catch (Exception e) {
-            log.error("❌ Error validando archivo: {}", e.getMessage());
+            log.error("Error validando archivo: {}", e.getMessage());
             return ResponseEntity.ok(false);
         }
     }

@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
     
-    // ✅ Métodos existentes (los mantienes)
+    // Métodos existentes (los mantienes)
     Optional<Disciplina> findByIdDisciplinaAndEstadoTrue(Long idDisciplina);
     List<Disciplina> findByEstadoTrue();
     boolean existsByNombreAndEstadoTrue(String nombre);
@@ -21,7 +21,7 @@ public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
     @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM Disciplina d WHERE d.nombre = :nombre AND d.idDisciplina != :idDisciplina AND d.estado = true")
     boolean existsByNombreAndIdDisciplinaNotAndEstadoTrue(@Param("nombre") String nombre, @Param("idDisciplina") Long idDisciplina);
     
-    // ✅ Nuevos métodos útiles
+    // Nuevos métodos útiles
     Optional<Disciplina> findByNombre(String nombre);
     List<Disciplina> findByNombreContainingIgnoreCase(String nombre);
     List<Disciplina> findByEstado(Boolean estado);
@@ -32,6 +32,6 @@ public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
     
     long countByEstadoTrue();
     List<Disciplina> findByFechaCreacionAfterAndEstadoTrue(LocalDateTime fecha);
-    //REVISAR SI FUNCIONA
+    //REVISAR SI FUNCIONAa
     List<Disciplina>findByEstadoTrueOrderByFechaCreacionDesc();
 }

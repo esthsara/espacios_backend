@@ -33,7 +33,7 @@ public interface FileStorageService {
     boolean validarTamanioArchivo(MultipartFile archivo, long tamanioMaximo);
     String obtenerExtension(String nombreArchivo);
     
-    // OPERACIONES DE INFORMACIÓN
+    // OPERACIONES DE INFORMACIÓN 
     void mostrarEstadisticasAlmacenamiento();
     String obtenerRutaAbsoluta(String rutaRelativa);
     boolean crearDirectorioSiNoExiste(String directorio);

@@ -26,12 +26,12 @@ public class DisciplinaDTO implements Serializable {
 
     private Boolean estado;
     
-    // ✅ Para RESPUESTA - imágenes ya procesadas
+    // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
     
-    // ✅ Para CREACIÓN/ACTUALIZACIÓN - ignorado en JSON
+    // Para CREACIÓN/ACTUALIZACIÓN - ignorado en JSON
     @JsonIgnore
     private transient List<MultipartFile> archivosImagenes;
     
@@ -39,7 +39,7 @@ public class DisciplinaDTO implements Serializable {
     public boolean tieneArchivosParaProcesar() {
         return archivosImagenes != null && !archivosImagenes.isEmpty();
     }
-    
+    //
     public boolean esValidoParaCreacion() {
         return nombre != null && !nombre.trim().isEmpty();
     }

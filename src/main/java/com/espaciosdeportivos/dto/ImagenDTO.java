@@ -51,8 +51,6 @@ public class ImagenDTO implements Serializable {
 
     private LocalDateTime fechaActualizacion;
 
-    // Campos para creación/actualización (NO deberían estar aquí - ver explicación abajo)
-    // private List<MultipartFile> archivosImagenes;
 
     // Constructores para flexibilidad
     public ImagenDTO() {
@@ -96,7 +94,7 @@ public class ImagenDTO implements Serializable {
         }
     }
     
-    /*cOMPLETAR */
+    /*COMPLETAR */
     public void setProblema(String string) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setProblema'");

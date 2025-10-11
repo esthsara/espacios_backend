@@ -35,7 +35,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         
         try {
             Files.createDirectories(this.baseStorageLocation);
-            System.out.println("✅ Directorio base creado en: " + this.baseStorageLocation);
+            System.out.println("Directorio base creado en: " + this.baseStorageLocation);
         } catch (Exception ex) {
             throw new RuntimeException("No se pudo crear el directorio base para almacenar archivos", ex);
         }
@@ -52,12 +52,12 @@ public class FileStorageServiceImpl implements FileStorageService {
             
             // Limpiar y normalizar la subcarpeta
             String subcarpetaLimpia = subcarpeta.replaceAll("\\s+", "").toLowerCase();
-            System.out.println("📁 Subcarpeta limpia: " + subcarpetaLimpia);
+            System.out.println("Subcarpeta limpia: " + subcarpetaLimpia);
             
             // Crear subcarpeta específica
             Path subcarpetaPath = this.baseStorageLocation.resolve(subcarpetaLimpia);
             Files.createDirectories(subcarpetaPath);
-            System.out.println("✅ Subcarpeta creada en: " + subcarpetaPath);
+            System.out.println("Subcarpeta creada en: " + subcarpetaPath);
             
             // Generar nombre único
             String extension = "";
@@ -69,7 +69,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path targetLocation = subcarpetaPath.resolve(nombreArchivo);
             Files.copy(archivo.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             
-            System.out.println("💾 Archivo guardado en: " + targetLocation);
+            System.out.println("Archivo guardado en: " + targetLocation);
             
             // Retornar ruta relativa: subcarpeta/nombreArchivo
             return subcarpetaLimpia + "/" + nombreArchivo;
@@ -86,7 +86,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Resource resource = new UrlResource(filePath.toUri());
             
             if (resource.exists()) {
-                System.out.println("📥 Archivo cargado: " + rutaArchivo);
+                System.out.println("Archivo cargado: " + rutaArchivo);
                 return resource;
             } else {
                 throw new RuntimeException("Archivo no encontrado: " + rutaArchivo);
@@ -103,12 +103,12 @@ public class FileStorageServiceImpl implements FileStorageService {
             boolean eliminado = Files.deleteIfExists(filePath);
             
             if (eliminado) {
-                System.out.println("🗑️ Archivo eliminado: " + rutaArchivo);
+                System.out.println("Archivo eliminado: " + rutaArchivo);
                 
                 // Opcional: eliminar subcarpeta si está vacía
                 eliminarSubcarpetaSiVacia(filePath.getParent());
             } else {
-                System.out.println("⚠️ Archivo no existía: " + rutaArchivo);
+                System.out.println("Archivo no existía: " + rutaArchivo);
             }
             
         } catch (IOException ex) {
@@ -121,7 +121,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         // Limpiar espacios y convertir a minúsculas
         String entidadLimpia = entidadTipo.replaceAll("\\s+", "").toLowerCase();
         String subcarpeta = fileStorageProperties.getBaseImgDir() + "/" + entidadLimpia;
-        System.out.println("🔧 Subcarpeta generada para '" + entidadTipo + "': '" + subcarpeta + "'");
+        System.out.println("Subcarpeta generada para '" + entidadTipo + "': '" + subcarpeta + "'");
         return subcarpeta;
     }
     
@@ -131,7 +131,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     public boolean existeArchivo(String rutaArchivo) {
         Path filePath = this.baseStorageLocation.resolve(rutaArchivo).normalize();
         boolean existe = Files.exists(filePath);
-        System.out.println("🔍 Archivo " + rutaArchivo + " existe: " + existe);
+        System.out.println("Archivo " + rutaArchivo + " existe: " + existe);
         return existe;
     }
     
@@ -140,7 +140,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             Path filePath = this.baseStorageLocation.resolve(rutaArchivo).normalize();
             long tamanio = Files.size(filePath);
-            System.out.println("📏 Tamaño de " + rutaArchivo + ": " + tamanio + " bytes");
+            System.out.println("Tamaño de " + rutaArchivo + ": " + tamanio + " bytes");
             return tamanio;
         } catch (IOException e) {
             throw new RuntimeException("Error obteniendo tamaño del archivo: " + rutaArchivo, e);
@@ -171,7 +171,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                !rutaArchivo.contains("..") && 
                Files.exists(filePath);
         
-        System.out.println("🔒 Ruta " + rutaArchivo + " válida: " + esValida);
+        System.out.println("Ruta " + rutaArchivo + " válida: " + esValida);
         return esValida;
     }
     
@@ -179,7 +179,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     public void limpiarArchivosTemporales() {
         try {
             // Ejemplo: eliminar archivos temporales antiguos
-            System.out.println("🧹 Limpieza de archivos temporales iniciada");
+            System.out.println("Limpieza de archivos temporales iniciada");
             // Implementación específica según necesidades
         } catch (Exception e) {
             System.err.println("Error en limpieza de temporales: " + e.getMessage());
@@ -232,7 +232,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path destinoPath = this.baseStorageLocation.resolve(rutaDestino).normalize();
             
             Files.copy(origenPath, destinoPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("📋 Archivo copiado: " + rutaOrigen + " → " + rutaDestino);
+            System.out.println("Archivo copiado: " + rutaOrigen + " → " + rutaDestino);
             return true;
         } catch (IOException e) {
             System.err.println("Error copiando archivo: " + e.getMessage());
@@ -247,7 +247,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path destinoPath = this.baseStorageLocation.resolve(rutaDestino).normalize();
             
             Files.move(origenPath, destinoPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("🚚 Archivo movido: " + rutaOrigen + " → " + rutaDestino);
+            System.out.println("Archivo movido: " + rutaOrigen + " → " + rutaDestino);
             return true;
         } catch (IOException e) {
             System.err.println("Error moviendo archivo: " + e.getMessage());
@@ -303,7 +303,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 .filter(Files::isRegularFile)
                 .count();
             
-            System.out.println("📊 Estadísticas de almacenamiento:");
+            System.out.println("Estadísticas de almacenamiento:");
             System.out.println("   - Total archivos: " + fileCount);
             System.out.println("   - Espacio utilizado: " + (totalSize / (1024 * 1024)) + " MB");
             System.out.println("   - Directorio base: " + this.baseStorageLocation);
@@ -325,7 +325,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path dirPath = this.baseStorageLocation.resolve(directorio).normalize();
             if (!Files.exists(dirPath)) {
                 Files.createDirectories(dirPath);
-                System.out.println("📁 Directorio creado: " + dirPath);
+                System.out.println("Directorio creado: " + dirPath);
                 return true;
             }
             return true;
@@ -342,11 +342,11 @@ public class FileStorageServiceImpl implements FileStorageService {
             if (Files.isDirectory(subcarpetaPath) && 
                 !Files.list(subcarpetaPath).findAny().isPresent()) {
                 Files.delete(subcarpetaPath);
-                System.out.println("🗑️ Subcarpeta vacía eliminada: " + subcarpetaPath);
+                System.out.println("Subcarpeta vacía eliminada: " + subcarpetaPath);
             }
         } catch (IOException e) {
             // No es crítico si no se puede eliminar la subcarpeta
-            System.err.println("⚠️ No se pudo eliminar subcarpeta vacía: " + e.getMessage());
+            System.err.println("No se pudo eliminar subcarpeta vacía: " + e.getMessage());
         }
     }
 }

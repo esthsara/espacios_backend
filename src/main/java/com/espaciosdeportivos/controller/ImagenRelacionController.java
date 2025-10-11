@@ -27,13 +27,13 @@ public class ImagenRelacionController {
     public ResponseEntity<ImagenRelacionDTO> crearRelacion(
             @RequestBody ImagenRelacionDTO relacionDTO) {
         
-        log.info("➕ Creando nueva relación de imagen");
+        log.info(" nueva relación de imagen");
         
         try {
             ImagenRelacionDTO relacionCreada = imagenRelacionService.crearRelacion(relacionDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(relacionCreada);
         } catch (Exception e) {
-            log.error("❌ Error creando relación: {}", e.getMessage());
+            log.error("Error creando relación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -44,13 +44,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la relación de imagen") 
             @PathVariable Long idImagenRelacion) {
         
-        log.info("📥 Obteniendo relación por ID: {}", idImagenRelacion);
+        log.info("Obteniendo relación por ID: {}", idImagenRelacion);
         
         try {
             ImagenRelacionDTO relacion = imagenRelacionService.obtenerRelacionPorId(idImagenRelacion);
             return ResponseEntity.ok(relacion);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo relación: {}", e.getMessage());
+            log.error("Error obteniendo relación: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -63,13 +63,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la entidad") 
             @PathVariable Long entidadId) {
         
-        log.info("📥 Obteniendo relaciones para entidad {}:{}", entidadTipo, entidadId);
+        log.info("Obteniendo relaciones para entidad {}:{}", entidadTipo, entidadId);
         
         try {
             List<ImagenRelacionDTO> relaciones = imagenRelacionService.obtenerRelacionesPorEntidad(entidadTipo, entidadId);
             return ResponseEntity.ok(relaciones);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo relaciones: {}", e.getMessage());
+            log.error("Error obteniendo relaciones: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -82,13 +82,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la entidad") 
             @PathVariable Long entidadId) {
         
-        log.info("📥 Obteniendo relaciones activas para entidad {}:{}", entidadTipo, entidadId);
+        log.info("Obteniendo relaciones activas para entidad {}:{}", entidadTipo, entidadId);
         
         try {
             List<ImagenRelacionDTO> relaciones = imagenRelacionService.obtenerRelacionesActivasPorEntidad(entidadTipo, entidadId);
             return ResponseEntity.ok(relaciones);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo relaciones activas: {}", e.getMessage());
+            log.error("Error obteniendo relaciones activas: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -100,13 +100,13 @@ public class ImagenRelacionController {
             @PathVariable Long idImagenRelacion,
             @RequestBody ImagenRelacionDTO relacionDTO) {
         
-        log.info("✏️ Actualizando relación ID: {}", idImagenRelacion);
+        log.info("Actualizando relación ID: {}", idImagenRelacion);
         
         try {
             ImagenRelacionDTO relacionActualizada = imagenRelacionService.actualizarRelacion(idImagenRelacion, relacionDTO);
             return ResponseEntity.ok(relacionActualizada);
         } catch (Exception e) {
-            log.error("❌ Error actualizando relación: {}", e.getMessage());
+            log.error("Error actualizando relación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -119,13 +119,13 @@ public class ImagenRelacionController {
             @Parameter(description = "Nuevo orden") 
             @RequestParam Integer nuevoOrden) {
         
-        log.info("🔄 Actualizando orden de relación {} a {}", idImagenRelacion, nuevoOrden);
+        log.info("Actualizando orden de relación {} a {}", idImagenRelacion, nuevoOrden);
         
         try {
             ImagenRelacionDTO relacionActualizada = imagenRelacionService.actualizarOrdenRelacion(idImagenRelacion, nuevoOrden);
             return ResponseEntity.ok(relacionActualizada);
         } catch (Exception e) {
-            log.error("❌ Error actualizando orden: {}", e.getMessage());
+            log.error("Error actualizando orden: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -140,13 +140,13 @@ public class ImagenRelacionController {
             @Parameter(description = "Lista de IDs de relaciones en el nuevo orden") 
             @RequestBody List<Long> idsEnOrden) {
         
-        log.info("🔄 Reordenando relaciones para entidad {}:{}", entidadTipo, entidadId);
+        log.info("Reordenando relaciones para entidad {}:{}", entidadTipo, entidadId);
         
         try {
             imagenRelacionService.reordenarRelaciones(entidadTipo, entidadId, idsEnOrden);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error reordenando relaciones: {}", e.getMessage());
+            log.error("Error reordenando relaciones: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -159,13 +159,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la segunda relación") 
             @RequestParam Long idImagenRelacion2) {
         
-        log.info("🔄 Intercambiando posiciones de relaciones {} y {}", idImagenRelacion1, idImagenRelacion2);
+        log.info("Intercambiando posiciones de relaciones {} y {}", idImagenRelacion1, idImagenRelacion2);
         
         try {
             imagenRelacionService.intercambiarPosiciones(idImagenRelacion1, idImagenRelacion2);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error intercambiando posiciones: {}", e.getMessage());
+            log.error("Error intercambiando posiciones: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -176,13 +176,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la relación de imagen") 
             @PathVariable Long idImagenRelacion) {
         
-        log.info("🗑️ Eliminando lógicamente relación: {}", idImagenRelacion);
+        log.info("Eliminando lógicamente relación: {}", idImagenRelacion);
         
         try {
             imagenRelacionService.eliminarRelacionLogicamente(idImagenRelacion);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error eliminando relación: {}", e.getMessage());
+            log.error("Error eliminando relación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -199,7 +199,7 @@ public class ImagenRelacionController {
             imagenRelacionService.eliminarRelacionFisicamente(idImagenRelacion);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error eliminando relación: {}", e.getMessage());
+            log.error("Error eliminando relación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -214,13 +214,13 @@ public class ImagenRelacionController {
             @Parameter(description = "Nuevo ID de entidad") 
             @RequestParam Long nuevaEntidadId) {
         
-        log.info("🚚 Migrando relación {} a {}:{}", idImagenRelacion, nuevaEntidadTipo, nuevaEntidadId);
+        log.info("Migrando relación {} a {}:{}", idImagenRelacion, nuevaEntidadTipo, nuevaEntidadId);
         
         try {
             ImagenRelacionDTO relacionMigrada = imagenRelacionService.migrarRelacion(idImagenRelacion, nuevaEntidadTipo, nuevaEntidadId);
             return ResponseEntity.ok(relacionMigrada);
         } catch (Exception e) {
-            log.error("❌ Error migrando relación: {}", e.getMessage());
+            log.error("Error migrando relación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -237,14 +237,14 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de entidad destino") 
             @RequestParam Long entidadIdDestino) {
         
-        log.info("🚚 Transferiendo relaciones de {}:{} a {}:{}", 
+        log.info("Transferiendo relaciones de {}:{} a {}:{}", 
                 entidadTipoOrigen, entidadIdOrigen, entidadTipoDestino, entidadIdDestino);
         
         try {
             imagenRelacionService.transferirTodasLasRelaciones(entidadTipoOrigen, entidadIdOrigen, entidadTipoDestino, entidadIdDestino);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error transfiriendo relaciones: {}", e.getMessage());
+            log.error("Error transfiriendo relaciones: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -261,14 +261,14 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de entidad destino") 
             @RequestParam Long entidadIdDestino) {
         
-        log.info("🐑 Clonando relaciones de {}:{} a {}:{}", 
+        log.info("Clonando relaciones de {}:{} a {}:{}", 
                 entidadTipoOrigen, entidadIdOrigen, entidadTipoDestino, entidadIdDestino);
         
         try {
             imagenRelacionService.clonarRelaciones(entidadTipoOrigen, entidadIdOrigen, entidadTipoDestino, entidadIdDestino);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error clonando relaciones: {}", e.getMessage());
+            log.error("Error clonando relaciones: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -276,13 +276,13 @@ public class ImagenRelacionController {
     @Operation(summary = "Obtener estadísticas por tipo de entidad", description = "Obtiene estadísticas de uso de imágenes por tipo de entidad")
     @GetMapping("/estadisticas/tipo-entidad")
     public ResponseEntity<List<Object[]>> obtenerEstadisticasPorTipoEntidad() {
-        log.info("📊 Obteniendo estadísticas por tipo de entidad");
+        log.info("Obteniendo estadísticas por tipo de entidad");
         
         try {
             List<Object[]> estadisticas = imagenRelacionService.obtenerEstadisticasPorTipoEntidad();
             return ResponseEntity.ok(estadisticas);
         } catch (Exception e) {
-            log.error("❌ Error obteniendo estadísticas: {}", e.getMessage());
+            log.error("Error obteniendo estadísticas: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -296,7 +296,7 @@ public class ImagenRelacionController {
             List<ImagenRelacionDTO> duplicados = imagenRelacionService.encontrarRelacionesDuplicadas();
             return ResponseEntity.ok(duplicados);
         } catch (Exception e) {
-            log.error("❌ Error buscando duplicados: {}", e.getMessage());
+            log.error("Error buscando duplicados: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -310,7 +310,7 @@ public class ImagenRelacionController {
             List<String> problemas = imagenRelacionService.validarIntegridadRelaciones();
             return ResponseEntity.ok(problemas);
         } catch (Exception e) {
-            log.error("❌ Error validando integridad: {}", e.getMessage());
+            log.error("Error validando integridad: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -318,13 +318,13 @@ public class ImagenRelacionController {
     @Operation(summary = "Limpiar relaciones inactivas", description = "Elimina relaciones que están marcadas como inactivas")
     @PostMapping("/limpiar/inactivas")
     public ResponseEntity<Void> limpiarRelacionesInactivas() {
-        log.info("🧹 Limpiando relaciones inactivas");
+        log.info("Limpiando relaciones inactivas");
         
         try {
             imagenRelacionService.limpiarRelacionesInactivas();
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error limpiando relaciones: {}", e.getMessage());
+            log.error("Error limpiando relaciones: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -337,13 +337,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la entidad") 
             @PathVariable Long entidadId) {
         
-        log.info("🔢 Reindexando órdenes para entidad {}:{}", entidadTipo, entidadId);
+        log.info("Reindexando órdenes para entidad {}:{}", entidadTipo, entidadId);
         
         try {
             imagenRelacionService.reindexarOrdenes(entidadTipo, entidadId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("❌ Error reindexando órdenes: {}", e.getMessage());
+            log.error("Error reindexando órdenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -360,7 +360,7 @@ public class ImagenRelacionController {
             boolean enUso = imagenRelacionService.estaImagenEnUso(idImagen);
             return ResponseEntity.ok(enUso);
         } catch (Exception e) {
-            log.error("❌ Error verificando uso: {}", e.getMessage());
+            log.error("Error verificando uso: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -371,13 +371,13 @@ public class ImagenRelacionController {
             @Parameter(description = "ID de la imagen") 
             @PathVariable Long idImagen) {
         
-        log.info("🔢 Contando entidades que usan imagen: {}", idImagen);
+        log.info("Contando entidades que usan imagen: {}", idImagen);
         
         try {
             int count = imagenRelacionService.contarEntidadesQueUsanImagen(idImagen);
             return ResponseEntity.ok(count);
         } catch (Exception e) {
-            log.error("❌ Error contando entidades: {}", e.getMessage());
+            log.error("Error contando entidades: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

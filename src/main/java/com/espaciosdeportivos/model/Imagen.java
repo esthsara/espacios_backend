@@ -51,7 +51,7 @@ public class Imagen {
     public Imagen() {
         this.estado = true;
     }
-
+    //
     // Constructor útil para testing
     public Imagen(String nombreArchivo, String rutaAlmacenamiento, String tipoMime, Long tamanioBytes) {
         this.nombreArchivo = nombreArchivo;

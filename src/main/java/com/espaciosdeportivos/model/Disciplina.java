@@ -32,6 +32,7 @@ public class Disciplina {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
+    //
     //RELACIONES 
     //J
     //Relación con Cancha (a través de la tabla intermedia se_practica)

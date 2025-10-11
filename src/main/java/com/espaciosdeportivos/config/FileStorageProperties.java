@@ -13,3 +13,4 @@ public class FileStorageProperties {
     private long maxFileSize = 5242880;
     private String[] allowedExtensions = {"jpg", "jpeg", "png", "gif"};
 }
+//

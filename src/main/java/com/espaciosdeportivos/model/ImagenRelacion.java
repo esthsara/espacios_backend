@@ -49,7 +49,7 @@ public class ImagenRelacion {
     @CreationTimestamp
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
-
+    //
     // Constructor sin argumentos
     public ImagenRelacion() {
         this.estado = true;
