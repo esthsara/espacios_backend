@@ -68,7 +68,7 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setApellidoPaterno(dto.getAPaterno());
         cliente.setApellidoMaterno(dto.getAMaterno());
         cliente.setFechaNacimiento(dto.getFechaNacimiento());
-        cliente.setTelefono(dto.getTelefono()); 
+        cliente.setTelefono(dto.getTelefono());
         cliente.setEmail(dto.getEmail());
         cliente.setUrlImagen(dto.getUrlImagen());
         cliente.setEstado(dto.getEstado());
@@ -82,7 +82,7 @@ public class ClienteServiceImpl implements ClienteService {
     public void eliminarCliente(Long id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-        cliente.setEstado(false); // eliminación lógica
+        cliente.setEstado(false);
         clienteRepository.save(cliente);
     }
 
@@ -97,7 +97,6 @@ public class ClienteServiceImpl implements ClienteService {
         return mapToDTO(cliente);
     }
 
-
     // --- Métodos privados de mapeo ---
     private ClienteDTO mapToDTO(Cliente c) {
         return ClienteDTO.builder()
@@ -106,7 +105,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .aPaterno(c.getApellidoPaterno())
                 .aMaterno(c.getApellidoMaterno())
                 .fechaNacimiento(c.getFechaNacimiento())
-                .telefono(c.getTelefono()) 
+                .telefono(c.getTelefono())
                 .email(c.getEmail())
                 .urlImagen(c.getUrlImagen())
                 .estado(c.getEstado())
@@ -121,7 +120,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .apellidoPaterno(d.getAPaterno())
                 .apellidoMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
-                .telefono(d.getTelefono()) 
+                .telefono(d.getTelefono())
                 .email(d.getEmail())
                 .urlImagen(d.getUrlImagen())
                 .estado(d.getEstado())

@@ -2,13 +2,7 @@ package com.espaciosdeportivos.dto;
 
 import lombok.*;
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 
 @Getter
@@ -27,7 +21,6 @@ public class ClienteDTO implements Serializable {
     @NotBlank(message = "El apellido paterno es obligatorio.")
     @Size(max = 100, message = "El apellido paterno no puede exceder los 100 caracteres.")
     private String aPaterno;
-
 
     @NotBlank(message = "El apellido materno es obligatorio.")
     @Size(max = 100, message = "El apellido materno no puede exceder los 100 caracteres.")
@@ -52,7 +45,7 @@ public class ClienteDTO implements Serializable {
     @NotNull(message = "El estado es obligatorio.")
     private Boolean estado;
 
-    @NotBlank(message = "La categoria es muy necesaria")
-    @Size(max = 50, message = "La categoria del cliente no puede exceder los 50 caracteres.")
+    @NotBlank(message = "La categoría es obligatoria.")
+    @Size(max = 100, message = "La categoría no puede exceder los 100 caracteres.")
     private String categoria;
 }

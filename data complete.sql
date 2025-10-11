@@ -148,12 +148,12 @@ VALUES
 
 
 -- Tabla CLIENTE (relación 1:1 con PERSONA)
-INSERT INTO public.cliente (id_persona, estado_cliente) VALUES
-(6, 'Activo'),
-(7, 'Activo'),
-(8, 'Activo'),
-(9, 'Activo'),
-(10, 'Inactivo');
+INSERT INTO public.cliente (id_persona, categoria) VALUES
+(6, 'Nuevo'),
+(7, 'Frecuente'),
+(8, 'Antiguo'),
+(9, 'Nuevo'),
+(10, 'Frecuente');
 
 
 
