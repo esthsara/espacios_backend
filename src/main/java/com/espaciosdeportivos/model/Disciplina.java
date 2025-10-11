@@ -1,68 +1,44 @@
-/*package com.espaciosdeportivos.model;
-
+package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.List;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "disciplina")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class Disciplina {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_disciplina")
     private Long idDisciplina;
-
-    @Column(nullable = false)
-    private String nombre;
-
-    @Column
-    private String descripcion;
-
-    @Column(nullable = false)
-    private Boolean estado;
-
-    // Una disciplina puede tener muchas imágenes
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Imagen> imagenes;
-
     
-}
-*/
-// model/Disciplina.java
-package com.espaciosdeportivos.model;
-
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-@Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
-@Table(name = "disciplinas")
-public class Disciplina {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, unique = true)
     private String nombre;
-
-    @Column(length = 200)
+    
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
+    
+    @Column(name = "estado")
+    private Boolean estado = true;
+    
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+    
+    @UpdateTimestamp
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
 
-    @Builder.Default
-    private Boolean estado = true; // true = activo, false = eliminado
-
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Imagen> imagenes = new ArrayList<>();
+    //RELACIONES 
+    //J
+    //Relación con Cancha (a través de la tabla intermedia se_practica)
+    //@OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private List<sepractica> canchas;
+    //J
+    // Relación con Reserva (a través de la tabla intermedia incluye)
+    //@OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private List<incluye> reservas;
 }

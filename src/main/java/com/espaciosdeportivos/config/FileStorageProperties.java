@@ -1,20 +1,15 @@
 package com.espaciosdeportivos.config;
 
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import lombok.Data;
 
-@Configuration
+@Component
 @ConfigurationProperties(prefix = "file")
+@Data
 public class FileStorageProperties {
-
-    private String uploadDir;
-
-    public String getUploadDir() {
-        return uploadDir;
-    }
-
-    public void setUploadDir(String uploadDir) {
-        this.uploadDir = uploadDir;
-    }
+    private String uploadDir = "uploads";
+    private String baseImgDir = "img"; // Sin espacios
+    private long maxFileSize = 5242880;
+    private String[] allowedExtensions = {"jpg", "jpeg", "png", "gif"};
 }

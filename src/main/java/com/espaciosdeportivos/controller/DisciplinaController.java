@@ -1,100 +1,202 @@
 package com.espaciosdeportivos.controller;
 
-import com.espaciosdeportivos.dto.DisciplinaCreateDTO;
 import com.espaciosdeportivos.dto.DisciplinaDTO;
-import com.espaciosdeportivos.dto.ImagenDTO;
 import com.espaciosdeportivos.service.IDisciplinaService;
-import com.espaciosdeportivos.service.IImagenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/disciplinas")
 @RequiredArgsConstructor
 public class DisciplinaController {
-
+    
     private final IDisciplinaService disciplinaService;
-    private final IImagenService imagenService;
-
-    // -----------------------------
-    // Listar todas las disciplinas
-    // -----------------------------
-    @GetMapping
-    public List<DisciplinaDTO> listar() {
-        return disciplinaService.listarTodas();
-    }
-
-    // -----------------------------
-    // Obtener disciplina por ID
-    // -----------------------------
-    @GetMapping("/{id}")
-    public DisciplinaDTO obtener(@PathVariable Long id) {
-        return disciplinaService.obtenerPorId(id);
-    }
-
-    // -----------------------------
-    // Crear nueva disciplina
-    // -----------------------------
-    @PostMapping
-    public DisciplinaDTO crear(@Valid @RequestBody DisciplinaDTO dto) {
-        return disciplinaService.crearDisciplina(dto);
-    }
-
-    // -----------------------------
-    // Crear disciplina + imágenes
-    // -----------------------------
-    @PostMapping("/crear-con-imagenes")
-    @Transactional
-    public DisciplinaDTO crearConImagenes(@ModelAttribute DisciplinaCreateDTO dto) throws Exception {
-        // 1️⃣ Convertir DisciplinaCreateDTO a DisciplinaDTO
-        DisciplinaDTO dtoBase = new DisciplinaDTO();
-        dtoBase.setNombre(dto.getNombre());
-        dtoBase.setDescripcion(dto.getDescripcion());
-        dtoBase.setEstado(true);
-
-        // 2️⃣ Crear disciplina
-        DisciplinaDTO disciplina = disciplinaService.crearDisciplina(dtoBase);
-
-        // 3️⃣ Subir imágenes si existen
-        if (dto.getImagenes() != null && !dto.getImagenes().isEmpty()) {
-            for (var file : dto.getImagenes()) {
-                imagenService.guardarImagen(file, disciplina.getId());
-            }
+    
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DisciplinaDTO> crearDisciplina(
+            @Valid @ModelAttribute DisciplinaDTO disciplinaDTO) {
+        log.info("🎯 POST /api/disciplinas - Creando disciplina: {}", disciplinaDTO.getNombre());
+        
+        try {
+            DisciplinaDTO response = disciplinaService.crearDisciplina(disciplinaDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("❌ Error creando disciplina: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
-
-        // 4️⃣ Listar imágenes y agregarlas al DTO
-        List<ImagenDTO> imagenes = imagenService.listarImagenesPorDisciplina(disciplina.getId());
-        disciplina.setImagenes(imagenes);
-
-        return disciplina;
+    }
+    
+    @GetMapping("/{idDisciplina}")
+    public ResponseEntity<DisciplinaDTO> obtenerDisciplina(@PathVariable Long idDisciplina) {
+        log.info("🎯 GET /api/disciplinas/{}", idDisciplina);
+        
+        try {
+            DisciplinaDTO response = disciplinaService.obtenerDisciplinaPorId(idDisciplina);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("❌ Error obteniendo disciplina: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<DisciplinaDTO>> obtenerTodasLasDisciplinas() {
+        log.info("🎯 GET /api/disciplinas");
+        
+        try {
+            List<DisciplinaDTO> response = disciplinaService.obtenerTodasLasDisciplinas();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("❌ Error obteniendo disciplinas: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @PutMapping(value = "/{idDisciplina}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DisciplinaDTO> actualizarDisciplina(
+            @PathVariable Long idDisciplina,
+            @Valid @ModelAttribute DisciplinaDTO disciplinaDTO) {
+        log.info("🎯 PUT /api/disciplinas/{}", idDisciplina);
+        
+        try {
+            DisciplinaDTO response = disciplinaService.actualizarDisciplina(idDisciplina, disciplinaDTO);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("❌ Error actualizando disciplina: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PutMapping("/{idDisciplina}/eliminar-logico")
+    public ResponseEntity<Void> eliminarLogico(@PathVariable Long idDisciplina) {
+        log.info("🎯 PUT /api/disciplinas/{}/eliminar-logico", idDisciplina);
+        
+        try {
+            disciplinaService.eliminarDisciplinaLogicamente(idDisciplina);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("❌ Error eliminando lógicamente disciplina: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @DeleteMapping("/{idDisciplina}")
+    public ResponseEntity<Void> eliminarFisico(@PathVariable Long idDisciplina) {
+        log.info("🎯 DELETE /api/disciplinas/{}", idDisciplina);
+        
+        try {
+            disciplinaService.eliminarDisciplinaFisicamente(idDisciplina);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("❌ Error eliminando físicamente disciplina: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // -----------------------------
-    // Actualizar disciplina
-    // -----------------------------
-    @PutMapping("/{id}")
-    public DisciplinaDTO actualizar(@PathVariable Long id, @Valid @RequestBody DisciplinaDTO dto) {
-        return disciplinaService.actualizarDisciplina(id, dto);
+
+    //---------------NUEVOS -----------------
+    // 🆕 BÚSQUEDA Y FILTROS
+    @GetMapping("/buscar/nombre")
+    public ResponseEntity<List<DisciplinaDTO>> buscarPorNombre(@RequestParam String nombre) {
+        log.info("🎯 GET /api/disciplinas/buscar/nombre?nombre={}", nombre);
+        List<DisciplinaDTO> response = disciplinaService.buscarPorNombre(nombre);
+        return ResponseEntity.ok(response);
     }
 
-    // -----------------------------
-    // Eliminar disciplina (lógica)
-    // -----------------------------
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        disciplinaService.eliminarDisciplina(id);
+    @GetMapping("/buscar/descripcion")
+    public ResponseEntity<List<DisciplinaDTO>> buscarPorDescripcion(@RequestParam String descripcion) {
+        log.info("🎯 GET /api/disciplinas/buscar/descripcion?descripcion={}", descripcion);
+        List<DisciplinaDTO> response = disciplinaService.buscarPorDescripcion(descripcion);
+        return ResponseEntity.ok(response);
     }
 
-    // -----------------------------
-    // Buscar disciplinas por nombre
-    // -----------------------------
-    // Ej: http://localhost:8032/api/disciplinas/buscar?nombre=Volleyball
-    /*@GetMapping("/buscar")
-    public List<DisciplinaDTO> buscarPorNombre(@RequestParam String nombre) {
-        return disciplinaService.buscarPorNombre(nombre);
-    }*/
+    @GetMapping("/inactivas")
+    public ResponseEntity<List<DisciplinaDTO>> obtenerInactivas() {
+        log.info("🎯 GET /api/disciplinas/inactivas");
+        List<DisciplinaDTO> response = disciplinaService.obtenerDisciplinasInactivas();
+        return ResponseEntity.ok(response);
+    }
+
+    // 🆕 GESTIÓN DE ESTADO
+    @PutMapping("/{idDisciplina}/activar")
+    public ResponseEntity<DisciplinaDTO> activarDisciplina(@PathVariable Long idDisciplina) {
+        log.info("🎯 PUT /api/disciplinas/{}/activar", idDisciplina);
+        DisciplinaDTO response = disciplinaService.activarDisciplina(idDisciplina);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/desactivar-masivo")
+    public ResponseEntity<Void> desactivarMasivo(@RequestBody List<Long> idsDisciplinas) {
+        log.info("🎯 PUT /api/disciplinas/desactivar-masivo - {} disciplinas", idsDisciplinas.size());
+        disciplinaService.desactivarMasivo(idsDisciplinas);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 🆕 GESTIÓN DE IMÁGENES ESPECÍFICA
+    @PostMapping(value = "/{idDisciplina}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DisciplinaDTO> agregarImagenes(
+            @PathVariable Long idDisciplina,
+            @RequestParam List<MultipartFile> archivosImagenes) {
+        log.info("🎯 POST /api/disciplinas/{}/imagenes - {} archivos", idDisciplina, archivosImagenes.size());
+        DisciplinaDTO response = disciplinaService.agregarImagenes(idDisciplina, archivosImagenes);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{idDisciplina}/imagenes/{idImagenRelacion}")
+    public ResponseEntity<DisciplinaDTO> eliminarImagen(
+            @PathVariable Long idDisciplina,
+            @PathVariable Long idImagenRelacion) {
+        log.info("🎯 DELETE /api/disciplinas/{}/imagenes/{}", idDisciplina, idImagenRelacion);
+        DisciplinaDTO response = disciplinaService.eliminarImagen(idDisciplina, idImagenRelacion);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{idDisciplina}/imagenes/reordenar")
+    public ResponseEntity<DisciplinaDTO> reordenarImagenes(
+            @PathVariable Long idDisciplina,
+            @RequestBody List<Long> idsImagenesOrden) {
+        log.info("🎯 PUT /api/disciplinas/{}/imagenes/reordenar - {} imágenes", idDisciplina, idsImagenesOrden.size());
+        DisciplinaDTO response = disciplinaService.reordenarImagenes(idDisciplina, idsImagenesOrden);
+        return ResponseEntity.ok(response);
+    }
+
+    // 🆕 VALIDACIONES
+    @GetMapping("/verificar-nombre/{nombre}")
+    public ResponseEntity<Boolean> verificarNombreDisponible(@PathVariable String nombre) {
+        log.info("🎯 GET /api/disciplinas/verificar-nombre/{}", nombre);
+        boolean disponible = disciplinaService.verificarNombreDisponible(nombre);
+        return ResponseEntity.ok(disponible);
+    }
+
+    @GetMapping("/{idDisciplina}/puede-eliminarse")
+    public ResponseEntity<Boolean> puedeEliminarse(@PathVariable Long idDisciplina) {
+        log.info("🎯 GET /api/disciplinas/{}/puede-eliminarse", idDisciplina);
+        boolean puedeEliminarse = disciplinaService.puedeEliminarse(idDisciplina);
+        return ResponseEntity.ok(puedeEliminarse);
+    }
+
+    // 🆕 ESTADÍSTICAS
+    @GetMapping("/estadisticas/total-activas")
+    public ResponseEntity<Long> contarActivas() {
+        log.info("🎯 GET /api/disciplinas/estadisticas/total-activas");
+        long total = disciplinaService.contarDisciplinasActivas();
+        return ResponseEntity.ok(total);
+    }
+
+    @GetMapping("/recientes")
+    public ResponseEntity<List<DisciplinaDTO>> obtenerRecientes(
+            @RequestParam(defaultValue = "5") int limite) {
+        log.info("🎯 GET /api/disciplinas/recientes?limite={}", limite);
+        List<DisciplinaDTO> response = disciplinaService.obtenerRecientes(limite);
+        return ResponseEntity.ok(response);
+    }
 }
