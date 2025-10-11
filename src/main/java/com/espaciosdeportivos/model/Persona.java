@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Getter
 @Setter
@@ -57,4 +59,5 @@ public class Persona {
 
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Comentario> comentario;
+
 }
