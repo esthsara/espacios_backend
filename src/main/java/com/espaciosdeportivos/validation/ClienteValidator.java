@@ -2,7 +2,6 @@ package com.espaciosdeportivos.validation;
 
 import com.espaciosdeportivos.dto.ClienteDTO;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.util.regex.Pattern;
 
@@ -37,20 +36,18 @@ public class ClienteValidator {
     }
 
     public void validarApellidos(String aPaterno, String aMaterno) {
-        // aMaterno obligatorio
         if (aMaterno == null || aMaterno.trim().isEmpty()) {
             throw new BusinessException("El apellido materno es obligatorio.");
         }
         if (aMaterno.length() > 100) {
             throw new BusinessException("El apellido materno no puede exceder los 100 caracteres.");
         }
-        // aPaterno opcional pero con máximo 100
         if (aPaterno != null && aPaterno.length() > 100) {
             throw new BusinessException("El apellido paterno no puede exceder los 100 caracteres.");
         }
     }
 
-    public void validarFechaNacimiento(java.time.LocalDate fechaNacimiento) {
+    public void validarFechaNacimiento(LocalDate fechaNacimiento) {
         if (fechaNacimiento == null) {
             throw new BusinessException("La fecha de nacimiento es obligatoria.");
         }
@@ -61,14 +58,13 @@ public class ClienteValidator {
 
     public void validarCategoria(String categoria) {
         if (categoria == null || categoria.trim().isEmpty()) {
-            throw new BusinessException("La categoria del cliente es obligatorio.");
+            throw new BusinessException("La categoría es obligatoria.");
         }
-        if (categoria.length() > 50) {
-            throw new BusinessException("El estado del cliente no puede exceder los 50 caracteres.");
+        if (categoria.length() > 100) {
+            throw new BusinessException("La categoría no puede exceder los 100 caracteres.");
         }
     }
 
-    // Validación completa para el DTO ClienteDTO
     public void validarCliente(ClienteDTO clienteDTO) {
         validarNombre(clienteDTO.getNombre());
         validarApellidos(clienteDTO.getAPaterno(), clienteDTO.getAMaterno());
@@ -78,7 +74,6 @@ public class ClienteValidator {
         validarCategoria(clienteDTO.getCategoria());
     }
 
-    // Excepción personalizada
     public static class BusinessException extends RuntimeException {
         public BusinessException(String message) {
             super(message);

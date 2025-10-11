@@ -57,4 +57,5 @@ public class ClienteController {
     public ClienteDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
         return clienteService.cambiarEstado(id, estado);
     }
+
 }

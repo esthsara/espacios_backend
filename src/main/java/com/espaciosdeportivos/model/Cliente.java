@@ -21,10 +21,9 @@ public class Cliente extends Persona {
     }
 
     @NotNull
-    @Column(name = "categoria", nullable = false, length = 50)
+    @Column(name = "categoria", nullable = false, length = 100)
     private String categoria;
 
-    // k
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Cancelacion> cancelacion;
 }
