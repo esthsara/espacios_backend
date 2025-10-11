@@ -23,7 +23,7 @@ public interface AdministradorService {
     AdministradorDTO crearAdministrador(AdministradorDTO dto);
 
     // Editar administrador existente
-    AdministradorDTO actualizarAdministrador(Long id, AdministradorDTO dto);
+    AdministradorDTO actualizarAdministrador(Long id,AdministradorDTO dto);
 
     // Eliminar físicamente (solo si realmente quieres borrar)
     void eliminarAdministrador(Long id);

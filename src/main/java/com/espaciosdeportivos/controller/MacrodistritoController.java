@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.controller;
 
+
 import com.espaciosdeportivos.dto.MacrodistritoDTO;
 import com.espaciosdeportivos.model.Macrodistrito;
 import com.espaciosdeportivos.service.IMacrodistritoService;
@@ -78,8 +79,8 @@ public class MacrodistritoController {
     }
 
     @PatchMapping("/{id}/estado")
-    public MacrodistritoDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
-        return macrodistritoService.eliminarMacrodistrito(id);
+    public MacrodistritoDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean nuevoEstado) {
+        return macrodistritoService.eliminarMacrodistrito(id, nuevoEstado);
     }
 
     // Baja lógica
@@ -92,7 +93,8 @@ public class MacrodistritoController {
 
     @GetMapping("/buscar/{nombre}")
     public List<MacrodistritoDTO> buscarPorNombre(@PathVariable String nombre) {
-        return macrodistritoService.buscarPorNombre(nombre);
+        List<MacrodistritoDTO> resultados = macrodistritoService.buscarPorNombre(nombre);
+        return resultados;
     }
 
     @GetMapping("/{id}/lock")
