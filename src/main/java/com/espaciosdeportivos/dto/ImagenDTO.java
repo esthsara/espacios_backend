@@ -93,7 +93,7 @@ public class ImagenDTO implements Serializable {
             return String.format("%.1f MB", tamanioBytes / (1024.0 * 1024.0));
         }
     }
-    
+    //
     /*COMPLETAR */
     public void setProblema(String string) {
         // TODO Auto-generated method stub
