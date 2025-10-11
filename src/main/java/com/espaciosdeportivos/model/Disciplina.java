@@ -1,7 +1,7 @@
 package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
@@ -9,7 +9,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "disciplina")
-@Data // Usamos @Data que es equivalente a @Getter, @Setter, @ToString, etc.
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Disciplina {
 
     @Id
