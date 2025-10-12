@@ -67,7 +67,7 @@ public class Reserva {
     private List<Pago> pagos;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
-    private List<Qr> codigosQr;
+    private List<Qr> qr; 
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
     private List<incluye> canchasIncluidas;

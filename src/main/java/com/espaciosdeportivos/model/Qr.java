@@ -28,22 +28,20 @@ public class Qr {
     private LocalDateTime fechaExpiracion;
 
     @Column(name = "estado", nullable = false)
-    private Boolean estado; // 
+    private Boolean estado;
 
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    @ManyToOne
-    @JoinColumn(name = "id_us_control", referencedColumnName = "id_persona")
-    private UsuarioControl usuarioControl;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id_persona", nullable = false)
+    private Persona usuarioControl;
 
-    @ManyToOne
-    @JoinColumn(name = "id_reserva", referencedColumnName = "id_reserva")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_invitado", referencedColumnName = "id_persona", nullable = false)
+    private Persona invitado;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_reserva", referencedColumnName = "id_reserva", nullable = false)
     private Reserva reserva;
-
-    @ManyToOne
-    @JoinColumn(name = "id_invitado", referencedColumnName = "id_persona")
-    private Invitado invitado;
-
-    //k
 }
