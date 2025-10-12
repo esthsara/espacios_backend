@@ -2,6 +2,7 @@ package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -32,13 +33,13 @@ public class Cancelacion {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    @OneToOne
+    // (única cancelación por reserva)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_reserva", nullable = false, unique = true)
     private Reserva reserva;
 
-    @ManyToOne
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona")
+    // Cliente que realizó la cancelación
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona", nullable = false)
     private Cliente cliente;
-
-    //k
 }
