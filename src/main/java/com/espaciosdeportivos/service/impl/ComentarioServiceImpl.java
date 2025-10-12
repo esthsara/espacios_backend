@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.ComentarioDTO;
+import com.espaciosdeportivos.dto.PersonaPublicaDTO;
 import com.espaciosdeportivos.model.Persona;
 import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Comentario;
@@ -117,18 +118,30 @@ public class ComentarioServiceImpl implements IComentarioService {
         return comentario;
     }
 
-    
-
     // ---------- mapping ----------
     private ComentarioDTO convertToDTO(Comentario c) {
+        Persona p = c.getPersona();
+
+        PersonaPublicaDTO personaDTO = null;
+        if (p != null) {
+            personaDTO = PersonaPublicaDTO.builder()
+                .id(p.getId())
+                .nombre(p.getNombre())
+                .apellidoPaterno(p.getApellidoPaterno())
+                .apellidoMaterno(p.getApellidoMaterno())
+                .urlImagen(p.getUrlImagen())
+                .build();
+        }
+
         return ComentarioDTO.builder()
                 .idComentario(c.getIdComentario())
                 .contenido(c.getContenido())
                 .calificacion(c.getCalificacion())
                 .fecha(c.getFecha())
                 .estado(c.getEstado())
-                .idPersona(c.getPersona() != null ? c.getPersona().getId() : null)
+                .idPersona(p != null ? p.getId() : null)
                 .idCancha(c.getCancha() != null ? c.getCancha().getIdCancha() : null)
+                .persona(personaDTO) // ✅ limpio, sin recursión
                 .build();
     }
 

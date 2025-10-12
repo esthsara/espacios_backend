@@ -6,6 +6,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,4 +34,7 @@ public class ComentarioDTO implements Serializable {
 
     @NotNull(message = "El estado del comentario es obligatorio")
     private Boolean estado;
+
+    private PersonaPublicaDTO persona; // objeto para frontend
+
 }
