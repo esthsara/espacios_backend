@@ -38,7 +38,7 @@ public class UsuarioControl extends Persona {
     @Column(name = "direccion", nullable = false, length = 200)
     private String direccion;
 
-    /* 
+    
     @OneToMany(mappedBy = "usuarioControl", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Qr> qr; // */
+    private List<Qr> qr; 
 }
