@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,9 +24,9 @@ public class Invitado extends Persona {
     @Column(name = "verificado", nullable = false)
     private Boolean verificado;
 
-     //k
-    /*@OneToMany(mappedBy = "invitado", cascade = CascadeType.ALL, orphanRemoval = true) 
-    private List<Qr> qr;*/
+     
+    @OneToMany(mappedBy = "invitado", cascade = CascadeType.ALL, orphanRemoval = true) 
+    private List<Qr> qr;
 }
 
 

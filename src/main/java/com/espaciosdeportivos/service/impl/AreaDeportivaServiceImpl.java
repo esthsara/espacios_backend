@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
+import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Administrador;
@@ -28,7 +29,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
 
     private final AreaDeportivaRepository areaDeportivaRepository;
     private final ZonaRepository zonaRepository;
-
     private final AdministradorRepository administradorRepository;
     private final AreaDeportivaValidator areaDeportivaValidator;
 
@@ -45,7 +45,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         this.areaDeportivaValidator = areaDeportivaValidator;
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public List<AreaDeportivaDTO> listarTodos() {
@@ -54,6 +53,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<AreaDeportivaDTO> obtenerTodasLasAreasDeportivas() {
@@ -85,9 +85,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         area.setEstado(Boolean.TRUE);
 
         AreaDeportiva guardada = areaDeportivaRepository.save(area);
-
         return convertToDTO(guardada);
-
     }
 
     @Override
@@ -107,7 +105,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         existente.setTelefonoArea(dto.getTelefonoArea());
         existente.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea().toString() : null);
         existente.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea().toString() : null);
-        //existente.setEstadoArea(dto.getEstadoArea());
         existente.setUrlImagen(dto.getUrlImagen());
         existente.setLatitud(dto.getLatitud());
         existente.setLongitud(dto.getLongitud());
@@ -124,7 +121,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     public void eliminarAreaDeportivaFisicamente(Long id) {
         AreaDeportiva existente = areaDeportivaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + id));
-
         areaDeportivaRepository.delete(existente);
     }
 
@@ -145,12 +141,12 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     @Transactional
     public AreaDeportiva obtenerAreaDeportivaConBloqueo(Long id) {
         AreaDeportiva areaDeportiva = areaDeportivaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Area deportiba  no encontrado con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + id));
         try {
             Thread.sleep(15000); 
         } catch (InterruptedException e) {
@@ -158,9 +154,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         }
         return areaDeportiva;
     }
-
-    
-
 
     // ---------- mapping ----------
     private AreaDeportivaDTO convertToDTO(AreaDeportiva a) {
@@ -172,12 +165,12 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .telefonoArea(a.getTelefonoArea())
                 .horaInicioArea(parseTime(a.getHoraInicioArea()))
                 .horaFinArea(parseTime(a.getHoraFinArea()))
-                //.estadoArea(a.getEstadoArea())
                 .urlImagen(a.getUrlImagen())
                 .latitud(a.getLatitud())
                 .longitud(a.getLongitud())
                 .estado(a.getEstado())
                 .idZona(a.getZona() != null ? a.getZona().getIdZona() : null)
+                .zona(convertZonaToDTO(a.getZona())) // objeto front K
                 .id(a.getAdministrador() != null ? a.getAdministrador().getId() : null)
                 .build();
     }
@@ -196,7 +189,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .telefonoArea(d.getTelefonoArea())
                 .horaInicioArea(d.getHoraInicioArea() != null ? d.getHoraInicioArea().toString() : null)
                 .horaFinArea(d.getHoraFinArea() != null ? d.getHoraFinArea().toString() : null)
-                //.estadoArea(d.getEstadoArea())
                 .urlImagen(d.getUrlImagen())
                 .latitud(d.getLatitud())
                 .longitud(d.getLongitud())
@@ -208,5 +200,17 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
 
     private LocalTime parseTime(String t) {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
+    }
+
+     // objeto front K
+    private ZonaDTO convertZonaToDTO(Zona z) {
+        if (z == null) return null;
+        return ZonaDTO.builder()
+                .idZona(z.getIdZona()) // objeto front K
+                .nombre(z.getNombre()) // objeto front K
+                .descripcion(z.getDescripcion()) // objeto front K
+                .estado(z.getEstado()) // objeto front K
+                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
+                .build();
     }
 }

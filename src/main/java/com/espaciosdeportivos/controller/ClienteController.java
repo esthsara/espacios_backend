@@ -16,23 +16,35 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
-    @PostMapping
-    public ClienteDTO crear(@Valid @RequestBody ClienteDTO dto) {
-        return clienteService.crearCliente(dto);
+    // Solo los activos
+    @GetMapping("/activos")
+    public List<ClienteDTO> listarClientesActivos() {
+        return clienteService.obtenerTodoslosClientes();
     }
 
-    @GetMapping("/{id}")
-    public ClienteDTO obtenerPorId(@PathVariable Long id) {
-        return clienteService.obtenerPorId(id);
-    }
-
+    // Listar todos, incluyendo desactivados
     @GetMapping
     public List<ClienteDTO> listarTodos() {
         return clienteService.listarTodos();
     }
 
+    @GetMapping("/{id}")
+    public ClienteDTO obtenerPorId(@PathVariable Long id) {
+        return clienteService.obtenerClientePorId(id);
+    }
+
+    @GetMapping("/buscar/{nombre}")
+    public List<ClienteDTO> buscarPorNombre(@PathVariable String nombre) {
+        return clienteService.buscarPorNombre(nombre);
+    }
+
+    @PostMapping
+    public ClienteDTO crear(@Valid @RequestBody ClienteDTO dto) {
+        return clienteService.crearCliente(dto);
+    }
+
     @PutMapping("/{id}")
-    public ClienteDTO actualizar(@PathVariable Long id, @RequestBody ClienteDTO dto) {
+    public ClienteDTO actualizar(@PathVariable Long id, @Valid @RequestBody ClienteDTO dto) {
         return clienteService.actualizarCliente(id, dto);
     }
 
@@ -41,8 +53,8 @@ public class ClienteController {
         clienteService.eliminarCliente(id);
     }
 
-    @GetMapping("/buscar/{nombre}")
-    public List<ClienteDTO> buscarPorNombre(@PathVariable String nombre) {
-        return clienteService.buscarPorNombre(nombre);
+    @PatchMapping("/{id}/estado")
+    public ClienteDTO cambiarEstado(@PathVariable Long id, @RequestParam Boolean estado) {
+        return clienteService.cambiarEstado(id, estado);
     }
 }

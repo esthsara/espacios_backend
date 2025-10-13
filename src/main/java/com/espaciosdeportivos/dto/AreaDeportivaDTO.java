@@ -58,5 +58,6 @@ public class AreaDeportivaDTO implements Serializable{
     @Positive(message = "El ID del administrador debe ser un valor positivo")   
     private Long id;
 
-
+    //objeto para front K
+    private ZonaDTO zona; 
 }

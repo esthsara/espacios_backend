@@ -62,5 +62,5 @@ public class CanchaDTO implements Serializable {
     @Positive(message = "El id del área deportiva debe ser un valor positivo")  
     private Long idAreadeportiva;
     
-    
+    private AreaDeportivaDTO areaDeportiva; // objeto front K
 }

@@ -1,11 +1,12 @@
 package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
-import java.time.LocalTime;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-//import java.util.List;
+
+import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,17 +16,15 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "usuario_control")
 @EqualsAndHashCode(callSuper = true)
-//@PrimaryKeyJoinColumn(name = "id_us_control")
-
 public class UsuarioControl extends Persona {
 
     public UsuarioControl(Long id) {
-        super.setId(id);
+        super.setId(id); //
     }
 
     @NotNull
     @Column(name = "estado_operativo", nullable = false, length = 50)
-    private String estadoOperativo;
+    private String estadoOperativo; // "Activo", "En turno", "Fuera de servicio"
 
     @NotNull
     @Column(name = "hora_inicio_turno", nullable = false)
@@ -40,9 +39,6 @@ public class UsuarioControl extends Persona {
     private String direccion;
 
     
-    //K
-    /*@OneToMany(mappedBy = "usuarioControl", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Qr> qr;*/
-
-
+    @OneToMany(mappedBy = "usuarioControl", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Qr> qr; 
 }
