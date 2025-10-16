@@ -66,4 +66,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     // Validaciones
     boolean existsByClienteIdAndFechaReserva(Long clienteId, LocalDate fechaReserva);
     long countByFechaReserva(LocalDate fechaReserva);
+
+    //List<Reserva> findReservaByCancha(Long idCancha);
 }

@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.util.List;
 import jakarta.validation.Valid;
 import com.espaciosdeportivos.dto.CanchaDTO;
+import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.model.Cancha;
 
 public interface ICanchaService {
@@ -33,6 +34,9 @@ public interface ICanchaService {
     //Cancha en un rango de fecha
     List<CanchaDTO> BuscarConFiltros(LocalTime horaInicio, LocalTime horaFin, Double costo, Integer capacidad,
                                             String tamano, String iluminacion, String cubierta);
-    
+                                            
+    List<EquipamientoDTO> obtenerEquipamientoPorCancha(Long idCancha);
+
+    //List<Reserva> obtenerReservaPorCancha(Long idCancha);
 
 }

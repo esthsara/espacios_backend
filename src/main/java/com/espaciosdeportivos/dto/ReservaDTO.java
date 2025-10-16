@@ -1,6 +1,6 @@
 package com.espaciosdeportivos.dto;
 
-import com.espaciosdeportivos.model.Reserva;
+//import com.espaciosdeportivos.model.Reserva;
 import jakarta.validation.constraints.*;
 import lombok.*;
 

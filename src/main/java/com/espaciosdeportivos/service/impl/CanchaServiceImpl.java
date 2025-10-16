@@ -1,15 +1,21 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.CanchaDTO;
+import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.dto.AreaDeportivaDTO; // objeto front K
 import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
+import com.espaciosdeportivos.dto.disponeDTO;
 
 import com.espaciosdeportivos.model.Cancha;
+import com.espaciosdeportivos.model.Equipamiento;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
+import com.espaciosdeportivos.model.dispone;
 
 import com.espaciosdeportivos.repository.CanchaRepository;
 import com.espaciosdeportivos.repository.AreaDeportivaRepository;
+import com.espaciosdeportivos.repository.EquipamientoRepository;
+import com.espaciosdeportivos.repository.disponeRepository;
 
 import com.espaciosdeportivos.service.ICanchaService;
 import com.espaciosdeportivos.validation.CanchaValidator;
@@ -30,16 +36,23 @@ public class CanchaServiceImpl implements ICanchaService {
     private final CanchaRepository canchaRepository;
     private final AreaDeportivaRepository areaDeportivaRepository;
     private final CanchaValidator canchaValidator;
+    private final EquipamientoRepository equipamientoRepository;
+    private final disponeRepository disponeRepository;
 
     @Autowired
     public CanchaServiceImpl(
         CanchaRepository canchaRepository, 
         AreaDeportivaRepository areaDeportivaRepository, 
-        CanchaValidator canchaValidator
+        CanchaValidator canchaValidator,
+        disponeRepository disponeRepository,
+        EquipamientoRepository equipamientoRepository
+        
     ) {
         this.canchaRepository = canchaRepository;
         this.areaDeportivaRepository = areaDeportivaRepository;
         this.canchaValidator = canchaValidator;
+        this.equipamientoRepository = equipamientoRepository;
+        this.disponeRepository = disponeRepository;
     }
 
     @Override
@@ -162,6 +175,29 @@ public class CanchaServiceImpl implements ICanchaService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<EquipamientoDTO> obtenerEquipamientoPorCancha(Long canchaId) {
+        List<dispone> lista = disponeRepository.findByCanchaIdCancha(canchaId);
+
+        return lista.stream()
+                .map(d -> convertEquipamientoToDTO(d.getEquipamiento())) // 👈 acceder al equipamiento
+                .collect(Collectors.toList());
+    }
+
+   
+    //--equipamiento -----------
+    private EquipamientoDTO convertEquipamientoToDTO(Equipamiento e) {
+
+        return EquipamientoDTO.builder()
+                .idEquipamiento(e.getIdEquipamiento())
+                .nombreEquipamiento(e.getNombreEquipamiento())
+                .estado(e.getEstado())
+                .descripcion(e.getDescripcion())
+                .tipoEquipamiento(e.getTipoEquipamiento())
+                .build();
+    }
+
     // --------- mapping ----------
     private CanchaDTO convertToDTO(Cancha c) {
         AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
@@ -241,4 +277,6 @@ public class CanchaServiceImpl implements ICanchaService {
     private LocalTime parseTime(String t) {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
     }
+
+
 }

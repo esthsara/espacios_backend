@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.CanchaDTO;
+import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.service.ICanchaService;
 
@@ -117,9 +118,11 @@ public class CanchaController {
         return ResponseEntity.ok(resultados);
     }
 
-    
-
-    
+    @GetMapping("/{id}/equipamientos")
+    public ResponseEntity<List<EquipamientoDTO>> obtenerEquipamientosPorCancha(@PathVariable Long id) {
+        List<EquipamientoDTO> equipamientos = canchaService.obtenerEquipamientoPorCancha(id);
+        return ResponseEntity.ok(equipamientos);
+    }
 
 
     /*// Baja lógica (estadobool = false)
