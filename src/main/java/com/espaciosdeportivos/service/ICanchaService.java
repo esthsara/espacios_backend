@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
+import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.Cancha;
 
 public interface ICanchaService {
@@ -37,6 +38,6 @@ public interface ICanchaService {
                                             
     List<EquipamientoDTO> obtenerEquipamientoPorCancha(Long idCancha);
 
-    //List<Reserva> obtenerReservaPorCancha(Long idCancha);
+    List<ReservaDTO> obtenerReservaPorCancha(Long idCancha);
 
 }

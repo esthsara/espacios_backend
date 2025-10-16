@@ -1,22 +1,28 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.CanchaDTO;
+import com.espaciosdeportivos.dto.DisciplinaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
+import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.dto.AreaDeportivaDTO; // objeto front K
 import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
 import com.espaciosdeportivos.dto.disponeDTO;
 
 import com.espaciosdeportivos.model.Cancha;
+import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.Equipamiento;
+import com.espaciosdeportivos.model.Reserva;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.dispone;
-
+import com.espaciosdeportivos.model.incluye;
+//import com.espaciosdeportivos.model.sepractica;
 import com.espaciosdeportivos.repository.CanchaRepository;
 import com.espaciosdeportivos.repository.AreaDeportivaRepository;
 import com.espaciosdeportivos.repository.EquipamientoRepository;
 import com.espaciosdeportivos.repository.disponeRepository;
-
+import com.espaciosdeportivos.repository.incluyeRepository;
+import com.espaciosdeportivos.repository.sepracticaRepository;
 import com.espaciosdeportivos.service.ICanchaService;
 import com.espaciosdeportivos.validation.CanchaValidator;
 
@@ -26,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.validation.Valid;
 
+//import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +45,8 @@ public class CanchaServiceImpl implements ICanchaService {
     private final CanchaValidator canchaValidator;
     private final EquipamientoRepository equipamientoRepository;
     private final disponeRepository disponeRepository;
+    private final incluyeRepository incluyeRepository;
+    //private final sepracticaRepository sepracticaRepository;
 
     @Autowired
     public CanchaServiceImpl(
@@ -45,7 +54,9 @@ public class CanchaServiceImpl implements ICanchaService {
         AreaDeportivaRepository areaDeportivaRepository, 
         CanchaValidator canchaValidator,
         disponeRepository disponeRepository,
-        EquipamientoRepository equipamientoRepository
+        EquipamientoRepository equipamientoRepository,
+        incluyeRepository incluyeRepository//,
+        //sepracticaRepository sepracticaRepository
         
     ) {
         this.canchaRepository = canchaRepository;
@@ -53,6 +64,8 @@ public class CanchaServiceImpl implements ICanchaService {
         this.canchaValidator = canchaValidator;
         this.equipamientoRepository = equipamientoRepository;
         this.disponeRepository = disponeRepository;
+        this.incluyeRepository = incluyeRepository;
+        //this.sepracticaRepository = sepracticaRepository;
     }
 
     @Override
@@ -181,10 +194,46 @@ public class CanchaServiceImpl implements ICanchaService {
         List<dispone> lista = disponeRepository.findByCanchaIdCancha(canchaId);
 
         return lista.stream()
-                .map(d -> convertEquipamientoToDTO(d.getEquipamiento())) // 👈 acceder al equipamiento
+                .map(d -> convertEquipamientoToDTO(d.getEquipamiento()))
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservaDTO> obtenerReservaPorCancha(Long canchaId) {
+        List<incluye> lista = incluyeRepository.findByCanchaIdCancha(canchaId);
+
+        return lista.stream()
+                .map(i -> convertReservaResumenToDTO(i.getReserva()))
+                .collect(Collectors.toList());
+    }
+
+    /*@Override
+    @Transactional(readOnly = true)
+    public List<DisciplinaDTO> ObtenerDiciplinaPorCancha(Long canchaId){
+        List<sepractica> lista = sepracticaRepository.findByDiciplinaIdCancha(canchaId);
+        return lista.stream()
+                    .map(d -> convertDiciplinaToDTO(d.getDisciplina()))
+                    .collect(Collectors.toList());
+    }*/
+
+    //---diciplina--
+    //
+
+    //---reserva-------
+    private ReservaDTO convertReservaResumenToDTO(Reserva reserva) {
+        Cliente cliente = reserva.getCliente();
+
+        return ReservaDTO.builder()
+                .idReserva(reserva.getIdReserva())
+                .fechaReserva(reserva.getFechaReserva())
+                .horaInicio(reserva.getHoraInicio())
+                .horaFin(reserva.getHoraFin())
+                .nombreCliente(cliente != null 
+                    ? cliente.getNombre() + " " + cliente.getApellidoPaterno() 
+                    : "Sin nombre")
+                .build();
+    }
    
     //--equipamiento -----------
     private EquipamientoDTO convertEquipamientoToDTO(Equipamiento e) {

@@ -2,6 +2,7 @@ package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
+import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.service.ICanchaService;
 
@@ -122,6 +123,12 @@ public class CanchaController {
     public ResponseEntity<List<EquipamientoDTO>> obtenerEquipamientosPorCancha(@PathVariable Long id) {
         List<EquipamientoDTO> equipamientos = canchaService.obtenerEquipamientoPorCancha(id);
         return ResponseEntity.ok(equipamientos);
+    }
+
+    @GetMapping("/{id}/reservas")
+    public ResponseEntity<List<ReservaDTO>> obtenerReservasPorCancha(@PathVariable Long id) {
+        List<ReservaDTO> reservas = canchaService.obtenerReservaPorCancha(id);
+        return ResponseEntity.ok(reservas);
     }
 
 
