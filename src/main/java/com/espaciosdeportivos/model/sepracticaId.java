@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.*;
 
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class sepracticaId implements Serializable {
 
     @Column(name = "id_cancha")

@@ -16,12 +16,18 @@ public class sepractica {
     private sepracticaId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idCancha") // vincula con la clave compuesta
+    @MapsId("idCancha")
     @JoinColumn(name = "id_cancha", nullable = false)
     private Cancha cancha;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idDisciplina") // vincula con la clave compuesta
+    @MapsId("idDisciplina")
     @JoinColumn(name = "id_disciplina", nullable = false)
     private Disciplina disciplina;
+
+    @Column(name = "nivel_dificultad", length = 50)
+    private String nivelDificultad; // "PRINCIPIANTE", "INTERMEDIO", "AVANZADO"
+
+    @Column(name = "recomendaciones", length = 500)
+    private String recomendaciones;
 }
