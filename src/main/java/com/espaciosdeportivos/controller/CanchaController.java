@@ -135,9 +135,7 @@ public class CanchaController {
         return ResponseEntity.ok(reservas);
     }
 
-    // ==========================================================
-    // 🖼️ GESTIÓN DE IMÁGENES DE CANCHAS
-    // ==========================================================
+    //gestion imagenes
 
     @PostMapping(value = "/{id}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
@@ -148,7 +146,7 @@ public class CanchaController {
         CanchaDTO response = canchaService.agregarImagenes(id, archivosImagenes);
         return ResponseEntity.ok(response);
     }
-
+    //aqui seran nuevas ediciones
     @DeleteMapping("/{id}/imagenes/{idImagenRelacion}")
     @Transactional
     public ResponseEntity<CanchaDTO> eliminarImagen(
