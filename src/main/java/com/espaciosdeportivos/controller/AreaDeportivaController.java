@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
+//import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.service.IAreaDeportivaService;
 
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +97,40 @@ public class AreaDeportivaController {
     public ResponseEntity<AreaDeportiva> obtenerAreaDeportivaConBloqueo(@PathVariable Long id) {
         AreaDeportiva areaDeportiva = areaDeportivaservice.obtenerAreaDeportivaConBloqueo(id);
         return ResponseEntity.ok(areaDeportiva);
+    }
+
+    // ==========================================================
+    // 🖼️ GESTIÓN DE IMÁGENES DE CANCHAS
+    // ==========================================================
+
+    @PostMapping(value = "/{id}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
+    public ResponseEntity<AreaDeportivaDTO> agregarImagenes(
+            @PathVariable Long id,
+            @RequestParam List<MultipartFile> archivosImagenes) {
+        logger.info("[AREADEPORTIVA] POST /api/areasdeportivas/{}/imagenes - {} archivos", id, archivosImagenes.size());
+        AreaDeportivaDTO response = areaDeportivaservice.agregarImagenes(id, archivosImagenes);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/imagenes/{idImagenRelacion}")
+    @Transactional
+    public ResponseEntity<AreaDeportivaDTO> eliminarImagen(
+            @PathVariable Long id,
+            @PathVariable Long idImagenRelacion) {
+        logger.info("[AREADEPORTIVA] DELETE /api/areasdeportivas/{}/imagenes/{}", id, idImagenRelacion);
+        AreaDeportivaDTO response = areaDeportivaservice.eliminarImagen(id, idImagenRelacion);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/imagenes/reordenar")
+    @Transactional
+    public ResponseEntity<AreaDeportivaDTO> reordenarImagenes(
+            @PathVariable Long id,
+            @RequestBody List<Long> idsImagenesOrden) {
+        logger.info("[AREADEPORTIVA] PUT /api/areasdeportivas/{}/imagenes/reordenar - {} imágenes", id, idsImagenesOrden.size());
+        AreaDeportivaDTO response = areaDeportivaservice.reordenarImagenes(id, idsImagenesOrden);
+        return ResponseEntity.ok(response);
     }
  
 }

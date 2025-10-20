@@ -17,10 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalTime;
 import java.util.List;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/cancha")
@@ -115,6 +116,9 @@ public class CanchaController {
             @RequestParam(required = false) String iluminacion,
             @RequestParam(required = false) String cubierta
     ) {
+        System.out.println("horaInicio: " + horaInicio);
+        System.out.println("horaFin: " + horaFin);
+        System.out.println("costo: " + costo);
         List<CanchaDTO> resultados = canchaService.BuscarConFiltros(horaInicio, horaFin, costo, capacidad, tamano, iluminacion, cubierta);
         return ResponseEntity.ok(resultados);
     }
@@ -129,6 +133,40 @@ public class CanchaController {
     public ResponseEntity<List<ReservaDTO>> obtenerReservasPorCancha(@PathVariable Long id) {
         List<ReservaDTO> reservas = canchaService.obtenerReservaPorCancha(id);
         return ResponseEntity.ok(reservas);
+    }
+
+    // ==========================================================
+    // 🖼️ GESTIÓN DE IMÁGENES DE CANCHAS
+    // ==========================================================
+
+    @PostMapping(value = "/{id}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
+    public ResponseEntity<CanchaDTO> agregarImagenes(
+            @PathVariable Long id,
+            @RequestParam List<MultipartFile> archivosImagenes) {
+        logger.info("[CANCHA] POST /api/cancha/{}/imagenes - {} archivos", id, archivosImagenes.size());
+        CanchaDTO response = canchaService.agregarImagenes(id, archivosImagenes);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/imagenes/{idImagenRelacion}")
+    @Transactional
+    public ResponseEntity<CanchaDTO> eliminarImagen(
+            @PathVariable Long id,
+            @PathVariable Long idImagenRelacion) {
+        logger.info("[CANCHA] DELETE /api/cancha/{}/imagenes/{}", id, idImagenRelacion);
+        CanchaDTO response = canchaService.eliminarImagen(id, idImagenRelacion);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/imagenes/reordenar")
+    @Transactional
+    public ResponseEntity<CanchaDTO> reordenarImagenes(
+            @PathVariable Long id,
+            @RequestBody List<Long> idsImagenesOrden) {
+        logger.info("[CANCHA] PUT /api/cancha/{}/imagenes/reordenar - {} imágenes", id, idsImagenesOrden.size());
+        CanchaDTO response = canchaService.reordenarImagenes(id, idsImagenesOrden);
+        return ResponseEntity.ok(response);
     }
 
 

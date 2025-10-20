@@ -37,6 +37,14 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+import com.espaciosdeportivos.dto.ImagenDTO;
+import com.espaciosdeportivos.service.ImagenService;
+import org.springframework.web.multipart.MultipartFile;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class CanchaServiceImpl implements ICanchaService {
 
@@ -47,6 +55,9 @@ public class CanchaServiceImpl implements ICanchaService {
     private final disponeRepository disponeRepository;
     private final incluyeRepository incluyeRepository;
     //private final sepracticaRepository sepracticaRepository;
+    private final ImagenService imagenService;
+
+    private static final String ENTIDAD_TIPO = "CANCHA";
 
     @Autowired
     public CanchaServiceImpl(
@@ -55,8 +66,9 @@ public class CanchaServiceImpl implements ICanchaService {
         CanchaValidator canchaValidator,
         disponeRepository disponeRepository,
         EquipamientoRepository equipamientoRepository,
-        incluyeRepository incluyeRepository//,
+        incluyeRepository incluyeRepository,
         //sepracticaRepository sepracticaRepository
+        ImagenService imagenService
         
     ) {
         this.canchaRepository = canchaRepository;
@@ -65,6 +77,7 @@ public class CanchaServiceImpl implements ICanchaService {
         this.equipamientoRepository = equipamientoRepository;
         this.disponeRepository = disponeRepository;
         this.incluyeRepository = incluyeRepository;
+        this.imagenService = imagenService;
         //this.sepracticaRepository = sepracticaRepository;
     }
 
@@ -208,6 +221,53 @@ public class CanchaServiceImpl implements ICanchaService {
                 .collect(Collectors.toList());
     }
 
+    // ==========================================================
+// 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
+// ==========================================================
+
+    @Override
+    @Transactional
+    public CanchaDTO agregarImagenes(Long idCancha, List<MultipartFile> archivosImagenes) {
+        log.info("📸 Agregando {} imágenes a la cancha ID: {}", archivosImagenes.size(), idCancha);
+
+        Cancha cancha = canchaRepository.findByIdCanchaAndEstadoTrue(idCancha)
+                .orElseThrow(() -> new RuntimeException("Cancha no encontrada o inactiva"));
+
+        imagenService.guardarImagenesParaEntidad(archivosImagenes, ENTIDAD_TIPO, idCancha);
+        log.info("Imágenes agregadas exitosamente a la cancha {}", idCancha);
+
+        return obtenerCanchaPorId(idCancha);
+    }
+
+    @Override
+    @Transactional
+    public CanchaDTO eliminarImagen(Long idCancha, Long idImagenRelacion) {
+        log.info("🗑️ Eliminando imagen {} de la cancha {}", idImagenRelacion, idCancha);
+
+        canchaRepository.findByIdCanchaAndEstadoTrue(idCancha)
+                .orElseThrow(() -> new RuntimeException("Cancha no encontrada o inactiva"));
+
+        imagenService.eliminarImagenLogicamente(idImagenRelacion);
+        log.info("Imagen eliminada correctamente");
+
+        return obtenerCanchaPorId(idCancha);
+    }
+
+    @Override
+    @Transactional
+    public CanchaDTO reordenarImagenes(Long idCancha, List<Long> idsImagenesOrden) {
+        log.info("🔃 Reordenando {} imágenes de la cancha {}", idsImagenesOrden.size(), idCancha);
+
+        canchaRepository.findByIdCanchaAndEstadoTrue(idCancha)
+                .orElseThrow(() -> new RuntimeException("Cancha no encontrada o inactiva"));
+
+        imagenService.reordenarImagenes(ENTIDAD_TIPO, idCancha, idsImagenesOrden);
+        log.info("Imágenes reordenadas con éxito");
+
+        return obtenerCanchaPorId(idCancha);
+    }
+
+
     /*@Override
     @Transactional(readOnly = true)
     public List<DisciplinaDTO> ObtenerDiciplinaPorCancha(Long canchaId){
@@ -251,6 +311,38 @@ public class CanchaServiceImpl implements ICanchaService {
     private CanchaDTO convertToDTO(Cancha c) {
         AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
 
+        CanchaDTO dto = CanchaDTO.builder()
+                .idCancha(c.getIdCancha())
+                .nombre(c.getNombre())
+                .costoHora(c.getCostoHora())
+                .capacidad(c.getCapacidad())
+                .estado(c.getEstado())
+                .mantenimiento(c.getMantenimiento())
+                .horaInicio(c.getHoraInicio())
+                .horaFin(c.getHoraFin())
+                .tipoSuperficie(c.getTipoSuperficie())
+                .tamano(c.getTamano())
+                .iluminacion(c.getIluminacion())
+                .cubierta(c.getCubierta())
+                .urlImagen(c.getUrlImagen())
+                .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
+                .areaDeportiva(area != null ? convertAreaToDTO(area) : null)
+                .build();
+
+        try {
+            List<ImagenDTO> imagenes = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO, c.getIdCancha());
+            dto.setImagenes(imagenes);
+        } catch (Exception e) {
+            log.warn("Error cargando imágenes para cancha {}: {}", c.getIdCancha(), e.getMessage());
+            dto.setImagenes(List.of());
+        }
+
+        return dto;
+    }
+
+    /*private CanchaDTO convertToDTO(Cancha c) {
+        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
+
         return CanchaDTO.builder()
                 .idCancha(c.getIdCancha())
                 .nombre(c.getNombre())
@@ -268,7 +360,7 @@ public class CanchaServiceImpl implements ICanchaService {
                 .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
                 .areaDeportiva(area != null ? convertAreaToDTO(area) : null) // objeto front K
                 .build();
-    }
+    }*/
 
     private Cancha convertToEntity(CanchaDTO d) {
         AreaDeportiva area = areaDeportivaRepository.findById(d.getIdAreadeportiva())

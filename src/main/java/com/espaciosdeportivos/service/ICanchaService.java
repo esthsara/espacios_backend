@@ -2,11 +2,15 @@ package com.espaciosdeportivos.service;
 
 import java.time.LocalTime;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.Valid;
 import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.Cancha;
+
 
 public interface ICanchaService {
     //listar todas las canchas activas
@@ -40,4 +44,10 @@ public interface ICanchaService {
 
     List<ReservaDTO> obtenerReservaPorCancha(Long idCancha);
 
+    // Gestión de imágenes específica
+    CanchaDTO agregarImagenes(Long idCancha, List<MultipartFile> archivosImagenes);
+    CanchaDTO eliminarImagen(Long idCancha, Long idImagenRelacion);
+    CanchaDTO reordenarImagenes(Long idCancha, List<Long> idsImagenesOrden);
+
+    
 }

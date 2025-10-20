@@ -1,8 +1,10 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
+import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
 import com.espaciosdeportivos.model.AreaDeportiva;
+import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Administrador;
 
@@ -11,19 +13,23 @@ import com.espaciosdeportivos.repository.ZonaRepository;
 import com.espaciosdeportivos.repository.AdministradorRepository;
 
 import com.espaciosdeportivos.service.IAreaDeportivaService;
+import com.espaciosdeportivos.service.ImagenService;
 import com.espaciosdeportivos.validation.AreaDeportivaValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
 
@@ -32,17 +38,24 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     private final AdministradorRepository administradorRepository;
     private final AreaDeportivaValidator areaDeportivaValidator;
 
+    private final ImagenService imagenService;
+
+    private static final String ENTIDAD_TIPO = "AREADEPORTIVA";
+
+
     @Autowired
     public AreaDeportivaServiceImpl(
         AreaDeportivaRepository areaDeportivaRepository, 
         ZonaRepository zonaRepository, 
         AdministradorRepository administradorRepository, 
-        AreaDeportivaValidator areaDeportivaValidator
+        AreaDeportivaValidator areaDeportivaValidator,
+        ImagenService imagenService
     ) {
         this.areaDeportivaRepository = areaDeportivaRepository;
         this.zonaRepository = zonaRepository;
         this.administradorRepository = administradorRepository;
         this.areaDeportivaValidator = areaDeportivaValidator;
+        this.imagenService = imagenService;
     }
 
     @Override
@@ -154,6 +167,53 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         }
         return areaDeportiva;
     }
+
+     // ==========================================================
+// 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
+// ==========================================================
+
+    @Override
+    @Transactional
+    public AreaDeportivaDTO agregarImagenes(Long idAreadeportiva, List<MultipartFile> archivosImagenes) {
+        log.info("📸 Agregando {} imágenes a la area ID: {}", archivosImagenes.size(), idAreadeportiva);
+
+        AreaDeportiva area = areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
+                .orElseThrow(() -> new RuntimeException("area no encontrada o inactiva"));
+
+        imagenService.guardarImagenesParaEntidad(archivosImagenes, ENTIDAD_TIPO, idAreadeportiva);
+        log.info("Imágenes agregadas exitosamente a la area {}", idAreadeportiva);
+
+        return obtenerAreaDeportivaPorId(idAreadeportiva);
+    }
+
+    @Override
+    @Transactional
+    public AreaDeportivaDTO eliminarImagen(Long idAreadeportiva, Long idImagenRelacion) {
+        log.info("🗑️ Eliminando imagen {} de la area {}", idImagenRelacion, idAreadeportiva);
+
+        areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
+                .orElseThrow(() -> new RuntimeException("area no encontrada o inactiva"));
+
+        imagenService.eliminarImagenLogicamente(idImagenRelacion);
+        log.info("Imagen eliminada correctamente");
+
+        return obtenerAreaDeportivaPorId(idAreadeportiva);
+    }
+
+    @Override
+    @Transactional
+    public AreaDeportivaDTO reordenarImagenes(Long idAreadeportiva, List<Long> idsImagenesOrden) {
+        log.info("🔃 Reordenando {} imágenes de la area {}", idsImagenesOrden.size(), idAreadeportiva);
+
+        areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
+                .orElseThrow(() -> new RuntimeException("area no encontrada o inactiva"));
+
+        imagenService.reordenarImagenes(ENTIDAD_TIPO, idAreadeportiva, idsImagenesOrden);
+        log.info("Imágenes reordenadas con éxito");
+
+        return obtenerAreaDeportivaPorId(idAreadeportiva);
+    }
+
 
     // ---------- mapping ----------
     private AreaDeportivaDTO convertToDTO(AreaDeportiva a) {

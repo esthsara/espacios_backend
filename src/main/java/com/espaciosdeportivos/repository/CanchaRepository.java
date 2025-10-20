@@ -27,14 +27,14 @@ public interface CanchaRepository extends JpaRepository<Cancha, Long> {
     List<Cancha> buscarPorNombre(@Param("nombre") String nombre);
 
     @Query("SELECT c FROM Cancha c WHERE " +
-            "(:horaInicio IS NULL OR c.horaInicio >= :horaInicio) AND " +
-            "(:horaFin IS NULL OR c.horaFin <= :horaFin) AND " +
-            "(:costo IS NULL OR c.costoHora <= :costo) AND " +
-            "(:capacidad IS NULL OR c.capacidad >= :capacidad) AND " +
-            "(:tamano IS NULL OR LOWER(c.tamano) = LOWER(:tamano)) AND " +
-            "(:iluminacion IS NULL OR LOWER(c.iluminacion) = LOWER(:iluminacion)) AND " +
-            "(:cubierta IS NULL OR LOWER(c.cubierta) = LOWER(:cubierta)) AND " +
-            "c.estado = true")
+        "(:horaInicio IS NULL OR c.horaInicio >= :horaInicio) AND " +
+        "(:horaFin IS NULL OR c.horaFin <= :horaFin) AND " +
+        "(:costo IS NULL OR c.costoHora <= :costo) AND " +
+        "(:capacidad IS NULL OR c.capacidad >= :capacidad) AND " +
+        "(:tamano IS NULL OR LOWER(c.tamano) = LOWER(:tamano)) AND " +
+        "(:iluminacion IS NULL OR LOWER(c.iluminacion) = LOWER(:iluminacion)) AND " +
+        "(:cubierta IS NULL OR LOWER(c.cubierta) = LOWER(:cubierta)) AND " +
+        "c.estado = true")
     List<Cancha> buscarFiltros(@Param("horaInicio") java.time.LocalTime horaInicio,
                                @Param("horaFin") java.time.LocalTime horaFin,
                                @Param("costo") Double costo,

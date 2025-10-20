@@ -2,16 +2,22 @@ package com.espaciosdeportivos.dto;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CanchaDTO implements Serializable {
     private Long idCancha;
 
@@ -35,11 +41,11 @@ public class CanchaDTO implements Serializable {
     @NotBlank(message = "El mantenimiento es obligatorio")
     private String mantenimiento;//
 
-    @NotBlank(message = "La hora de inicio es obligatoria")
+    @NotNull(message = "La hora de inicio es obligatoria")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime horaInicio;//
 
-    @NotBlank(message = "La hora de fin es obligatoria") 
+    @NotNull(message = "La hora de fin es obligatoria") 
     @JsonFormat(pattern = "HH:mm")
     private LocalTime horaFin;//
 
@@ -61,6 +67,25 @@ public class CanchaDTO implements Serializable {
     @NotNull(message = "El id del área deportiva es obligatorio")
     @Positive(message = "El id del área deportiva debe ser un valor positivo")  
     private Long idAreadeportiva;
-    
+
     private AreaDeportivaDTO areaDeportiva; // objeto front K
+
+
+    // Para RESPUESTA - imágenes ya procesadas
+    private List<ImagenDTO> imagenes;
+    //private LocalDateTime fechaCreacion;
+    //private LocalDateTime fechaActualizacion;
+    
+    // Para CREACIÓN/ACTUALIZACIÓN - ignorado en JSON
+    @JsonIgnore
+    private transient List<MultipartFile> archivosImagenes;
+    
+    // Métodos de utilidad
+    public boolean tieneArchivosParaProcesar() {
+        return archivosImagenes != null && !archivosImagenes.isEmpty();
+    }
+    //
+    public boolean esValidoParaCreacion() {
+        return nombre != null && !nombre.trim().isEmpty();
+    }
 }
