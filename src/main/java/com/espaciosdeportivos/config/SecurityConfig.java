@@ -22,6 +22,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+
+
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
@@ -37,7 +39,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Definición manual del AuthenticationManager sin AuthenticationConfiguration
+    // Definición manual del AuthenticationManager sin AuthenticationConfiguration
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -69,7 +71,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ Configuración CORS específica para Spring Security
+    // Configuración CORS específica para Spring Security
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
