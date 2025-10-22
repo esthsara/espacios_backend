@@ -61,11 +61,12 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/public/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/super/**", "/api/admin/**", "/api/clientes/**").hasRole("SUPERUSUARIO")
-                .requestMatchers("/api/admin/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
-                .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR", "CLIENTE")
+                .requestMatchers("/api/super/**", "/api/admin/**", "/api/clientes/**").hasRole("ROL_SUPERUSUARIO")
+                .requestMatchers("/api/admin/**").hasAnyRole("ROL_SUPERUSUARIO", "ROL_ADMINISTRADOR")
+                .requestMatchers("/api/clientes/**").hasAnyRole("ROL_SUPERUSUARIO", "ROL_ADMINISTRADOR", "ROL_CLIENTE")
                 .anyRequest().authenticated()
             );
+            
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
