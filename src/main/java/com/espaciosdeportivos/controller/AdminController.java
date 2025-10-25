@@ -74,7 +74,7 @@ public class AdminController {
 
         if (rn == RoleName.ROL_CLIENTE) {
         Cliente cliente = Cliente.builder()
-                .id(persona.getId()) // usa el id existente de Persona
+                .id(persona.getId()) // usa el id existente de una Persona
                 .nombre(persona.getNombre())
                 .apellidoPaterno(persona.getApellidoPaterno())
                 .apellidoMaterno(persona.getApellidoMaterno())
