@@ -1,7 +1,7 @@
 package com.espaciosdeportivos.validation;
 
 import com.espaciosdeportivos.dto.PagoDTO;
-import com.espaciosdeportivos.model.Pago;
+//import com.espaciosdeportivos.model.Pago;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

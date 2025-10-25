@@ -17,6 +17,6 @@ public class MacrodistritoDTO implements Serializable{
     @Size(max = 600, message = "La descripción no puede tener más de 600 caracteres")   
     private String descripcion;
 
-    @NotBlank(message = "El estado es obligatorio")
+    @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
 }

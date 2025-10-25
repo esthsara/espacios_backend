@@ -2,8 +2,13 @@ package com.espaciosdeportivos.dto;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.*;
 import jakarta.validation.constraints.*;
 
@@ -60,4 +65,22 @@ public class AreaDeportivaDTO implements Serializable{
 
     //objeto para front K
     private ZonaDTO zona; 
+
+    // Para RESPUESTA - imágenes ya procesadas
+    private List<ImagenDTO> imagenes;
+    //private LocalDateTime fechaCreacion;
+    //private LocalDateTime fechaActualizacion;
+    
+    // Para CREACIÓN/ACTUALIZACIÓN - ignorado en JSON
+    @JsonIgnore
+    private transient List<MultipartFile> archivosImagenes;
+    
+    // Métodos de utilidad
+    public boolean tieneArchivosParaProcesar() {
+        return archivosImagenes != null && !archivosImagenes.isEmpty();
+    }
+    //
+    public boolean esValidoParaCreacion() {
+        return nombreArea != null && !nombreArea.trim().isEmpty();
+    }
 }

@@ -3,7 +3,7 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
-//import java.util.List;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,7 +31,7 @@ public class Zona {
     @JoinColumn(name = "id_macrodistrito")
     private Macrodistrito macrodistrito;
 
-    /*@OneToMany(mappedBy = "zona", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AreaDeportiva> areaDeportiva;*/
+    @OneToMany(mappedBy = "zona", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AreaDeportiva> areaDeportiva;
     
 }

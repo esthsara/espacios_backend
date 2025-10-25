@@ -28,7 +28,7 @@ public class Disciplina {
     private String descripcion;
 
     @Column(name = "estado")
-    private Boolean estado = true; // Valor por defecto a 'true'
+    private Boolean estado; // Valor por defecto a 'true'
 
     @CreationTimestamp
     @Column(name = "fecha_creacion")
