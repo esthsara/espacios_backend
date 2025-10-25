@@ -20,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
         var authorities = user.getRoles().stream()
-            .map(r -> r.getName().name().replace("ROL_", "ROL_"))
+            .map(r -> r.getName().name().replace("ROL_", "ROLE_"))
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
