@@ -22,55 +22,59 @@ public class CanchaDTO implements Serializable {
     private Long idCancha;
 
     @NotBlank(message = "El nombre de la cancha es obligatorio")
-    private String nombre;//
+    private String nombre;
 
     @NotNull(message = "El costo por hora es obligatorio")
     @Positive(message = "El costo por hora debe ser un valor positivo")
-    private Double costoHora;//
+    private Double costoHora;
 
     @NotNull(message = "La capacidad es obligatoria")
     @Positive(message = "La capacidad debe ser un valor positivo")
-    private Integer capacidad;//
+    private Integer capacidad;
 
    /* @NotBlank(message = "El estado es obligatorio")
     private String estado;*/
 
     @NotNull(message = "El estado es obligatorio")
-    private Boolean estado;//
+    private Boolean estado;
 
     @NotBlank(message = "El mantenimiento es obligatorio")
-    private String mantenimiento;//
+    private String mantenimiento;
 
     @NotNull(message = "La hora de inicio es obligatoria")
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime horaInicio;//
+    private LocalTime horaInicio;
 
     @NotNull(message = "La hora de fin es obligatoria") 
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime horaFin;//
+    private LocalTime horaFin;
 
     @NotBlank(message = "El tipo de superficie es obligatorio")
-    private String tipoSuperficie;//
+    private String tipoSuperficie;
 
     @NotBlank(message = "El tamaño es obligatorio")
-    private String tamano;//
+    private String tamano;
 
     @NotBlank(message = "La iluminación es obligatoria")
-    private String iluminacion;//
+    private String iluminacion;
 
     @NotBlank(message = "El tipo de cubierta es obligatorio")
-    private String cubierta;//
+    private String cubierta;
 
     @Size(max = 900, message = "La URL de la imagen no puede exceder 900 caracteres")
-    private String urlImagen;//
+    private String urlImagen;
 
     @NotNull(message = "El id del área deportiva es obligatorio")
     @Positive(message = "El id del área deportiva debe ser un valor positivo")  
     private Long idAreadeportiva;
 
-    private AreaDeportivaDTO areaDeportiva; // objeto front K
 
+    //objetos
+    private AreaDeportivaDTO areaDeportiva; // objeto front
+    private List<EquipamientoDTO> equipamientos;
+    private List<DisciplinaDTO> disciplinas;
 
+    
     // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;
     //private LocalDateTime fechaCreacion;

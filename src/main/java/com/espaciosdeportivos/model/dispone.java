@@ -11,10 +11,10 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "dispone") 
-public class dispone {
+public class Dispone {
     
     @EmbeddedId
-    private disponeId id;
+    private DisponeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idCancha")

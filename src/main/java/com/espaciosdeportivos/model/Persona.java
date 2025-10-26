@@ -2,7 +2,7 @@ package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -26,11 +26,11 @@ public class Persona {
     @Column(name = "id_persona")
     private Long id;
 
-    @NotNull
+    //@NotNull
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
-    @NotNull
+    //@NotNull
     @Column(name = "nombre", nullable = false)
     private String nombre;
 
@@ -40,24 +40,24 @@ public class Persona {
     @Column(name = "a_materno", nullable = false)
     private String apellidoMaterno;
 
-    @NotNull
+    //@NotNull
     @Column(name = "telefono", nullable = false)
     private String telefono;
 
     @Email
-    @NotNull
+    //@NotNull
     @Column(name = "email", nullable = false)
     private String email;
 
-    @NotNull
+    //@NotNull
     @Column(name = "url_imagen", nullable = false)
     private String urlImagen;
 
-    @NotNull
+    ///@NotNull
     @Column(name = "estado", nullable = false)
     private Boolean estado;
-
-    @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false)
+    //use Lazi por que Solo carga esta relación cuando yo la pida explícitamente en el código."
+    @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     private List<Comentario> comentario;
 
 }

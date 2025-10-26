@@ -6,7 +6,7 @@ import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.dto.AreaDeportivaDTO; // objeto front K
 import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
-import com.espaciosdeportivos.dto.disponeDTO;
+import com.espaciosdeportivos.dto.DisponeDTO;
 
 import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Cliente;
@@ -14,8 +14,8 @@ import com.espaciosdeportivos.model.Equipamiento;
 import com.espaciosdeportivos.model.Reserva;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
-import com.espaciosdeportivos.model.dispone;
-import com.espaciosdeportivos.model.incluye;
+import com.espaciosdeportivos.model.Dispone;
+import com.espaciosdeportivos.model.Incluye;
 //import com.espaciosdeportivos.model.sepractica;
 import com.espaciosdeportivos.repository.CanchaRepository;
 import com.espaciosdeportivos.repository.AreaDeportivaRepository;
@@ -205,7 +205,7 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional(readOnly = true)
     public List<EquipamientoDTO> obtenerEquipamientoPorCancha(Long canchaId) {
-        List<dispone> lista = disponeRepository.findByCanchaIdCancha(canchaId);
+        List<Dispone> lista = disponeRepository.findByCanchaIdCancha(canchaId);
 
         return lista.stream()
                 .map(d -> convertEquipamientoToDTO(d.getEquipamiento()))
@@ -215,7 +215,7 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional(readOnly = true)
     public List<ReservaDTO> obtenerReservaPorCancha(Long canchaId) {
-        List<incluye> lista = incluyeRepository.findByCanchaIdCancha(canchaId);
+        List<Incluye> lista = incluyeRepository.findByCanchaIdCancha(canchaId);
 
         return lista.stream()
                 .map(i -> convertReservaResumenToDTO(i.getReserva()))

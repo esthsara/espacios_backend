@@ -49,7 +49,12 @@ public class ReservaDTO implements Serializable {
     private Integer duracionMinutos;
     private String codigoReserva;
 
-    // Campos de solo lectura (respuesta)
+    //objetos
+    private PagoDTO pago;
+    private ClienteDTO cliente;
+    private CanchaDTO cancha;
+
+    /*// Campos de solo lectura (respuesta)
     private String nombreCliente;
     private String emailCliente;
     private String telefonoCliente;
@@ -59,5 +64,5 @@ public class ReservaDTO implements Serializable {
     // Información de pagos
     private Double totalPagado;
     private Double saldoPendiente;
-    private Boolean pagadaCompleta;
+    private Boolean pagadaCompleta;*/
 }

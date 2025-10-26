@@ -10,10 +10,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class incluye {
+public class Incluye {
 
     @EmbeddedId
-    private incluyeId id;
+    private IncluyeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idCancha")

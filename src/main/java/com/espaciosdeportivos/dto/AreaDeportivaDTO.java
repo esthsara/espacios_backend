@@ -28,9 +28,10 @@ public class AreaDeportivaDTO implements Serializable{
     private String descripcionArea;
 
     @Email(message = "El email debe ser válido")
+    @NotBlank(message = "El email es obligatorio.")
     private String emailArea;
 
-    @Pattern(regexp = "\\d{8}", message = "El teléfono debe tener 8  dígitos")
+    @Pattern(regexp = "\\d{8}", message = "El teléfono debe tener 8 dígitos.")
     private String telefonoArea;
 
     @NotNull(message = "La hora de inicio es obligatoria")
@@ -46,16 +47,18 @@ public class AreaDeportivaDTO implements Serializable{
 
     private String urlImagen;
     
-    @NotNull(message = "La latitud del área es obligatorio")
+    @DecimalMin(value = "-90.0", message = "La latitud debe estar entre -90 y 90")
+    @DecimalMax(value = "90.0", message = "La latitud debe estar entre -90 y 90")
     private Double latitud;
 
-    @NotNull(message = "La longitud del área es obligatorio")
+    @DecimalMin(value = "-180.0", message = "La longitud debe estar entre -180 y 180")
+    @DecimalMax(value = "180.0", message = "La longitud debe estar entre -180 y 180")
     private Double longitud;
 
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
 
-    @NotNull(message = "La dirección es obligatoria")
+    @NotNull(message = "El id Zona es obligatoria")
     @Positive(message = "El ID de la zona debe ser un valor positivo")
     private Long idZona;
 
@@ -63,8 +66,10 @@ public class AreaDeportivaDTO implements Serializable{
     @Positive(message = "El ID del administrador debe ser un valor positivo")   
     private Long id;
 
-    //objeto para front K
+    //objeto para front 
     private ZonaDTO zona; 
+    private List<CanchaDTO> canchas;
+
 
     // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;

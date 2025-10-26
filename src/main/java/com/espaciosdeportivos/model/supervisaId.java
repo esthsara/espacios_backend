@@ -11,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class supervisaId implements Serializable {
+public class SupervisaId implements Serializable {
 
     private Long idUsControl;
     private Long idCancha;

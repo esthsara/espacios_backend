@@ -36,6 +36,6 @@ public class Equipamiento {
     private String urlImagen;
 
     @OneToMany(mappedBy = "equipamiento")
-    private List<dispone> cancha;
+    private List<Dispone> cancha;
 
 }

@@ -1,6 +1,6 @@
 package com.espaciosdeportivos.controller;
 
-import com.espaciosdeportivos.dto.disponeDTO;
+import com.espaciosdeportivos.dto.DisponeDTO;
 //import com.espaciosdeportivos.model.dispone;
 import com.espaciosdeportivos.service.IdisponeService;
 
@@ -34,23 +34,23 @@ public class disponeController {
 
     // Asociar/Actualizar equipamiento a una cancha
     @PostMapping
-    public ResponseEntity<disponeDTO> asociarEquipamientoACancha(
-            @Valid @RequestBody disponeDTO dto) {
+    public ResponseEntity<DisponeDTO> asociarEquipamientoACancha(
+            @Valid @RequestBody DisponeDTO dto) {
         logger.info("[DISPONE] Solicitud para asociar/actualizar equipamiento ID {} a cancha ID {} con cantidad {}.",
                 dto.getIdEquipamiento(), dto.getIdCancha(), dto.getCantidad());
-        disponeDTO result = disponeService.asociarEquipamientoACancha(dto);
+        DisponeDTO result = disponeService.asociarEquipamientoACancha(dto);
         logger.info("[DISPONE] Asociación creada/actualizada exitosamente.");
         return ResponseEntity.ok(result);
     }
 
     // Obtener la asociación específica (cancha + equipamiento)
     @GetMapping("/{idCancha}/{idEquipamiento}")
-    public ResponseEntity<disponeDTO> obtenerEquipamientoDeCancha(
+    public ResponseEntity<DisponeDTO> obtenerEquipamientoDeCancha(
             @PathVariable Long idCancha,
             @PathVariable Long idEquipamiento) {
         logger.info("[DISPONE] Solicitud para obtener asociación de cancha ID {} y equipamiento ID {}.",
                 idCancha, idEquipamiento);
-        disponeDTO association = disponeService.obtenerEquipamientoDeCancha(idCancha, idEquipamiento);
+        DisponeDTO association = disponeService.obtenerEquipamientoDeCancha(idCancha, idEquipamiento);
         logger.info("[DISPONE] Asociación encontrada exitosamente.");
         return ResponseEntity.ok(association);
     }
@@ -70,18 +70,18 @@ public class disponeController {
 
     // Listar todos los equipamientos de una cancha (DTO simple)
     @GetMapping("/{idCancha}/equipamientos")
-    public ResponseEntity<List<disponeDTO>> obtenerEquipamientosPorCancha(@PathVariable Long idCancha) {
-        List<disponeDTO> lista = disponeService.obtenerEquipamientosPorCancha(idCancha);
+    public ResponseEntity<List<DisponeDTO>> obtenerEquipamientosPorCancha(@PathVariable Long idCancha) {
+        List<DisponeDTO> lista = disponeService.obtenerEquipamientosPorCancha(idCancha);
         return ResponseEntity.ok(lista);
     }
 
     // Listar con detalle (similar a espacio-equipamiento)
     @GetMapping("/por-cancha/{idCancha}")
     public ResponseEntity<List<Map<String, Object>>> listarPorIdCancha(@PathVariable Long idCancha) {
-        List<disponeDTO> listaDTO = disponeService.listarPorIdCancha(idCancha);
+        List<DisponeDTO> listaDTO = disponeService.listarPorIdCancha(idCancha);
 
         List<Map<String, Object>> response = new ArrayList<>();
-        for (disponeDTO d : listaDTO) {
+        for (DisponeDTO d : listaDTO) {
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("idCancha", d.getIdCancha());
             item.put("idEquipamiento", d.getIdEquipamiento());

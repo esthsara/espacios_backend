@@ -31,6 +31,7 @@ public class AreaDeportiva {
 
     @Column(name = "hora_inicio_area")
     private String horaInicioArea;
+
     @Column(name = "hora_fin_area")
     private String horaFinArea;
 
@@ -67,7 +68,7 @@ public class AreaDeportiva {
     @JoinColumn(name = "id_persona",nullable = false)
     private Administrador administrador;
 
-    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Cancha> cancha;
 
     

@@ -1,6 +1,8 @@
 package com.espaciosdeportivos.dto;
 
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.*;
 import jakarta.validation.constraints.*;
 
@@ -19,4 +21,6 @@ public class MacrodistritoDTO implements Serializable{
 
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
+
+    private List<ZonaDTO> zonas;
 }

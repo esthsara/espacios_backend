@@ -12,7 +12,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class participaId implements Serializable {
+public class ParticipaId implements Serializable {
 
     @Column(name = "id_invitado")
     private Long idInvitado;
@@ -24,7 +24,7 @@ public class participaId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        participaId that = (participaId) o;
+        ParticipaId that = (ParticipaId) o;
         return Objects.equals(idInvitado, that.idInvitado) && 
                Objects.equals(idReserva, that.idReserva);
     }

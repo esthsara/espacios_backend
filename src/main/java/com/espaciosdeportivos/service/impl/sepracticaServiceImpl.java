@@ -1,6 +1,6 @@
 package com.espaciosdeportivos.service.impl;
 
-import com.espaciosdeportivos.dto.sepracticaDTO;
+import com.espaciosdeportivos.dto.SepracticaDTO;
 import com.espaciosdeportivos.model.*;
 import com.espaciosdeportivos.repository.*;
 import com.espaciosdeportivos.service.IsepracticaService;
@@ -22,7 +22,7 @@ public class sepracticaServiceImpl implements IsepracticaService {
 
     @Override
     @Transactional
-    public sepracticaDTO asociarDisciplinaACancha(sepracticaDTO dto) {
+    public SepracticaDTO asociarDisciplinaACancha(SepracticaDTO dto) {
         Cancha cancha = canchaRepository.findById(dto.getIdCancha())
                 .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + dto.getIdCancha()));
 
@@ -31,8 +31,8 @@ public class sepracticaServiceImpl implements IsepracticaService {
 
         sepracticaId id = new sepracticaId(dto.getIdCancha(), dto.getIdDisciplina());
 
-        sepractica entity = sepracticaRepository.findById(id).orElseGet(() ->
-                sepractica.builder()
+        Sepractica entity = sepracticaRepository.findById(id).orElseGet(() ->
+                Sepractica.builder()
                         .id(id)
                         .cancha(cancha)
                         .disciplina(disciplina)
@@ -44,16 +44,16 @@ public class sepracticaServiceImpl implements IsepracticaService {
         entity.setNivelDificultad(dto.getNivelDificultad());
         entity.setRecomendaciones(dto.getRecomendaciones());
 
-        sepractica saved = sepracticaRepository.save(entity);
+        Sepractica saved = sepracticaRepository.save(entity);
         return convertToDTO(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public sepracticaDTO obtenerDisciplinaDeCancha(Long idCancha, Long idDisciplina) {
+    public SepracticaDTO obtenerDisciplinaDeCancha(Long idCancha, Long idDisciplina) {
         sepracticaId id = new sepracticaId(idCancha, idDisciplina);
 
-        sepractica association = sepracticaRepository.findById(id)
+        Sepractica association = sepracticaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Relación no encontrada: Cancha ID " + idCancha + " y Disciplina ID " + idDisciplina
                 ));
@@ -62,7 +62,7 @@ public class sepracticaServiceImpl implements IsepracticaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<sepracticaDTO> obtenerDisciplinasPorCancha(Long idCancha) {
+    public List<SepracticaDTO> obtenerDisciplinasPorCancha(Long idCancha) {
         canchaRepository.findById(idCancha)
                 .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + idCancha));
 
@@ -84,7 +84,7 @@ public class sepracticaServiceImpl implements IsepracticaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<sepracticaDTO> listarPorIdCancha(Long idCancha) {
+    public List<SepracticaDTO> listarPorIdCancha(Long idCancha) {
         return sepracticaRepository.findById_IdCancha(idCancha).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -92,14 +92,14 @@ public class sepracticaServiceImpl implements IsepracticaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<sepracticaDTO> listarPorIdDisciplina(Long idDisciplina) {
+    public List<SepracticaDTO> listarPorIdDisciplina(Long idDisciplina) {
         return sepracticaRepository.findByDisciplina_IdDisciplina(idDisciplina).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    private sepracticaDTO convertToDTO(sepractica entity) {
-        return sepracticaDTO.builder()
+    private SepracticaDTO convertToDTO(Sepractica entity) {
+        return SepracticaDTO.builder()
                 .idCancha(entity.getCancha().getIdCancha())
                 .idDisciplina(entity.getDisciplina().getIdDisciplina())
                 .nivelDificultad(entity.getNivelDificultad())

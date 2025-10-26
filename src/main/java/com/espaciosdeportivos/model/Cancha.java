@@ -75,8 +75,9 @@ public class Cancha {
     @JoinColumn(name = "id_areadeportiva")
     private AreaDeportiva areaDeportiva;
 
+    //revisar por ejmplo si comparten equipamiento enonces no
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<dispone> equipamiento;
+    private List<Dispone> equipamiento;
 
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comentario> comentario;

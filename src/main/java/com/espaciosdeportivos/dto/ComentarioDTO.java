@@ -35,6 +35,6 @@ public class ComentarioDTO implements Serializable {
     @NotNull(message = "El estado del comentario es obligatorio")
     private Boolean estado;
 
-    private PersonaPublicaDTO persona; // objeto para frontend
+    private PersonaPublicaDTO persona; 
 
 }

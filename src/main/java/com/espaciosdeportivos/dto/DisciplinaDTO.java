@@ -2,8 +2,7 @@ package com.espaciosdeportivos.dto;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -21,10 +20,17 @@ public class DisciplinaDTO implements Serializable {
     @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")
     private String nombre;
 
-    @Size(max = 500, message = "La descripción no puede superar los 500 caracteres")
+    @NotBlank(message = "La descripcion de la disciplina no puede estar vacío")
+    @Size(max = 800, message = "La descripción no puede superar los 500 caracteres")
     private String descripcion;
 
+    @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
+
+    //objeto
+    private Long idCancha;
+    private CanchaDTO cancha;
+
     
     // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;

@@ -22,4 +22,7 @@ public class ZonaDTO implements Serializable{
 
     @NotNull(message = "El id del macrodistrito es obligatorio")
     private Long idMacrodistrito;
+
+    //objeto
+    private MacrodistritoDTO macrodistrito;
 }

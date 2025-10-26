@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 @Getter
 @Setter
@@ -66,4 +67,7 @@ public class UsuarioControlDTO implements Serializable {
     @NotBlank(message = "La dirección es obligatoria.")
     @Size(max = 200, message = "La dirección no puede exceder los 200 caracteres.")
     private String direccion;
+
+    //objeto
+    private List<CanchaDTO> canchasAsignadas;   
 }

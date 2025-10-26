@@ -16,7 +16,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode 
-public class disponeId implements Serializable{
+public class DisponeId implements Serializable{
     
     @Column(name = "id_cancha")
     private Long idCancha;

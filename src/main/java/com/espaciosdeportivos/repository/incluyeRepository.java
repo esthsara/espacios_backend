@@ -7,12 +7,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.espaciosdeportivos.model.incluye;
-import com.espaciosdeportivos.model.incluyeId;
+import com.espaciosdeportivos.model.Incluye;
+import com.espaciosdeportivos.model.IncluyeId;
 
 @Repository
-public  interface incluyeRepository extends JpaRepository<incluye, incluyeId>{
+public  interface incluyeRepository extends JpaRepository<Incluye, IncluyeId>{
     
-     List<incluye> findByCanchaIdCancha(Long idCancha);
+     List<Incluye> findByCanchaIdCancha(Long idCancha);
 }
 

@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class incluyeId implements Serializable {
+public class IncluyeId implements Serializable {
 
     @Column(name = "id_cancha")
     private Long idCancha;

@@ -44,7 +44,7 @@ public class AdministradorDTO implements Serializable {
     @Size(max = 150, message = "El email no puede exceder los 150 caracteres.")
     private String email;
 
-    @NotBlank(message = "La URL de la imagen es obligatoria.")
+    //@NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
 
     //@NotBlank(message = "El estado es obligatorio.")

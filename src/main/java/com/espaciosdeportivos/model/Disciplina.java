@@ -40,9 +40,9 @@ public class Disciplina {
 
     // Relaciones con Cancha (a través de la tabla intermedia se_practica)
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<sepractica> canchas;
+    private List<Sepractica> canchas;
 
     // Relación con Reserva (a través de la tabla intermedia incluye)
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<incluye> reservas;
+    private List<Incluye> reservas;
 }

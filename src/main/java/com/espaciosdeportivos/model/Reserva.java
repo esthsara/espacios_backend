@@ -70,10 +70,10 @@ public class Reserva {
     private List<Qr> qr; 
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
-    private List<incluye> canchasIncluidas;
+    private List<Incluye> canchasIncluidas;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
-    private List<participa> invitados;
+    private List<Participa> invitados;
 
     @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL)
     private Cancelacion cancelacion;
