@@ -4,7 +4,7 @@ import com.espaciosdeportivos.dto.AreaDeportivaDTO;
 //import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.service.IAreaDeportivaService;
-
+import com.espaciosdeportivos.model.Persona;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
@@ -98,6 +98,17 @@ public class AreaDeportivaController {
         AreaDeportiva areaDeportiva = areaDeportivaservice.obtenerAreaDeportivaConBloqueo(id);
         return ResponseEntity.ok(areaDeportiva);
     }
+
+    //MI_AREA k
+    @GetMapping("/admin/{adminId}")
+    public ResponseEntity<AreaDeportivaDTO> obtenerPorAdminId(@PathVariable("adminId") Long Id){
+
+        AreaDeportivaDTO dto = areaDeportivaservice.obtenerPorAdminId(Id);
+        return ResponseEntity.ok(dto);
+    }
+
+
+
 
     // ==========================================================
     // 🖼️ GESTIÓN DE IMÁGENES DE CANCHAS

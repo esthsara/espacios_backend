@@ -28,7 +28,7 @@ public class Administrador extends Persona {
     @Column(name = "direccion", nullable = false, length = 200)
     private String direccion;
 
-    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AreaDeportiva> areaDeportiva;
+    @OneToOne(mappedBy = "administrador", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AreaDeportiva areaDeportiva;
 
 }

@@ -37,6 +37,9 @@ public interface IAreaDeportivaService {
     // obtener área deportiva con bloqueo optimista
     AreaDeportiva obtenerAreaDeportivaConBloqueo(Long idAreaDeportiva); // para uso interno con bloqueo
 
+    //MI_AREA k
+    AreaDeportivaDTO obtenerPorAdminId(Long Id);
+
     // Gestión de imágenes específica
     AreaDeportivaDTO agregarImagenes(Long idCancha, List<MultipartFile> archivosImagenes);
     AreaDeportivaDTO eliminarImagen(Long idCancha, Long idImagenRelacion);
