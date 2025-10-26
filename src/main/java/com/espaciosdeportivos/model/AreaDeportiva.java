@@ -49,6 +49,16 @@ public class AreaDeportiva {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
+    /*
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestamp
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+     */
+
     @ManyToOne
     @JoinColumn(name = "id_zona")
     private Zona zona;

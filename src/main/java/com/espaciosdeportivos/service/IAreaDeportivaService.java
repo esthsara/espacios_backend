@@ -2,9 +2,12 @@ package com.espaciosdeportivos.service;
 
 import jakarta.validation.Valid;
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
+import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.model.AreaDeportiva;
 
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IAreaDeportivaService {
     // Listar todas las áreas deportivas activas
@@ -37,5 +40,9 @@ public interface IAreaDeportivaService {
     //MI_AREA k
     AreaDeportivaDTO obtenerPorAdminId(Long Id);
 
+    // Gestión de imágenes específica
+    AreaDeportivaDTO agregarImagenes(Long idCancha, List<MultipartFile> archivosImagenes);
+    AreaDeportivaDTO eliminarImagen(Long idCancha, Long idImagenRelacion);
+    AreaDeportivaDTO reordenarImagenes(Long idCancha, List<Long> idsImagenesOrden);
 
 }

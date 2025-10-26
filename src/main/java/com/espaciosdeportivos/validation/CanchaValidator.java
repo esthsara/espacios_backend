@@ -31,14 +31,15 @@ public class CanchaValidator {
     }
 
     public void validarHoras(LocalTime inicio, LocalTime fin) {
-    if (inicio == null || fin == null) {
-        throw new BusinessException("Las horas de inicio y fin son obligatorias (HH:mm).");
+        if (inicio == null || fin == null) {
+            throw new BusinessException("Las horas de inicio y fin son obligatorias.");
+        }
+        // Validar rango válido de horas (aunque LocalTime ya garantiza esto)
+        if (inicio.isBefore(LocalTime.MIN) || inicio.isAfter(LocalTime.MAX) ||
+            fin.isBefore(LocalTime.MIN) || fin.isAfter(LocalTime.MAX)) {
+            throw new BusinessException("Las horas deben estar entre 00:00 y 23:59.");
+        }
     }
-
-    if (!fin.isAfter(inicio)) {
-        throw new BusinessException("La hora de fin debe ser posterior a la de inicio.");
-    }
-}
 
     public void validarTexto(String valor, String campo, int maxLen) {
         if (valor == null || valor.isBlank()) {

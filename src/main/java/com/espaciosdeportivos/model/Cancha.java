@@ -61,6 +61,16 @@ public class Cancha {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
+    /*
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestampx
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+     */
+
     @ManyToOne
     @JoinColumn(name = "id_areadeportiva")
     private AreaDeportiva areaDeportiva;

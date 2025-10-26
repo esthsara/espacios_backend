@@ -20,7 +20,7 @@ import com.espaciosdeportivos.repository.AdministradorRepository;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", maxAge = 3600)
 public class AdminController {
 
     @Autowired
@@ -74,7 +74,7 @@ public class AdminController {
 
         if (rn == RoleName.ROL_CLIENTE) {
         Cliente cliente = Cliente.builder()
-                .id(persona.getId()) // usa el id existente de Persona
+                .id(persona.getId()) // usa el id existente de una Persona
                 .nombre(persona.getNombre())
                 .apellidoPaterno(persona.getApellidoPaterno())
                 .apellidoMaterno(persona.getApellidoMaterno())
