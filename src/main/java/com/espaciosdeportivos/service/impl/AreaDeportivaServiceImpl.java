@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+
 public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
 
     private final AreaDeportivaRepository areaDeportivaRepository;
@@ -213,4 +214,15 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
                 .build();
     }
+
+    @Override
+    public AreaDeportivaDTO obtenerPorAdminId(Long Id) {
+        AreaDeportiva area = areaDeportivaRepository.findByAdministrador_Id(Id)
+            .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
+        return convertToDTO(area);
+    }
+
+
+
+
 }

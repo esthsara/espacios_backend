@@ -34,4 +34,8 @@ public interface IAreaDeportivaService {
     // obtener área deportiva con bloqueo optimista
     AreaDeportiva obtenerAreaDeportivaConBloqueo(Long idAreaDeportiva); // para uso interno con bloqueo
 
+    //MI_AREA k
+    AreaDeportivaDTO obtenerPorAdminId(Long Id);
+
+
 }
