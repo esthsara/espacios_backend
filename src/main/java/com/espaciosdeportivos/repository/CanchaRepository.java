@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.repository;
 
+import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.model.Cancha;
 //import com.espaciosdeportivos.model.Equipamiento;
 
@@ -45,4 +46,8 @@ public interface CanchaRepository extends JpaRepository<Cancha, Long> {
 
                                // (Opcional) Unicidad de nombre dentro del área
    // boolean existsByNombreIgnoreCaseAndAreaDeportiva_IdAreaDeportiva(String nombre, Long idAreaDeportiva);
+
+   //ADMIN - Obtener canchas por área deportiva
+    List<Cancha> findByAreaDeportiva_IdAreaDeportiva(Long idArea);
+
 }
