@@ -1,7 +1,6 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.AuthDTO.*;
-import com.espaciosdeportivos.dto.SignupRequest;
 import com.espaciosdeportivos.model.AppUser;
 import com.espaciosdeportivos.model.Persona;
 import com.espaciosdeportivos.model.Role;
@@ -19,14 +18,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.util.StringUtils;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true") //  Cambiado de "*" a "http://localhost:3000"
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AuthController {
+    
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -45,7 +48,6 @@ public class AuthController {
     @Autowired
     private PersonaRepository personaRepo;
 
-
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepo.existsByUsername(signUpRequest.getUsername())) {
@@ -55,19 +57,21 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: El email ya está en uso."));
         }
 
-        // 1️⃣ Crear entidad Persona básica (sin rol todavía)
-        Persona persona = new Persona();
-        persona.setNombre(signUpRequest.getNombre());
-        persona.setApellidoPaterno(signUpRequest.getApellidoPaterno());
-        persona.setApellidoMaterno(signUpRequest.getApellidoMaterno());
-        persona.setFechaNacimiento(signUpRequest.getFechaNacimiento());
-        persona.setTelefono(signUpRequest.getTelefono());
-        persona.setEmail(signUpRequest.getEmail());
-        persona.setUrlImagen(signUpRequest.getUrlImagen());
-        persona.setEstado(false);
-        personaRepo.save(persona);
+        // Crear Persona usando el patrón Builder
+        Persona persona = Persona.builder()
+            .nombre(signUpRequest.getNombre())
+            .apellidoPaterno(signUpRequest.getApellidoPaterno())
+            .apellidoMaterno(signUpRequest.getApellidoMaterno())
+            .fechaNacimiento(signUpRequest.getFechaNacimiento())
+            .telefono(signUpRequest.getTelefono())
+            .email(signUpRequest.getEmail())
+            .urlImagen(signUpRequest.getUrlImagen() != null ? signUpRequest.getUrlImagen() : "")
+            .estado(false)
+            .build();
+        
+        persona = personaRepo.save(persona);
 
-        // 2️⃣ Crear AppUser
+        // Crear AppUser
         AppUser user = new AppUser();
         user.setUsername(signUpRequest.getUsername());
         user.setEmail(signUpRequest.getEmail());
@@ -75,40 +79,46 @@ public class AuthController {
         user.setRolSolicitado(signUpRequest.getRolSolicitado() == null ? "CLIENTE" : signUpRequest.getRolSolicitado().toUpperCase());
         user.setActivo(false);
         user.setEstadoVerificacion("PENDIENTE");
-        user.setPersona(persona); // vincula con Persona
+        user.setPersona(persona);
+        
         userRepo.save(user);
 
         return ResponseEntity.ok(new MessageResponse("Solicitud registrada. Pendiente de aprobación por un administrador."));
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        // opcional: verificar si existe y está aprobado antes de autenticar:
-        Optional<AppUser> maybeUser = userRepo.findByUsername(loginRequest.getUsername());
-        if (maybeUser.isPresent()) {
-            AppUser u = maybeUser.get();
-            if (!u.getActivo()) {
-                return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no aprobado o inactivo."));
+        try {
+            // Verificar si existe y está aprobado antes de autenticar
+            Optional<AppUser> maybeUser = userRepo.findByUsername(loginRequest.getUsername());
+            if (maybeUser.isPresent()) {
+                AppUser u = maybeUser.get();
+                if (!u.getActivo()) {
+                    return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no aprobado o inactivo."));
+                }
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no encontrado."));
             }
-        } else {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no encontrado."));
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            Set<String> roles = userDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toSet());
+
+            AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
+
+            return ResponseEntity.ok(new JwtResponse(jwt, usuario.getId(), userDetails.getUsername(), usuario.getEmail(), roles));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Credenciales inválidas."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()));
         }
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Set<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toSet());
-
-        AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
-
-        return ResponseEntity.ok(new JwtResponse(jwt, usuario.getId(), userDetails.getUsername(), usuario.getEmail(), roles));
     }
 
     @GetMapping("/session-info")
@@ -116,11 +126,43 @@ public class AuthController {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
-            Set<String> roles = userDetails.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
-            return ResponseEntity.ok(new JwtResponse(null, usuario.getId(), userDetails.getUsername(), usuario.getEmail(), roles));
+            AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElse(null);
+            if (usuario != null) {
+                Set<String> roles = userDetails.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
+                return ResponseEntity.ok(new JwtResponse(null, usuario.getId(), userDetails.getUsername(), usuario.getEmail(), roles));
+            }
         }
         return ResponseEntity.ok(new MessageResponse("No hay sesión activa"));
+    }
+
+    @GetMapping("/verify-token")
+    public ResponseEntity<?> verifyToken(HttpServletRequest request) {
+        String jwt = parseJwt(request);
+        Map<String, Object> response = new HashMap<>();
+        
+        if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+            String username = jwtUtils.getUserNameFromJwtToken(jwt);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            
+            response.put("valid", true);
+            response.put("username", username);
+            response.put("authenticated", auth != null && auth.isAuthenticated());
+            response.put("authorities", auth != null ? auth.getAuthorities().toString() : "null");
+            
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("valid", false);
+            response.put("error", jwt == null ? "No token provided" : "Invalid token");
+            return ResponseEntity.status(401).body(response);
+        }
+    }
+
+    private String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7);
+        }
+        return null;
     }
 
     @PostMapping("/logout")

@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 public class AuthDTO {
 
-    // --- LOGIN ---
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class LoginRequest {
         @NotBlank
@@ -16,7 +15,6 @@ public class AuthDTO {
         private String password;
     }
 
-    // --- SIGNUP ---
     @Data @NoArgsConstructor @AllArgsConstructor @Builder
     public static class SignupRequest {
         @NotBlank @Size(min = 3, max = 20)
@@ -28,7 +26,7 @@ public class AuthDTO {
         @NotBlank @Size(min = 6, max = 100)
         private String password;
 
-        // Datos de Persona
+        // Datos Persona
         private String nombre;
         private String apellidoPaterno;
         private String apellidoMaterno;
@@ -39,7 +37,6 @@ public class AuthDTO {
         private String rolSolicitado; // "CLIENTE", "ADMINISTRADOR", "SUPERUSUARIO"
     }
 
-    // --- JWT ---
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class JwtResponse {
         private String token;
@@ -59,7 +56,6 @@ public class AuthDTO {
         }
     }
 
-    // --- MESSAGE ---
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class MessageResponse {
         private String message;
