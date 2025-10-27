@@ -20,11 +20,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
         var authorities = user.getRoles().stream()
-            .map(r -> r.getName().name().replace("ROL_", "ROL_"))
+            // RoleName: ROL_SUPERUSUARIO -> queremos "ROLE_SUPERUSUARIO"
+            .map(r -> "ROLE_" + r.getName().name().replace("ROL_", ""))
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-        // Nota: el flag 'activo' impide iniciar sesión si es false
-        return new User(user.getUsername(), user.getPassword(), user.getActivo(), true, true, true, authorities);
+        return new User(
+                user.getUsername(),
+                user.getPassword(),
+                user.getActivo(), // permite login solo si activo == true
+                true,
+                true,
+                true,
+                authorities
+        );
     }
 }
