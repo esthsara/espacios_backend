@@ -420,5 +420,15 @@ public class CanchaServiceImpl implements ICanchaService {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
     }
 
+    @Override
+    public List<CanchaDTO> obtenerCanchasPorArea(Long idArea) {
+        List<Cancha> canchas = canchaRepository.findByAreaDeportiva_IdAreaDeportiva(idArea);
+        return canchas.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+    }
+
+
+
 
 }
