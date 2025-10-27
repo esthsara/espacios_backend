@@ -282,6 +282,34 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         return convertToDTO(area);
     }
 
+    //MI_AREA k actualizar por adminId
+    @Override
+    public AreaDeportivaDTO actualizarPorAdminId(Long adminId, AreaDeportivaDTO dto) {
+        AreaDeportiva area = areaDeportivaRepository.findByAdministrador_Id(adminId)
+            .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
+
+        areaDeportivaValidator.validarArea(dto); // validación como en otros métodos
+
+        Zona zona = zonaRepository.findById(dto.getIdZona())
+            .orElseThrow(() -> new RuntimeException("Zona no encontrada con ID: " + dto.getIdZona()));
+
+        // Actualiza los campos permitidos
+        area.setNombreArea(dto.getNombreArea());
+        area.setDescripcionArea(dto.getDescripcionArea());
+        area.setEmailArea(dto.getEmailArea());
+        area.setTelefonoArea(dto.getTelefonoArea());
+        area.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea().toString() : null);
+        area.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea().toString() : null);
+        area.setUrlImagen(dto.getUrlImagen());
+        area.setLatitud(dto.getLatitud());
+        area.setLongitud(dto.getLongitud());
+        area.setEstado(dto.getEstado());
+        area.setZona(zona);
+
+        AreaDeportiva actualizada = areaDeportivaRepository.save(area);
+        return convertToDTO(actualizada);
+    }
+
 
 
 

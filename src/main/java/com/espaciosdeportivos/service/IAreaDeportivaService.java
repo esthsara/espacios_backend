@@ -40,6 +40,10 @@ public interface IAreaDeportivaService {
     //MI_AREA k
     AreaDeportivaDTO obtenerPorAdminId(Long Id);
 
+    //MI_AREA k actualizar por adminId
+    AreaDeportivaDTO actualizarPorAdminId(Long adminId, AreaDeportivaDTO dto);
+
+
     // Gestión de imágenes específica
     AreaDeportivaDTO agregarImagenes(Long idCancha, List<MultipartFile> archivosImagenes);
     AreaDeportivaDTO eliminarImagen(Long idCancha, Long idImagenRelacion);
