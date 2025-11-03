@@ -1,8 +1,11 @@
 package com.espaciosdeportivos.repository;
 
+import com.espaciosdeportivos.model.UsuarioControl;
 import com.espaciosdeportivos.model.supervisa;
 import com.espaciosdeportivos.model.supervisaId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,4 +28,14 @@ public interface supervisaRepository extends JpaRepository<supervisa, supervisaI
 
     // Eliminar la relación
     void deleteById_IdUsControlAndId_IdCancha(Long idUsuarioControl, Long idCancha);
+
+    // Obtener todos los usuarios de control 
+    // que pertenezcan a canchas de áreas deportivas de un administrador específico
+    @Query("SELECT DISTINCT s.usuarioControl FROM supervisa s " +
+       "JOIN s.cancha c " +
+       "JOIN c.areaDeportiva a " +
+       "WHERE a.administrador.id = :idAdmin")
+    List<UsuarioControl> findUsuariosControlByAdministradorId(@Param("idAdmin") Long idAdmin);
+
+
 }

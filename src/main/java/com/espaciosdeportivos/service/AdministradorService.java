@@ -2,6 +2,7 @@ package com.espaciosdeportivos.service;
 
 import com.espaciosdeportivos.dto.AdministradorDTO;
 //import com.espaciosdeportivos.model.Administrador;
+import com.espaciosdeportivos.dto.UsuarioControlDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,5 +37,9 @@ public interface AdministradorService {
 
     // Buscar por nombre y apellidos (nombre, aPaterno, aMaterno)
     List<AdministradorDTO> buscarPorNombreApellidos(String nombre, String aPaterno, String aMaterno);
+
+    // Obtener usuarios de control asignados a las canchas del administrador
+    List<UsuarioControlDTO> obtenerUsuariosControlPorAdministrador(Long idAdmin);
+
 
 }

@@ -28,12 +28,13 @@ public interface AdministradorRepository extends JpaRepository<Administrador, Lo
     /**
      * Native query para crear administrador de manera segura
      */
-    @Modifying
-    @Query(value = "INSERT INTO administrador (id_persona, cargo, direccion, estado) " +
-                   "VALUES (:id, :cargo, :direccion, true) " +
-                   "ON CONFLICT (id_persona) DO NOTHING", 
-           nativeQuery = true)
-    void crearAdministradorSiNoExiste(@Param("id") Long id, 
+   @Modifying
+   @Query(value = "INSERT INTO administrador (id_persona, cargo, direccion) " +
+                  "VALUES (:id, :cargo, :direccion) " +
+                  "ON CONFLICT (id_persona) DO NOTHING", 
+         nativeQuery = true)
+   void crearAdministradorSiNoExiste(@Param("id") Long id, 
                                     @Param("cargo") String cargo, 
                                     @Param("direccion") String direccion);
+
 }
