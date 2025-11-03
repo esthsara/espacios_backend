@@ -1,8 +1,11 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AdministradorDTO;
+import com.espaciosdeportivos.dto.UsuarioControlDTO;
 import com.espaciosdeportivos.model.Administrador;
+import com.espaciosdeportivos.model.UsuarioControl;
 import com.espaciosdeportivos.repository.AdministradorRepository;
+import com.espaciosdeportivos.repository.supervisaRepository;
 import com.espaciosdeportivos.service.AdministradorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +20,15 @@ import java.util.stream.Collectors;
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
+    private final supervisaRepository supervisaRepository;
 
     @Autowired
-    public AdministradorServiceImpl(AdministradorRepository administradorRepository) {
+    public AdministradorServiceImpl(
+        AdministradorRepository administradorRepository,
+        supervisaRepository supervisaRepository
+    ) {
         this.administradorRepository = administradorRepository;
+        this.supervisaRepository = supervisaRepository;
     }
 
     @Override
@@ -88,7 +96,6 @@ public class AdministradorServiceImpl implements AdministradorService {
         administradorRepository.delete(admin);
     }
 
-
     @Override
     @Transactional
     public AdministradorDTO cambiarEstado(Long id, Boolean nuevoEstado) {
@@ -113,7 +120,14 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .collect(Collectors.toList());
     }
 
-
+    //  Nuevo método: obtener usuarios de control por administrador
+    @Override
+    public List<UsuarioControlDTO> obtenerUsuariosControlPorAdministrador(Long idAdmin) {
+        List<UsuarioControl> usuarios = supervisaRepository.findUsuariosControlByAdministradorId(idAdmin);
+        return usuarios.stream()
+                .map(this::mapToUsuarioControlDTO)
+                .collect(Collectors.toList());
+    }
 
     // --- Métodos privados de mapeo ---
     private AdministradorDTO mapToDTO(Administrador a) {
@@ -147,4 +161,23 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .direccion(d.getDireccion())
                 .build();
     }
+
+  private UsuarioControlDTO mapToUsuarioControlDTO(UsuarioControl u) {
+    return UsuarioControlDTO.builder()
+            .id(u.getId())
+            .nombre(u.getNombre())
+            .aPaterno(u.getApellidoPaterno())
+            .aMaterno(u.getApellidoMaterno())
+            .fechaNacimiento(u.getFechaNacimiento())
+            .telefono(u.getTelefono())
+            .email(u.getEmail())
+            .urlImagen(u.getUrlImagen())
+            .estado(u.getEstado())
+            .estadoOperativo(u.getEstadoOperativo())
+            .horaInicioTurno(u.getHoraInicioTurno())
+            .horaFinTurno(u.getHoraFinTurno())
+            .direccion(u.getDireccion())
+            .build();
+}
+
 }

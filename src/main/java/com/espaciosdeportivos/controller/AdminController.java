@@ -10,6 +10,8 @@ import com.espaciosdeportivos.dto.AuthDTO.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,6 +70,7 @@ public class AdminController {
         }
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @PostMapping("/solicitudes/{id}/aprobar")
     public ResponseEntity<?> aprobarSolicitud(@PathVariable Long id) {
