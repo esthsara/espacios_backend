@@ -113,7 +113,15 @@ public class AuthController {
 
             AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
 
-            return ResponseEntity.ok(new JwtResponse(jwt, usuario.getId(), userDetails.getUsername(), usuario.getEmail(), roles));
+            // 🔧 CAMBIO: incluir idPersona en la respuesta del login
+            return ResponseEntity.ok(new JwtResponse(
+                jwt,
+                usuario.getId(),
+                userDetails.getUsername(),
+                usuario.getEmail(),
+                roles,
+                usuario.getPersona().getId()
+            ));
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Credenciales inválidas."));
         } catch (Exception e) {
@@ -129,7 +137,16 @@ public class AuthController {
             AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElse(null);
             if (usuario != null) {
                 Set<String> roles = userDetails.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
-                return ResponseEntity.ok(new JwtResponse(null, usuario.getId(), userDetails.getUsername(), usuario.getEmail(), roles));
+
+                // incluyendo idPersona también en session-info
+                return ResponseEntity.ok(new JwtResponse(
+                    null,
+                    usuario.getId(),
+                    userDetails.getUsername(),
+                    usuario.getEmail(),
+                    roles,
+                    usuario.getPersona().getId()
+                ));
             }
         }
         return ResponseEntity.ok(new MessageResponse("No hay sesión activa"));

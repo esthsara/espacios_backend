@@ -46,13 +46,18 @@ public class AuthDTO {
         private String email;
         private Set<String> roles;
 
-        public JwtResponse(String token, Long id, String username, String email, Set<String> roles) {
+        // nuevo campo para enviar el ID de la persona
+        private Long idPersona;
+
+        // 🔧 CAMBIO: nuevo constructor que incluye idPersona
+        public JwtResponse(String token, Long id, String username, String email, Set<String> roles, Long idPersona) {
             this.token = token;
             this.type = "Bearer";
             this.id = id;
             this.username = username;
             this.email = email;
             this.roles = roles;
+            this.idPersona = idPersona; //agregando K
         }
     }
 
