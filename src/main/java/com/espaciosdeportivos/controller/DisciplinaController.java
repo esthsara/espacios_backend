@@ -193,12 +193,12 @@ public class DisciplinaController {
         return ResponseEntity.ok(disponible);
     }
 
-    @GetMapping("/{idDisciplina}/puede-eliminarse")
+    /*@GetMapping("/{idDisciplina}/puede-eliminarse")
     public ResponseEntity<Boolean> puedeEliminarse(@PathVariable Long idDisciplina) {
         log.info("GET /api/disciplinas/{}/puede-eliminarse", idDisciplina);
         boolean puedeEliminarse = disciplinaService.puedeEliminarse(idDisciplina);
         return ResponseEntity.ok(puedeEliminarse);
-    }
+    }*/
 
     // ESTADÍSTICAS
     @GetMapping("/estadisticas/total-activas")

@@ -44,5 +44,5 @@ public class Disciplina {
 
     // Relación con Reserva (a través de la tabla intermedia incluye)
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Incluye> reservas;
+    private List<Incluye> incluidos;
 }

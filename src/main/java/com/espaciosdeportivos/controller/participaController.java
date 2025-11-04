@@ -14,7 +14,7 @@ import java.util.Map;
 @RequestMapping("/api/participaciones")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-public class participaController {
+public class ParticipaController {
 
     private final IparticipaService participaService;
 

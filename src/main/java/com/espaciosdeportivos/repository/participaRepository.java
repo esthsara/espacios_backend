@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface participaRepository extends JpaRepository<Participa, ParticipaId> {
+public interface ParticipaRepository extends JpaRepository<Participa, ParticipaId> {
     
     List<Participa> findByReservaIdReserva(Long idReserva);
     List<Participa> findByReservaIdReservaAndConfirmado(Long idReserva, Boolean confirmado);
@@ -26,12 +26,12 @@ public interface participaRepository extends JpaRepository<Participa, ParticipaI
     
     boolean existsByInvitadoIdAndReservaIdReserva(Long idInvitado, Long idReserva);
     
-    @Query("SELECT p FROM participa p WHERE p.reserva.idReserva = :idReserva AND p.confirmado = true")
+    @Query("SELECT p FROM Participa p WHERE p.reserva.idReserva = :idReserva AND p.confirmado = true")
     List<Participa> findInvitadosConfirmadosPorReserva(@Param("idReserva") Long idReserva);
     
-    @Query("SELECT p FROM participa p WHERE p.invitado.id = :idInvitado AND p.reserva.estadoReserva IN ('CONFIRMADA', 'EN_CURSO')")
+    @Query("SELECT p FROM Participa p WHERE p.invitado.id = :idInvitado AND p.reserva.estadoReserva IN ('CONFIRMADA')")
     List<Participa> findReservasActivasPorInvitado(@Param("idInvitado") Long idInvitado);
     
-    @Query("SELECT COUNT(p) FROM participa p WHERE p.reserva.idReserva = :idReserva AND p.asistio = true")
+    @Query("SELECT COUNT(p) FROM Participa p WHERE p.reserva.idReserva = :idReserva AND p.asistio = true")
     Long countAsistentesPorReserva(@Param("idReserva") Long idReserva);
 }

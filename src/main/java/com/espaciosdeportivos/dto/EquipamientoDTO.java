@@ -28,6 +28,6 @@ public class EquipamientoDTO implements Serializable {
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
 
-    private List<Long> idCanchas;
-    private List<CanchaDTO> canchas;
+    //private List<Long> idCanchas;
+    //private List<CanchaDTO> canchas;
 }

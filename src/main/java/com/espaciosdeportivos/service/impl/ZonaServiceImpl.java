@@ -13,9 +13,10 @@ import com.espaciosdeportivos.repository.ZonaRepository;
 import com.espaciosdeportivos.service.IZonaService;
 import com.espaciosdeportivos.validation.ZonaValidator;
 
-import org.springframework.beans.factory.annotation.Autowired; 
+//import org.springframework.beans.factory.annotation.Autowired; 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -23,23 +24,13 @@ import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ZonaServiceImpl implements IZonaService {
     
     private final ZonaRepository zonaRepository;
     private final ZonaValidator zonaValidator;
-
     private final MacrodistritoRepository macrodistritoRepository;
-
-    @Autowired
-    public ZonaServiceImpl(
-        ZonaRepository zonaRepository, 
-        ZonaValidator zonaValidator, 
-        MacrodistritoRepository macrodistritoRepository
-    ) {
-        this.zonaRepository = zonaRepository;
-        this.zonaValidator = zonaValidator;
-        this.macrodistritoRepository = macrodistritoRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -57,8 +48,8 @@ public class ZonaServiceImpl implements IZonaService {
         return zonaRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
-                //.toList();
+                //.collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -99,6 +90,7 @@ public class ZonaServiceImpl implements IZonaService {
         return convertToDTO(guardada);
     }
 
+    
     @Override
     @Transactional
     public ZonaDTO actualizarZona(Long idZona, ZonaDTO zonaDTO) {

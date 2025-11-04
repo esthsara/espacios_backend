@@ -6,6 +6,8 @@ import java.time.LocalTime;
 //import java.util.ArrayList;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -81,5 +83,9 @@ public class Cancha {
 
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comentario> comentario;
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Incluye> incluidos;
+
 
 }

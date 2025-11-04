@@ -16,64 +16,17 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class PagoServiceImpl implements IPagoService {
 
-    @Autowired
     private PagoRepository pagoRepository;
-
-    @Autowired
     private ReservaRepository reservaRepository;
-
-    @Autowired
     private PagoValidator pagoValidator;
 
-    private PagoDTO mapToDTO(Pago pago) {
-        Reserva reserva = pago.getReserva();
-        
-        // Calcular saldo pendiente
-        Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
-        Double saldoPendiente = reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
-        
-        return PagoDTO.builder()
-                .idPago(pago.getIdPago())
-                .monto(pago.getMonto())
-                .fecha(pago.getFecha())
-                .tipoPago(pago.getTipoPago())
-                .metodoPago(pago.getMetodoPago())
-                .estado(pago.getEstado())
-                .codigoTransaccion(pago.getCodigoTransaccion())
-                .descripcion(pago.getDescripcion())
-                .idReserva(reserva.getIdReserva())
-                .fechaCreacion(pago.getFechaCreacion() != null ? pago.getFechaCreacion().toLocalDate() : null)
-                .fechaActualizacion(pago.getFechaActualizacion() != null ? pago.getFechaActualizacion().toLocalDate() : null)
-                .codigoReserva(reserva.getCodigoReserva())
-                .fechaReserva(reserva.getFechaReserva())
-                .idCliente(reserva.getCliente().getId())
-                .nombreCliente(reserva.getCliente().getNombre() + " " + reserva.getCliente().getApellidoPaterno())
-                .emailCliente(reserva.getCliente().getEmail())
-                .telefonoCliente(reserva.getCliente().getTelefono())
-                .montoTotalReserva(reserva.getMontoTotal())
-                .saldoPendiente(saldoPendiente)
-                .build();
-    }
-
-    private Pago mapToEntity(PagoDTO dto) {
-        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
-
-        return Pago.builder()
-                .monto(dto.getMonto())
-                .fecha(dto.getFecha())
-                .tipoPago(dto.getTipoPago())
-                .metodoPago(dto.getMetodoPago())
-                .estado(dto.getEstado())
-                .codigoTransaccion(dto.getCodigoTransaccion())
-                .descripcion(dto.getDescripcion())
-                .reserva(reserva)
-                .build();
-    }
 
     @Override
     @Transactional
@@ -101,6 +54,8 @@ public class PagoServiceImpl implements IPagoService {
         }
 
         Pago pago = mapToEntity(dto);
+
+        //Pago pago = convertToEntity(dto);
         
         // Establecer estado por defecto
         if (pago.getEstado() == null) {
@@ -361,5 +316,44 @@ public class PagoServiceImpl implements IPagoService {
     @Transactional(readOnly = true)
     public boolean existePagoConMismoMontoYReserva(Double monto, Long idReserva) {
         return pagoRepository.existsByMontoAndReservaIdReserva(monto, idReserva);
+    }
+    //mapeo
+
+    private PagoDTO mapToDTO(Pago pago) {
+
+        Reserva reserva = pago.getReserva();
+        
+        // Calcular saldo pendiente
+        Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
+        Double saldoPendiente = reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
+        
+        return PagoDTO.builder()
+                .idPago(pago.getIdPago())
+                .monto(pago.getMonto())
+                .fecha(pago.getFecha())
+                .tipoPago(pago.getTipoPago())
+                .metodoPago(pago.getMetodoPago())
+                .estado(pago.getEstado())
+                .codigoTransaccion(pago.getCodigoTransaccion())
+                .descripcion(pago.getDescripcion())
+                .idReserva(pago.getReserva() != null ? pago.getReserva().getIdReserva() : null)
+                .build();
+    }
+
+    private Pago mapToEntity(PagoDTO dto) {
+        
+        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
+
+        return Pago.builder()
+                .monto(dto.getMonto())
+                .fecha(dto.getFecha())
+                .tipoPago(dto.getTipoPago())
+                .metodoPago(dto.getMetodoPago())
+                .estado(dto.getEstado())
+                .codigoTransaccion(dto.getCodigoTransaccion())
+                .descripcion(dto.getDescripcion())
+                .reserva(reserva)
+                .build();
     }
 }

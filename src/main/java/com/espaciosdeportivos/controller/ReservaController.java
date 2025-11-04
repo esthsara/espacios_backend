@@ -4,6 +4,7 @@ import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.service.IReservaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -73,14 +75,31 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @GetMapping("/codigo/{codigo}")
+    @GetMapping("/Horario-Disponible")
+    public ResponseEntity<List<String>> getHorasDisponibles(
+            @RequestParam Long canchaId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+
+        List<LocalTime> horasDisponibles = reservaService.obtenerHorasDisponibles(canchaId, fecha);
+
+        // Convertir a string tipo "08:00", "09:00"
+        List<String> horas = horasDisponibles.stream()
+                .map(LocalTime::toString)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(horas);
+    }
+    
+    
+
+    /*@GetMapping("/codigo/{codigo}")
     public ResponseEntity<ReservaDTO> obtenerPorCodigo(@PathVariable String codigo) {
         ReservaDTO reserva = reservaService.obtenerPorCodigoReserva(codigo);
         return ResponseEntity.ok(reserva);
-    }
+    }*/
 
     // OPERACIONES DE NEGOCIO
-    @PostMapping("/{id}/confirmar")
+    /*@PostMapping("/{id}/confirmar")
     public ResponseEntity<ReservaDTO> confirmarReserva(@PathVariable Long id) {
         ReservaDTO reservaConfirmada = reservaService.confirmarReserva(id);
         return ResponseEntity.ok(reservaConfirmada);
@@ -93,7 +112,7 @@ public class ReservaController {
         String motivo = request.get("motivo");
         ReservaDTO reservaCancelada = reservaService.cancelarReserva(id, motivo);
         return ResponseEntity.ok(reservaCancelada);
-    }
+    }*/
 
     @PostMapping("/{id}/en-curso")
     public ResponseEntity<ReservaDTO> marcarEnCurso(@PathVariable Long id) {

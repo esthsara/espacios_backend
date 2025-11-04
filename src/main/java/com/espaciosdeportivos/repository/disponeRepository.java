@@ -1,7 +1,7 @@
 package com.espaciosdeportivos.repository;
 
 import com.espaciosdeportivos.model.Dispone;
-import com.espaciosdeportivos.model.disponeId;
+import com.espaciosdeportivos.model.DisponeId;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface disponeRepository extends JpaRepository<Dispone, disponeId> {
+public interface disponeRepository extends JpaRepository<Dispone, DisponeId> {
 
     @EntityGraph(attributePaths = {"cancha", "equipamiento"})
     List<Dispone> findById_IdCancha(Long idCancha);

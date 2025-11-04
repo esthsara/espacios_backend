@@ -29,7 +29,7 @@ public class sepracticaServiceImpl implements IsepracticaService {
         Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
                 .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
 
-        sepracticaId id = new sepracticaId(dto.getIdCancha(), dto.getIdDisciplina());
+        SepracticaId id = new SepracticaId(dto.getIdCancha(), dto.getIdDisciplina());
 
         Sepractica entity = sepracticaRepository.findById(id).orElseGet(() ->
                 Sepractica.builder()
@@ -51,7 +51,7 @@ public class sepracticaServiceImpl implements IsepracticaService {
     @Override
     @Transactional(readOnly = true)
     public SepracticaDTO obtenerDisciplinaDeCancha(Long idCancha, Long idDisciplina) {
-        sepracticaId id = new sepracticaId(idCancha, idDisciplina);
+        SepracticaId id = new SepracticaId(idCancha, idDisciplina);
 
         Sepractica association = sepracticaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(

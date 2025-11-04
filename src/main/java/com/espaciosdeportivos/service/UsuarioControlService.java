@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.service;
 
+import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.UsuarioControlDTO;
 import java.util.List;
 
@@ -28,4 +29,7 @@ public interface UsuarioControlService {
 
     // Cambiar estado (activación/desactivación lógica)
     UsuarioControlDTO cambiarEstado(Long id, Boolean nuevoEstado);
+
+    // Relación: canchas que supervisa
+    //List<CanchaDTO> obtenerCanchasSupervisadas(Long usuarioControlId)
 }

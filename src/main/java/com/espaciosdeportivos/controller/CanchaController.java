@@ -129,11 +129,11 @@ public class CanchaController {
         return ResponseEntity.ok(equipamientos);
     }
 
-    @GetMapping("/{id}/reservas")
+    /*@GetMapping("/{id}/reservas")
     public ResponseEntity<List<ReservaDTO>> obtenerReservasPorCancha(@PathVariable Long id) {
         List<ReservaDTO> reservas = canchaService.obtenerReservaPorCancha(id);
         return ResponseEntity.ok(reservas);
-    }
+    }*/
 
     //gestion imagenes
 

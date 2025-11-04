@@ -3,7 +3,10 @@ package com.espaciosdeportivos.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Data
+//lo puse en vez de @data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

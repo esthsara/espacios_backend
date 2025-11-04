@@ -1,10 +1,10 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
-import com.espaciosdeportivos.dto.CanchaDTO;
+//import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
 import com.espaciosdeportivos.model.AreaDeportiva;
-import com.espaciosdeportivos.model.Cancha;
+//import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Administrador;
 
@@ -16,7 +16,7 @@ import com.espaciosdeportivos.service.IAreaDeportivaService;
 import com.espaciosdeportivos.service.ImagenService;
 import com.espaciosdeportivos.validation.AreaDeportivaValidator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,9 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
 
     private final AreaDeportivaRepository areaDeportivaRepository;
@@ -39,11 +42,10 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     private final AreaDeportivaValidator areaDeportivaValidator;
 
     private final ImagenService imagenService;
-
     private static final String ENTIDAD_TIPO = "AREADEPORTIVA";
 
 
-    @Autowired
+    /*@Autowired
     public AreaDeportivaServiceImpl(
         AreaDeportivaRepository areaDeportivaRepository, 
         ZonaRepository zonaRepository, 
@@ -56,7 +58,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         this.administradorRepository = administradorRepository;
         this.areaDeportivaValidator = areaDeportivaValidator;
         this.imagenService = imagenService;
-    }
+    }*/
 
     @Override
     @Transactional(readOnly = true)
@@ -116,8 +118,8 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         existente.setDescripcionArea(dto.getDescripcionArea());
         existente.setEmailArea(dto.getEmailArea());
         existente.setTelefonoArea(dto.getTelefonoArea());
-        existente.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea().toString() : null);
-        existente.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea().toString() : null);
+        existente.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea() : null);
+        existente.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea(): null);
         existente.setUrlImagen(dto.getUrlImagen());
         existente.setLatitud(dto.getLatitud());
         existente.setLongitud(dto.getLongitud());
@@ -168,6 +170,18 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         return areaDeportiva;
     }
 
+         // objeto front K
+    private ZonaDTO convertZonaToDTO(Zona z) {
+        if (z == null) return null;
+        return ZonaDTO.builder()
+                .idZona(z.getIdZona()) // objeto front K
+                .nombre(z.getNombre()) // objeto front K
+                .descripcion(z.getDescripcion()) // objeto front K
+                .estado(z.getEstado()) // objeto front K
+                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
+                .build();
+    }
+
      // ==========================================================
 // 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
 // ==========================================================
@@ -189,7 +203,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     @Override
     @Transactional
     public AreaDeportivaDTO eliminarImagen(Long idAreadeportiva, Long idImagenRelacion) {
-        log.info("🗑️ Eliminando imagen {} de la area {}", idImagenRelacion, idAreadeportiva);
+        log.info("Eliminando imagen {} de la area {}", idImagenRelacion, idAreadeportiva);
 
         areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
                 .orElseThrow(() -> new RuntimeException("area no encontrada o inactiva"));
@@ -203,7 +217,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     @Override
     @Transactional
     public AreaDeportivaDTO reordenarImagenes(Long idAreadeportiva, List<Long> idsImagenesOrden) {
-        log.info("🔃 Reordenando {} imágenes de la area {}", idsImagenesOrden.size(), idAreadeportiva);
+        log.info("Reordenando {} imágenes de la area {}", idsImagenesOrden.size(), idAreadeportiva);
 
         areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
                 .orElseThrow(() -> new RuntimeException("area no encontrada o inactiva"));
@@ -223,8 +237,8 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .descripcionArea(a.getDescripcionArea())
                 .emailArea(a.getEmailArea())
                 .telefonoArea(a.getTelefonoArea())
-                .horaInicioArea(parseTime(a.getHoraInicioArea()))
-                .horaFinArea(parseTime(a.getHoraFinArea()))
+                .horaInicioArea(a.getHoraInicioArea())
+                .horaFinArea(a.getHoraFinArea())
                 .urlImagen(a.getUrlImagen())
                 .latitud(a.getLatitud())
                 .longitud(a.getLongitud())
@@ -247,8 +261,8 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .descripcionArea(d.getDescripcionArea())
                 .emailArea(d.getEmailArea())
                 .telefonoArea(d.getTelefonoArea())
-                .horaInicioArea(d.getHoraInicioArea() != null ? d.getHoraInicioArea().toString() : null)
-                .horaFinArea(d.getHoraFinArea() != null ? d.getHoraFinArea().toString() : null)
+                .horaInicioArea(d.getHoraInicioArea() != null ? d.getHoraInicioArea(): null)
+                .horaFinArea(d.getHoraFinArea() != null ? d.getHoraFinArea() : null)
                 .urlImagen(d.getUrlImagen())
                 .latitud(d.getLatitud())
                 .longitud(d.getLongitud())
@@ -262,15 +276,4 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
     }
 
-     // objeto front K
-    private ZonaDTO convertZonaToDTO(Zona z) {
-        if (z == null) return null;
-        return ZonaDTO.builder()
-                .idZona(z.getIdZona()) // objeto front K
-                .nombre(z.getNombre()) // objeto front K
-                .descripcion(z.getDescripcion()) // objeto front K
-                .estado(z.getEstado()) // objeto front K
-                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
-                .build();
-    }
 }

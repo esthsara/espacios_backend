@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.time.Duration;
 
 @Entity
 @Table(name = "reserva")
@@ -49,28 +50,28 @@ public class Reserva {
     @Column(name = "duracion_minutos")
     private Integer duracionMinutos;
 
+    /* 
     @Column(name = "codigo_reserva", unique = true)
     private String codigoReserva;
-
-    // Auditoría
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
+    private LocalDateTime fechaActualizacion;*/
 
-    // RELACIÓN CON CLIENTE - OPCIÓN A
+
+    // RELACIÓNES
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona", nullable = false)
+    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)
     private Cliente cliente;
 
-    // Relaciones
+  //elaciones afuera de la reserva
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    private List<Incluye> Incluidos;  // R
+
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Pago> pagos;
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Qr> qr; 
-
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
-    private List<Incluye> canchasIncluidas;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
     private List<Participa> invitados;
@@ -78,12 +79,39 @@ public class Reserva {
     @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL)
     private Cancelacion cancelacion;
 
+    // ========== VALIDACIONES DE NEGOCIO ==========
     // Enums para estados
     public enum EstadoReserva {
         PENDIENTE, CONFIRMADA, EN_CURSO, COMPLETADA, CANCELADA, NO_SHOW
     }
 
     // Método para calcular duración
+
+    public boolean puedeReprogramar() {
+        LocalDateTime inicioReserva = fechaReserva.atTime(horaInicio);
+        return Duration.between(LocalDateTime.now(), inicioReserva).toHours() >= 8;
+    }
+
+    public boolean puedeCancelar() {
+        LocalDateTime inicioReserva = fechaReserva.atTime(horaInicio);
+        return Duration.between(LocalDateTime.now(), inicioReserva).toHours() >= 12;
+    }
+
+    public boolean estaConfirmada() {
+        return EstadoReserva.CONFIRMADA.name().equals(estadoReserva);
+    }
+
+    public boolean estaCancelada() {
+        return EstadoReserva.CANCELADA.name().equals(estadoReserva);
+    }
+
+    // Obtener la primera cancha (asumiendo 1 cancha por reserva)
+    public Cancha getCancha() {
+        return Incluidos != null && !Incluidos.isEmpty() 
+            ? Incluidos.get(0).getCancha() 
+            : null;
+    }
+
     @PrePersist
     @PreUpdate
     public void calcularDuracion() {

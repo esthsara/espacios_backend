@@ -45,4 +45,12 @@ public interface CanchaRepository extends JpaRepository<Cancha, Long> {
 
                                // (Opcional) Unicidad de nombre dentro del área
    // boolean existsByNombreIgnoreCaseAndAreaDeportiva_IdAreaDeportiva(String nombre, Long idAreaDeportiva);
+
+    @Query("SELECT COUNT(c) > 0 FROM Cancha c " +
+        "WHERE c.idCancha = :idCancha " +
+        "AND c.areaDeportiva.idAreaDeportiva = :idArea")
+    boolean existeCanchaEnArea(
+        @Param("idCancha") Long idCancha,
+        @Param("idAreaDeportiva") Long idArea
+    );
 }

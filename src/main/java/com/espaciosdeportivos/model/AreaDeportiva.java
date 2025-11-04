@@ -2,7 +2,11 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
+
+
+import java.time.LocalTime;
 import java.util.List;
+
 
 @Getter
 @Setter
@@ -30,10 +34,10 @@ public class AreaDeportiva {
     private String telefonoArea;
 
     @Column(name = "hora_inicio_area")
-    private String horaInicioArea;
+    private LocalTime horaInicioArea;
 
     @Column(name = "hora_fin_area")
-    private String horaFinArea;
+    private LocalTime horaFinArea;
 
     //@Column(name = "estado_area", nullable = false, length = 100)
     //private String estadoArea;

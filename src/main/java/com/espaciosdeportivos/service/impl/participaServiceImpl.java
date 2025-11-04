@@ -2,7 +2,7 @@ package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.ParticipaDTO;
 import com.espaciosdeportivos.model.*;
-import com.espaciosdeportivos.repository.participaRepository;
+import com.espaciosdeportivos.repository.ParticipaRepository;
 import com.espaciosdeportivos.repository.InvitadoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IparticipaService;
@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class participaServiceImpl implements IparticipaService {
+public class ParticipaServiceImpl implements IparticipaService {
 
-    private final participaRepository participaRepository;
+    private final ParticipaRepository participaRepository;
     private final InvitadoRepository invitadoRepository;
     private final ReservaRepository reservaRepository;
+
+
 
     @Override
     @Transactional
@@ -198,19 +200,10 @@ public class participaServiceImpl implements IparticipaService {
         return ParticipaDTO.builder()
                 .idInvitado(invitado.getId())
                 .idReserva(reserva.getIdReserva())
-                .nombreInvitado(invitado.getNombre() + " " + 
-                               (invitado.getApellidoPaterno() != null ? invitado.getApellidoPaterno() + " " : "") + 
-                               invitado.getApellidoMaterno())
-                .emailInvitado(invitado.getEmail())
-                .telefonoInvitado(invitado.getTelefono())
-                .verificadoInvitado(invitado.getVerificado())
-                .fechaInvitacion(p.getFechaInvitacion())
                 .asistio(p.getAsistio())
                 .confirmado(p.getConfirmado())
                 .notificado(p.getNotificado())
                 .observaciones(p.getObservaciones())
-                .codigoReserva(reserva.getCodigoReserva())
-                .estadoReserva(reserva.getEstadoReserva())
                 .build();
     }
 }

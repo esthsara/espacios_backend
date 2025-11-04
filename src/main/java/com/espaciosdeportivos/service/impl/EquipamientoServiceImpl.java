@@ -9,10 +9,12 @@ import com.espaciosdeportivos.repository.EquipamientoRepository;
 import com.espaciosdeportivos.service.IEquipamientoService;
 import com.espaciosdeportivos.validation.EquipamientoValidator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import jakarta.validation.Valid;
 
@@ -21,16 +23,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class EquipamientoServiceImpl implements IEquipamientoService {
 
     private final EquipamientoRepository equipamientoRepository;
     private final EquipamientoValidator equipamientoValidator;
 
-    @Autowired
+   /*  @Autowired
     public EquipamientoServiceImpl(EquipamientoRepository equipamientoRepository, EquipamientoValidator equipamientoValidator) {
         this.equipamientoRepository = equipamientoRepository;
         this.equipamientoValidator = equipamientoValidator;
-    }
+    }*/
 
     @Override
     @Transactional(readOnly = true)

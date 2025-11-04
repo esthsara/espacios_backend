@@ -10,8 +10,10 @@ import com.espaciosdeportivos.dto.DisponeDTO;
 
 import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Cliente;
+import com.espaciosdeportivos.model.Disciplina;
 import com.espaciosdeportivos.model.Equipamiento;
 import com.espaciosdeportivos.model.Reserva;
+import com.espaciosdeportivos.model.Sepractica;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Dispone;
@@ -21,7 +23,7 @@ import com.espaciosdeportivos.repository.CanchaRepository;
 import com.espaciosdeportivos.repository.AreaDeportivaRepository;
 import com.espaciosdeportivos.repository.EquipamientoRepository;
 import com.espaciosdeportivos.repository.disponeRepository;
-import com.espaciosdeportivos.repository.incluyeRepository;
+import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.sepracticaRepository;
 
 import com.espaciosdeportivos.service.ICanchaService;
@@ -43,10 +45,13 @@ import com.espaciosdeportivos.dto.ImagenDTO;
 import com.espaciosdeportivos.service.ImagenService;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class CanchaServiceImpl implements ICanchaService {
 
     private final CanchaRepository canchaRepository;
@@ -54,13 +59,13 @@ public class CanchaServiceImpl implements ICanchaService {
     private final CanchaValidator canchaValidator;
     private final EquipamientoRepository equipamientoRepository;
     private final disponeRepository disponeRepository;
-    private final incluyeRepository incluyeRepository;
-    //private final sepracticaRepository sepracticaRepository;
+    private final IncluyeRepository incluyeRepository;
+    private final sepracticaRepository sepracticaRepository;
     private final ImagenService imagenService;
 
     private static final String ENTIDAD_TIPO = "CANCHA";
 
-    @Autowired
+    /*@Autowired
     public CanchaServiceImpl(
         CanchaRepository canchaRepository, 
         AreaDeportivaRepository areaDeportivaRepository, 
@@ -80,7 +85,7 @@ public class CanchaServiceImpl implements ICanchaService {
         this.incluyeRepository = incluyeRepository;
         this.imagenService = imagenService;
         //this.sepracticaRepository = sepracticaRepository;
-    }
+    }*/
 
     @Override
     @Transactional(readOnly = true)
@@ -214,13 +219,22 @@ public class CanchaServiceImpl implements ICanchaService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<DisciplinaDTO> obtenerDiciplinasPorCancha(Long canchaId){
+        List<Sepractica> lista = sepracticaRepository.obtenerPorCancha(canchaId);
+        return lista.stream()
+                    .map(d -> convertDiciplinaToDTO(d.getDisciplina()))
+                    .collect(Collectors.toList());
+    }
+    
+    /*@Override
+    @Transactional(readOnly = true)
     public List<ReservaDTO> obtenerReservaPorCancha(Long canchaId) {
         List<Incluye> lista = incluyeRepository.findByCanchaIdCancha(canchaId);
 
         return lista.stream()
-                .map(i -> convertReservaResumenToDTO(i.getReserva()))
+                .map(i -> convertReservaToDTO(i.getReserva()))
                 .collect(Collectors.toList());
-    }
+    }*/
 
     // ==========================================================
 // 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
@@ -257,7 +271,7 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional
     public CanchaDTO reordenarImagenes(Long idCancha, List<Long> idsImagenesOrden) {
-        log.info("🔃 Reordenando {} imágenes de la cancha {}", idsImagenesOrden.size(), idCancha);
+        log.info(" Reordenando {} imágenes de la cancha {}", idsImagenesOrden.size(), idCancha);
 
         canchaRepository.findByIdCanchaAndEstadoTrue(idCancha)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada o inactiva"));
@@ -269,20 +283,19 @@ public class CanchaServiceImpl implements ICanchaService {
     }
 
 
-    /*@Override
-    @Transactional(readOnly = true)
-    public List<DisciplinaDTO> ObtenerDiciplinaPorCancha(Long canchaId){
-        List<sepractica> lista = sepracticaRepository.findByDiciplinaIdCancha(canchaId);
-        return lista.stream()
-                    .map(d -> convertDiciplinaToDTO(d.getDisciplina()))
-                    .collect(Collectors.toList());
-    }*/
+
 
     //---diciplina--
-    //
-
+    private DisciplinaDTO convertDiciplinaToDTO(Disciplina d) {
+        return DisciplinaDTO.builder()
+                .idDisciplina(d.getIdDisciplina())
+                .nombre(d.getNombre())
+                .descripcion(d.getDescripcion())
+                .estado(d.getEstado())
+                .build();
+    }
     //---reserva-------
-    private ReservaDTO convertReservaResumenToDTO(Reserva reserva) {
+    /*private ReservaDTO convertReservaToDTO(Reserva reserva) {
         Cliente cliente = reserva.getCliente();
 
         return ReservaDTO.builder()
@@ -290,11 +303,9 @@ public class CanchaServiceImpl implements ICanchaService {
                 .fechaReserva(reserva.getFechaReserva())
                 .horaInicio(reserva.getHoraInicio())
                 .horaFin(reserva.getHoraFin())
-                .nombreCliente(cliente != null 
-                    ? cliente.getNombre() + " " + cliente.getApellidoPaterno() 
-                    : "Sin nombre")
+                
                 .build();
-    }
+    }*/
    
     //--equipamiento -----------
     private EquipamientoDTO convertEquipamientoToDTO(Equipamiento e) {
@@ -392,8 +403,8 @@ public class CanchaServiceImpl implements ICanchaService {
                 .descripcionArea(a.getDescripcionArea())
                 .emailArea(a.getEmailArea())
                 .telefonoArea(a.getTelefonoArea())
-                .horaInicioArea(parseTime(a.getHoraInicioArea()))
-                .horaFinArea(parseTime(a.getHoraFinArea()))
+                .horaInicioArea(a.getHoraInicioArea())
+                .horaFinArea(a.getHoraFinArea())
                 .urlImagen(a.getUrlImagen())
                 .latitud(a.getLatitud())
                 .longitud(a.getLongitud())
@@ -415,6 +426,9 @@ public class CanchaServiceImpl implements ICanchaService {
                 .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
                 .build();
     }
+
+    
+
 
     private LocalTime parseTime(String t) {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;

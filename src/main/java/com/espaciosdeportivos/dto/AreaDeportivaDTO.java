@@ -68,18 +68,16 @@ public class AreaDeportivaDTO implements Serializable{
 
     //objeto para front 
     private ZonaDTO zona; 
-    private List<CanchaDTO> canchas;
+    //private List<CanchaDTO> canchas;
 
 
     // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;
     //private LocalDateTime fechaCreacion;
     //private LocalDateTime fechaActualizacion;
-    
     // Para CREACIÓN/ACTUALIZACIÓN - ignorado en JSON
     @JsonIgnore
     private transient List<MultipartFile> archivosImagenes;
-    
     // Métodos de utilidad
     public boolean tieneArchivosParaProcesar() {
         return archivosImagenes != null && !archivosImagenes.isEmpty();
