@@ -11,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import java.time.LocalDate;
 
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
@@ -37,30 +38,32 @@ public class DatabaseInitializer implements CommandLineRunner {
             System.out.println("Roles iniciales creados.");
         }
 
-        // Crear superusuario si no existe
+        // VERIFICACIÓN DOBLE: Crear superusuario solo si no existe
         if (!userRepo.existsByUsername("superuser")) {
+            System.out.println("Creando superusuario inicial...");
+            
             // Primero crear la Persona
-            Persona persona = Persona.builder()
+            Persona personaSuperuser = Persona.builder()
                 .nombre("Super")
-                .apellidoPaterno("User")
-                .apellidoMaterno("System")
-                .telefono("000000000")
-                .email("super@local.com")
-                .urlImagen("")
+                .apellidoPaterno("Usuario")
+                .apellidoMaterno("Sistema")
+                .fechaNacimiento(LocalDate.of(1990, 1, 1))
+                .telefono("00000000")
+                .email("super@system.com")
+                .urlImagen("/default-avatar.png")
                 .estado(true)
-                .fechaNacimiento(java.time.LocalDate.now())
                 .build();
-            persona = personaRepo.save(persona);
+            personaSuperuser = personaRepo.save(personaSuperuser);
 
             // Luego crear el AppUser
             AppUser su = new AppUser();
             su.setUsername("superuser");
             su.setPassword(passwordEncoder.encode("super123"));
-            su.setEmail("super@local.com");
+            su.setEmail("super@system.com");
             su.setActivo(true);
             su.setEstadoVerificacion("APROBADO");
             su.setRolSolicitado("SUPERUSUARIO");
-            su.setPersona(persona);
+            su.setPersona(personaSuperuser); // Vincular con Persona
             
             // Asignar rol
             Role superRole = roleRepo.findByName(RoleName.ROL_SUPERUSUARIO)
@@ -69,6 +72,8 @@ public class DatabaseInitializer implements CommandLineRunner {
             
             userRepo.save(su);
             System.out.println("Superusuario inicial creado: superuser / super123");
+        } else {
+            System.out.println("Superusuario ya existe, omitiendo creación.");
         }
     }
 }

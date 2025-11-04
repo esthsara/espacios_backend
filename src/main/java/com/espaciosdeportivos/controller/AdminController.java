@@ -70,6 +70,26 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasRole('SUPERUSUARIO')")
+    @GetMapping("/solicitudes/admin")
+    public ResponseEntity<List<SolicitudDTO>> listarSolicitudesAdmin() {
+        logCurrentUser();
+        try {
+            // Solo solicitudes de ADMINISTRADOR pendientes
+            List<AppUser> pendientes = userRepo.findByEstadoVerificacionAndRolSolicitado("PENDIENTE", "ADMINISTRADOR");
+            logger.info("Encontradas {} solicitudes de administrador pendientes", pendientes.size());
+            
+            List<SolicitudDTO> solicitudesDTO = pendientes.stream()
+                .map(this::convertToSolicitudDTO)
+                .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(solicitudesDTO);
+        } catch (Exception e) {
+            logger.error("Error al obtener solicitudes de administrador: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @Transactional
     @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @PostMapping("/solicitudes/{id}/aprobar")
@@ -134,37 +154,75 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasRole('SUPERUSUARIO')")
+    @PostMapping("/solicitudes/admin/{id}/aprobar")
+    public ResponseEntity<?> aprobarSolicitudAdmin(@PathVariable Long id) {
+        logCurrentUser();
+        logger.info("Aprobando solicitud de administrador ID: {}", id);
+
+        try {
+            AppUser usuario = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+
+            // Verificar que sea solicitud de ADMIN
+            if (!"ADMINISTRADOR".equals(usuario.getRolSolicitado())) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Solo se pueden aprobar solicitudes de administrador"));
+            }
+
+            Role adminRole = roleRepo.findByName(RoleName.ROL_ADMINISTRADOR)
+                .orElseThrow(() -> new RuntimeException("Rol ADMINISTRADOR no encontrado"));
+
+            // Asignar rol
+            if (!usuario.getRoles().contains(adminRole)) {
+                usuario.getRoles().add(adminRole);
+            }
+            usuario.setEstadoVerificacion("APROBADO");
+            usuario.setActivo(true);
+            userRepo.save(usuario);
+
+            // Activar persona
+            Persona persona = usuario.getPersona();
+            if (persona != null) {
+                persona.setEstado(true);
+                personaRepo.save(persona);
+
+                // Crear entidad Administrador
+                crearAdministradorSeguro(persona);
+            }
+
+            logger.info("Administrador aprobado exitosamente: {}", usuario.getUsername());
+            return ResponseEntity.ok(new MessageResponse("Administrador aprobado exitosamente"));
+
+        } catch (Exception e) {
+            logger.error("Error al aprobar administrador ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error al aprobar administrador: " + e.getMessage()));
+        }
+    }
+
     private void crearClienteSeguro(Persona persona) {
         try {
-            // Verificar si ya existe
             boolean existe = clienteRepo.existsById(persona.getId());
             if (!existe) {
-                // Usar Native Query para evitar problemas de mapeo de herencia
                 clienteRepo.crearClienteSiNoExiste(persona.getId(), "REGULAR");
                 logger.info("Cliente creado exitosamente para persona ID: {}", persona.getId());
-            } else {
-                logger.info("Cliente ya existe para persona ID: {}", persona.getId());
             }
         } catch (Exception e) {
             logger.error("Error al crear cliente para persona ID {}: {}", persona.getId(), e.getMessage());
-            // NO relanzar la excepción - continuar con la aprobación
         }
     }
 
     private void crearAdministradorSeguro(Persona persona) {
         try {
-            // Verificar si ya existe
+
             boolean existe = adminRepo.existsById(persona.getId());
             if (!existe) {
-                // Usar Native Query para evitar problemas de mapeo de herencia
+
                 adminRepo.crearAdministradorSiNoExiste(persona.getId(), "Administrador General", "Por asignar");
                 logger.info("Administrador creado exitosamente para persona ID: {}", persona.getId());
-            } else {
-                logger.info("Administrador ya existe para persona ID: {}", persona.getId());
             }
         } catch (Exception e) {
             logger.error("Error al crear administrador para persona ID {}: {}", persona.getId(), e.getMessage());
-            // NO relanzar la excepción - continuar con la aprobación
         }
     }
 
@@ -192,6 +250,71 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error al rechazar la solicitud: " + e.getMessage()));
         }
+    }
+
+    private SolicitudDTO convertToSolicitudDTO(AppUser usuario) {
+        Persona persona = usuario.getPersona();
+        return new SolicitudDTO(
+            usuario.getId(),
+            usuario.getUsername(),
+            usuario.getEmail(),
+            usuario.getRolSolicitado(),
+            usuario.getEstadoVerificacion(),
+            usuario.getActivo(),
+            persona != null ? persona.getId() : null,
+            persona != null ? persona.getNombre() : null,
+            persona != null ? persona.getApellidoPaterno() : null,
+            persona != null ? persona.getApellidoMaterno() : null,
+            persona != null ? persona.getEmail() : null,
+            persona != null ? persona.getTelefono() : null
+        );
+    }
+
+    public static class SolicitudDTO {
+        private Long id;
+        private String username;
+        private String email;
+        private String rolSolicitado;
+        private String estadoVerificacion;
+        private Boolean activo;
+        private Long personaId;
+        private String nombre;
+        private String apellidoPaterno;
+        private String apellidoMaterno;
+        private String personaEmail;
+        private String telefono;
+
+        public SolicitudDTO(Long id, String username, String email, String rolSolicitado, 
+                            String estadoVerificacion, Boolean activo, Long personaId, 
+                            String nombre, String apellidoPaterno, String apellidoMaterno, 
+                            String personaEmail, String telefono) {
+            this.id = id;
+            this.username = username;
+            this.email = email;
+            this.rolSolicitado = rolSolicitado;
+            this.estadoVerificacion = estadoVerificacion;
+            this.activo = activo;
+            this.personaId = personaId;
+            this.nombre = nombre;
+            this.apellidoPaterno = apellidoPaterno;
+            this.apellidoMaterno = apellidoMaterno;
+            this.personaEmail = personaEmail;
+            this.telefono = telefono;
+        }
+
+        // Getters
+        public Long getId() { return id; }
+        public String getUsername() { return username; }
+        public String getEmail() { return email; }
+        public String getRolSolicitado() { return rolSolicitado; }
+        public String getEstadoVerificacion() { return estadoVerificacion; }
+        public Boolean getActivo() { return activo; }
+        public Long getPersonaId() { return personaId; }
+        public String getNombre() { return nombre; }
+        public String getApellidoPaterno() { return apellidoPaterno; }
+        public String getApellidoMaterno() { return apellidoMaterno; }
+        public String getPersonaEmail() { return personaEmail; }
+        public String getTelefono() { return telefono; }
     }
 
     private RoleName determinarRoleName(String solicitado) {

@@ -64,6 +64,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/auth/signup/cliente").permitAll()
+                .requestMatchers("/api/auth/signup/admin").permitAll()
 
                 // Rutas exclusivas para SUPERUSUARIO
                 .requestMatchers("/api/super/**").hasRole("SUPERUSUARIO")

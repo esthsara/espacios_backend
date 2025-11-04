@@ -3,6 +3,7 @@ package com.espaciosdeportivos.repository;
 import com.espaciosdeportivos.model.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
@@ -21,4 +22,8 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     List<AppUser> findByEstadoVerificacion(String estado);
     
     Optional<AppUser> findByPersonaId(Long personaId);
+
+    @Query("SELECT u FROM AppUser u WHERE u.estadoVerificacion = :estado AND u.rolSolicitado = :rolSolicitado")
+    List<AppUser> findByEstadoVerificacionAndRolSolicitado(@Param("estado") String estado, 
+    @Param("rolSolicitado") String rolSolicitado);
 }

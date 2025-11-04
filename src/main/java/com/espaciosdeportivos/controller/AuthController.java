@@ -86,6 +86,90 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Solicitud registrada. Pendiente de aprobación por un administrador."));
     }
 
+    @PostMapping("/signup/cliente")
+    public ResponseEntity<?> registerCliente(@Valid @RequestBody ClienteSignupRequest signUpRequest) {
+        if (userRepo.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: El nombre de usuario ya está en uso."));
+        }
+        if (userRepo.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: El email ya está en uso."));
+        }
+
+        // Crear Persona
+        Persona persona = Persona.builder()
+            .nombre(signUpRequest.getNombre())
+            .apellidoPaterno(signUpRequest.getApellidoPaterno())
+            .apellidoMaterno(signUpRequest.getApellidoMaterno())
+            .fechaNacimiento(signUpRequest.getFechaNacimiento())
+            .telefono(signUpRequest.getTelefono())
+            .email(signUpRequest.getEmail())
+            .urlImagen(signUpRequest.getUrlImagen() != null ? signUpRequest.getUrlImagen() : "")
+            .estado(true)
+            .build();
+        
+        persona = personaRepo.save(persona);
+
+        AppUser user = new AppUser();
+        user.setUsername(signUpRequest.getUsername());
+        user.setEmail(signUpRequest.getEmail());
+        user.setPassword(encoder.encode(signUpRequest.getPassword()));
+        user.setRolSolicitado("CLIENTE");
+        user.setActivo(true);
+        user.setEstadoVerificacion("APROBADO");
+        user.setPersona(persona);
+        
+        // Asignar rol CLIENTE automáticamente
+        Role clienteRole = roleRepo.findByName(RoleName.ROL_CLIENTE)
+            .orElseThrow(() -> new RuntimeException("Rol CLIENTE no encontrado"));
+        user.getRoles().add(clienteRole);
+        
+        userRepo.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Cliente registrado exitosamente!"));
+    }
+
+    @PostMapping("/signup/admin")
+    public ResponseEntity<?> solicitarAdmin(@Valid @RequestBody AdminSolicitudRequest solicitudRequest) {
+        if (userRepo.existsByUsername(solicitudRequest.getUsername())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: El nombre de usuario ya está en uso."));
+        }
+        if (userRepo.existsByEmail(solicitudRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: El email ya está en uso."));
+        }
+
+        if (!"passwordadmin".equals(solicitudRequest.getAdminPassword())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Contraseña de administrador incorrecta."));
+        }
+
+        // Crear Persona
+        Persona persona = Persona.builder()
+            .nombre(solicitudRequest.getNombre())
+            .apellidoPaterno(solicitudRequest.getApellidoPaterno())
+            .apellidoMaterno(solicitudRequest.getApellidoMaterno())
+            .fechaNacimiento(solicitudRequest.getFechaNacimiento())
+            .telefono(solicitudRequest.getTelefono())
+            .email(solicitudRequest.getEmail())
+            .urlImagen(solicitudRequest.getUrlImagen() != null ? solicitudRequest.getUrlImagen() : "")
+            .estado(false)
+            .build();
+        
+        persona = personaRepo.save(persona);
+
+        // Crear AppUser con solicitud de ADMIN
+        AppUser user = new AppUser();
+        user.setUsername(solicitudRequest.getUsername());
+        user.setEmail(solicitudRequest.getEmail());
+        user.setPassword(encoder.encode(solicitudRequest.getPassword()));
+        user.setRolSolicitado("ADMINISTRADOR");
+        user.setActivo(false);
+        user.setEstadoVerificacion("PENDIENTE");
+        user.setPersona(persona);
+        
+        userRepo.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Solicitud de administrador enviada. Pendiente de aprobación."));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
@@ -95,6 +179,10 @@ public class AuthController {
                 AppUser u = maybeUser.get();
                 if (!u.getActivo()) {
                     return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no aprobado o inactivo."));
+                }
+                
+                if (u.getPersona() == null) {
+                    return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no tiene datos de persona asociados."));
                 }
             } else {
                 return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario no encontrado."));
@@ -113,14 +201,15 @@ public class AuthController {
 
             AppUser usuario = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
 
-            // 🔧 CAMBIO: incluir idPersona en la respuesta del login
+            Long idPersona = usuario.getPersona() != null ? usuario.getPersona().getId() : null;
+
             return ResponseEntity.ok(new JwtResponse(
                 jwt,
                 usuario.getId(),
                 userDetails.getUsername(),
                 usuario.getEmail(),
                 roles,
-                usuario.getPersona().getId()
+                idPersona
             ));
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Credenciales inválidas."));
@@ -138,14 +227,15 @@ public class AuthController {
             if (usuario != null) {
                 Set<String> roles = userDetails.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
 
-                // incluyendo idPersona también en session-info
+                Long idPersona = usuario.getPersona() != null ? usuario.getPersona().getId() : null;
+
                 return ResponseEntity.ok(new JwtResponse(
                     null,
                     usuario.getId(),
                     userDetails.getUsername(),
                     usuario.getEmail(),
                     roles,
-                    usuario.getPersona().getId()
+                    idPersona
                 ));
             }
         }
