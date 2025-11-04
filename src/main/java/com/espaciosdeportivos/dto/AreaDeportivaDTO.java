@@ -68,7 +68,6 @@ public class AreaDeportivaDTO implements Serializable{
 
     //objeto para front 
     private ZonaDTO zona; 
-    //private List<CanchaDTO> canchas;
 
 
     // Para RESPUESTA - imágenes ya procesadas

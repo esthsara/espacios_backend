@@ -72,7 +72,6 @@ public class CanchaDTO implements Serializable {
     //objetos
     private AreaDeportivaDTO areaDeportiva; // objeto front
     private List<EquipamientoDTO> equipamientos;
-    private List<DisciplinaDTO> disciplinas;
 
     
     // Para RESPUESTA - imágenes ya procesadas

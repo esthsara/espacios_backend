@@ -64,13 +64,10 @@ public class ReservaServiceImpl implements IReservaService {
     private final IncluyeRepository incluyeRepository;
 
 
-    @Override
+    /*@Override
     @Transactional
     public ReservaDTO crearReserva(ReservaDTO dto) {
-
-
         // Validar existencia y estado de entidades relacionadas
-
         Cliente cliente = clienteRepository.findById(dto.getCliente().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
         if (!Boolean.TRUE.equals(cliente.getEstado())) {
@@ -100,8 +97,6 @@ public class ReservaServiceImpl implements IReservaService {
         if (!cancha.getAreaDeportiva().getIdAreaDeportiva().equals(area.getIdAreaDeportiva())) {
             throw new IllegalArgumentException("La cancha no pertenece al área seleccionada");
         }
-
-
         // Validar horario dentro del rango permitido
 
         if (dto.getHoraInicio().isBefore(area.getHoraInicioArea()) ||
@@ -116,24 +111,28 @@ public class ReservaServiceImpl implements IReservaService {
 
         // Validar solapamiento de reservas existentes
 
-        List<Reserva> reservasExistentes = reservaRepository.findByCanchaAndFechaReserva(cancha, dto.getFechaReserva());
-
-        boolean seSolapa = reservasExistentes.stream().anyMatch(r ->
-                (dto.getHoraInicio().isBefore(r.getHoraFin()) && dto.getHoraFin().isAfter(r.getHoraInicio()))
+        // Obtener reservas existentes para la misma cancha y fecha
+        List<Reserva> reservasExistentes = reservaRepository.findByCanchaAndFechaReserva(
+                dto.getCancha().getIdCancha(),
+                dto.getFechaReserva()
         );
 
+        System.out.println("Reservas existentes encontradas: " + reservasExistentes.size());
+
+        // Verificar solapamiento de horarios
+        boolean seSolapa = reservasExistentes.stream()
+            .filter(r -> dto.getIdReserva() == null || !r.getIdReserva().equals(dto.getIdReserva())) // Ignora la misma reserva si estás editando
+            .anyMatch(r ->
+                !dto.getHoraFin().isBefore(r.getHoraInicio()) && // Nueva hora fin no es antes de la existente
+                !dto.getHoraInicio().isAfter(r.getHoraFin())     // Nueva hora inicio no es después de la existente
+            );
+
         if (seSolapa) {
-            throw new IllegalArgumentException("El horario seleccionado ya está reservado");
+            throw new IllegalArgumentException("El horario seleccionado ya está reservado para esta cancha.");
         }
 
 
-        //  Calcular duración de la reserva
-
         long duracionMinutos = java.time.Duration.between(dto.getHoraInicio(), dto.getHoraFin()).toMinutes();
-
-
-        // Crear y guardar la reserva
-
         Reserva reserva = new Reserva();
         reserva.setFechaCreacion(LocalDateTime.now());
         reserva.setFechaReserva(dto.getFechaReserva());
@@ -147,9 +146,6 @@ public class ReservaServiceImpl implements IReservaService {
 
         Reserva reservaGuardada = reservaRepository.save(reserva);
 
-
-        // 7Crear la relación en Incluye
-
         Incluye incluye = new Incluye();
         incluye.setReserva(reservaGuardada);
         incluye.setCancha(cancha);
@@ -157,10 +153,8 @@ public class ReservaServiceImpl implements IReservaService {
         incluyeRepository.save(incluye);
 
 
-        //  Retornar DTO
-
         return convertToDTO(reservaGuardada);
-    }
+    }*/
 
 
 

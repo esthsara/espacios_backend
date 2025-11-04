@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.repository;
 
+import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,8 +28,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     List<Reserva> findByFechaReservaBetweenAndEstadoReserva(LocalDate inicio, LocalDate fin, String estadoReserva);
     
     // Búsquedas por Código
-    Optional<Reserva> findByCodigoReserva(String codigoReserva);
-    boolean existsByCodigoReserva(String codigoReserva);
+    //Optional<Reserva> findByCodigoReserva(String codigoReserva);
+    //boolean existsByCodigoReserva(String codigoReserva);
     
     // Consultas de disponibilidad
     @Query("SELECT r FROM Reserva r WHERE r.fechaReserva = :fecha AND " +
@@ -68,4 +69,24 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     long countByFechaReserva(LocalDate fechaReserva);
 
     //List<Reserva> findReservaByCancha(Long idCancha);
+
+    @Query("SELECT r FROM Reserva r WHERE r.fechaReserva = :fecha AND r.idReserva IN " +
+       "(SELECT i.reserva.idReserva FROM Incluye i WHERE i.cancha.idCancha = :idCancha)")
+    List<Reserva> findByCanchaAndFecha(@Param("idCancha") Long idCancha, @Param("fecha") LocalDate fecha);
+
+      /* @Query("""
+              SELECT r
+              FROM Reserva r
+              WHERE r.fechaReserva = :fecha
+              AND r.idReserva IN (
+              SELECT i.reserva.idReserva
+              FROM Incluye i
+              WHERE i.cancha.idCancha = :idCancha
+              )
+              """)
+       List<Reserva> findByCanchaAndFechaReserva(
+              @Param("idCancha") Long idCancha,
+              @Param("fecha") LocalDate fecha
+       );*/
+
 }
