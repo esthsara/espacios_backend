@@ -4,7 +4,7 @@ import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.UsuarioControlDTO;
 import com.espaciosdeportivos.model.*;
 import com.espaciosdeportivos.repository.*;
-import com.espaciosdeportivos.service.IsupervisaService;
+import com.espaciosdeportivos.service.ISupervisaService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class supervisaServiceImpl implements IsupervisaService {
+public class SupervisaServiceImpl implements ISupervisaService {
 
-    private final supervisaRepository supervisaRepository;
+    private final SupervisaRepository supervisaRepository;
     private final UsuarioControlRepository usuarioControlRepository;
     private final CanchaRepository canchaRepository;
 

@@ -5,7 +5,7 @@ import com.espaciosdeportivos.dto.UsuarioControlDTO;
 import com.espaciosdeportivos.model.Administrador;
 import com.espaciosdeportivos.model.UsuarioControl;
 import com.espaciosdeportivos.repository.AdministradorRepository;
-import com.espaciosdeportivos.repository.supervisaRepository;
+import com.espaciosdeportivos.repository.SupervisaRepository;
 import com.espaciosdeportivos.service.AdministradorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
-    private final supervisaRepository supervisaRepository;
+    private final SupervisaRepository supervisaRepository;
 
     @Autowired
     public AdministradorServiceImpl(
         AdministradorRepository administradorRepository,
-        supervisaRepository supervisaRepository
+        SupervisaRepository supervisaRepository
     ) {
         this.administradorRepository = administradorRepository;
         this.supervisaRepository = supervisaRepository;

@@ -27,7 +27,8 @@ public class Administrador extends Persona {
     //@NotNull
     @Column(name = "direccion", nullable = false, length = 200)
     private String direccion;
-
+    //comentario: no podemos hacer una casacada por que si no existe admin borrra areas loq ue no es correcto
+    //
     @OneToMany(mappedBy = "administrador"/*, cascade = CascadeType.ALL*/, orphanRemoval = false ,fetch = FetchType.LAZY)
     private List<AreaDeportiva> areaDeportiva;
 

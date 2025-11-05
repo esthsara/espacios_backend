@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface supervisaRepository extends JpaRepository<Supervisa, SupervisaId> {
+public interface SupervisaRepository extends JpaRepository<Supervisa, SupervisaId> {
 
     // Ver todas las canchas que supervisa un usuario
     List<Supervisa> findById_IdUsControl(Long idUsuarioControl);
@@ -31,7 +31,7 @@ public interface supervisaRepository extends JpaRepository<Supervisa, SupervisaI
 
     // Obtener todos los usuarios de control 
     // que pertenezcan a canchas de áreas deportivas de un administrador específico
-    @Query("SELECT DISTINCT s.usuarioControl FROM supervisa s " +
+    @Query("SELECT DISTINCT s.usuarioControl FROM Supervisa s " +
        "JOIN s.cancha c " +
        "JOIN c.areaDeportiva a " +
        "WHERE a.administrador.id = :idAdmin")
