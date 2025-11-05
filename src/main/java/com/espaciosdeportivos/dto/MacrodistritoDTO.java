@@ -24,5 +24,5 @@ public class MacrodistritoDTO implements Serializable{
 
 
     //con esto jalamos los objetos de zona dentro de macrodistrito pero no afecta en nadda
-    private List<ZonaDTO> zonas;
+    //private List<ZonaDTO> zonas;
 }

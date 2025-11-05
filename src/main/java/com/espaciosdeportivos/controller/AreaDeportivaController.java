@@ -37,7 +37,7 @@ public class AreaDeportivaController {
     @GetMapping("/activos")
     public ResponseEntity<List<AreaDeportivaDTO>> obtenerTodasLasAreasDeportivas() {
         logger.info("[AREA] Inicio obtenerTodas");
-        List<AreaDeportivaDTO> lista = areaDeportivaservice.obtenerTodasLasAreasDeportivas();
+        List<AreaDeportivaDTO> lista = areaDeportivaservice.listarTodos();
         logger.info("[AREA] Fin obtenerTodas");
         return ResponseEntity.ok(lista);
     }
@@ -46,7 +46,7 @@ public class AreaDeportivaController {
     @GetMapping
     public ResponseEntity<List<AreaDeportivaDTO>> listarTodos() {
         logger.info("[AREA] Inicio obtenerTodas");
-        List<AreaDeportivaDTO> lista = areaDeportivaservice.listarTodos();
+        List<AreaDeportivaDTO> lista = areaDeportivaservice.obtenerTodasLasAreasDeportivas();
         logger.info("[AREA] Fin obtenerTodas");
         return ResponseEntity.ok(lista);
     }
