@@ -32,7 +32,8 @@ public class AreaDeportiva {
 
     @Column(name = "telefono_area", length = 8)
     private String telefonoArea;
-
+    
+//comentario : aqui cambie el tipo de dato de String a LocalTime
     @Column(name = "hora_inicio_area")
     private LocalTime horaInicioArea;
 

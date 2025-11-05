@@ -31,7 +31,9 @@ public class Zona {
     @JoinColumn(name = "id_macrodistrito")
     private Macrodistrito macrodistrito;
 
-    @OneToMany(mappedBy = "zona", cascade = CascadeType.ALL, orphanRemoval = true)
+    //comentario: Nose si es correcto que al eliminar zona se eliinara el area deportiva por eso quite el cascadetypeall
+    //comentario : le puse false por que si elimino zona eliminaria tambien areadeportiva
+    @OneToMany(mappedBy = "zona", /*cascade = CascadeType.ALL ,*/orphanRemoval = false)
     private List<AreaDeportiva> areaDeportiva;
     
 }

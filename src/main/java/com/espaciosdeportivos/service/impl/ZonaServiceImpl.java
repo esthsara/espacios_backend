@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.service.impl;
 
+import com.espaciosdeportivos.dto.MacrodistritoDTO;
 import com.espaciosdeportivos.dto.ZonaDTO;
 
 
@@ -158,6 +159,7 @@ public class ZonaServiceImpl implements IZonaService {
                 .descripcion(zona.getDescripcion())
                 .estado(zona.getEstado())
                 .idMacrodistrito(zona.getMacrodistrito() != null ? zona.getMacrodistrito().getIdMacrodistrito() : null)
+                .macrodistrito(convertMacrodistritoToDTO(zona.getMacrodistrito()))
                 .build();
     }
 
@@ -172,6 +174,15 @@ public class ZonaServiceImpl implements IZonaService {
             .estado(dto.getEstado() == null ? Boolean.TRUE : dto.getEstado())
             .macrodistrito(macrodistrito)
             .build();
+    }
+    private MacrodistritoDTO convertMacrodistritoToDTO(Macrodistrito z) {
+        if (z == null) return null;
+        return MacrodistritoDTO.builder()
+                .idMacrodistrito(z.getIdMacrodistrito())
+                .nombre(z.getNombre())
+                .descripcion(z.getDescripcion())
+                .estado(z.getEstado())
+                .build();
     }
 
 }
