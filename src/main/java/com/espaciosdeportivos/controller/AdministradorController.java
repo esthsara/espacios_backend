@@ -1,6 +1,8 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.AdministradorDTO;
+import com.espaciosdeportivos.dto.UsuarioControlDTO;
+
 import com.espaciosdeportivos.service.AdministradorService;
 
 import jakarta.validation.Valid;
@@ -74,6 +76,16 @@ public class AdministradorController {
             @RequestParam(required = false) String aMaterno
     ) {
         return administradorService.buscarPorNombreApellidos(nombre, aPaterno, aMaterno);
+    }
+    /**
+     * Obtiene todos los usuarios de control que están asignados a las canchas
+     * pertenecientes al área deportiva de un administrador específico.
+     * @param id ID del administrador
+     * @return Lista de UsuarioControlDTO con información personal y operativa
+     */
+    @GetMapping("/{id}/usuarios-control")
+    public List<UsuarioControlDTO> obtenerUsuariosControlDelAdministrador(@PathVariable Long id) {
+        return administradorService.obtenerUsuariosControlPorAdministrador(id);
     }
 
 

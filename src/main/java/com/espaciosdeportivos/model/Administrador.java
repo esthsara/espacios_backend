@@ -32,3 +32,4 @@ public class Administrador extends Persona {
     private List<AreaDeportiva> areaDeportiva;
 
 }
+

@@ -4,12 +4,13 @@ import com.espaciosdeportivos.dto.AreaDeportivaDTO;
 //import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.service.IAreaDeportivaService;
-
+import com.espaciosdeportivos.model.Persona;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -98,6 +99,26 @@ public class AreaDeportivaController {
         AreaDeportiva areaDeportiva = areaDeportivaservice.obtenerAreaDeportivaConBloqueo(id);
         return ResponseEntity.ok(areaDeportiva);
     }
+    //@PreAuthorize("hasRole('ROL_ADMIN')")
+    //MI_AREA k
+    @GetMapping("/admin/{adminId}")
+    public ResponseEntity<AreaDeportivaDTO> obtenerPorAdminId(@PathVariable("adminId") Long Id){
+
+        AreaDeportivaDTO dto = areaDeportivaservice.obtenerPorAdminId(Id);
+        return ResponseEntity.ok(dto);
+    }
+
+    //@PreAuthorize("hasRole('ROL_ADMIN')")
+    //MI_AREA k actualizar por adminId
+    @PutMapping("/admin/{adminId}")
+    public ResponseEntity<AreaDeportivaDTO> actualizarPorAdminId(
+        @PathVariable("adminId") Long adminId,
+        @RequestBody @Valid AreaDeportivaDTO dto
+    ) {
+        AreaDeportivaDTO actualizada = areaDeportivaservice.actualizarPorAdminId(adminId, dto);
+        return ResponseEntity.ok(actualizada);
+    }
+
 
     // ==========================================================
     // 🖼️ GESTIÓN DE IMÁGENES DE CANCHAS

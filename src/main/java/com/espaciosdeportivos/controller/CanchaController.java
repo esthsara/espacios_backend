@@ -179,4 +179,14 @@ public class CanchaController {
     } */
  
 
+    //@PreAuthorize("hasRole('ROL_ADMIN')")
+    //admin k obtener canchas por área deportiva
+    @GetMapping("/area/{idArea}")
+    public ResponseEntity<List<CanchaDTO>> obtenerCanchasPorArea(@PathVariable Long idArea) {
+        logger.info("[CANCHA] Inicio obtenerCanchasPorArea: {}", idArea);
+        List<CanchaDTO> canchas = canchaService.obtenerCanchasPorArea(idArea);
+        logger.info("[CANCHA] Fin obtenerCanchasPorArea: {} canchas encontradas", canchas.size());
+        return ResponseEntity.ok(canchas);
+    }
+
 }

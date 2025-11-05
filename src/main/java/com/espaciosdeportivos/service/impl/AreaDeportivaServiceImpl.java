@@ -171,7 +171,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     }
 
          // objeto front K
-    private ZonaDTO convertZonaToDTO(Zona z) {
+    /*private ZonaDTO convertZonaToDTO(Zona z) {
         if (z == null) return null;
         return ZonaDTO.builder()
                 .idZona(z.getIdZona()) // objeto front K
@@ -180,7 +180,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .estado(z.getEstado()) // objeto front K
                 .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
                 .build();
-    }
+    }*/
 
      // ==========================================================
 // 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
@@ -275,5 +275,57 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     private LocalTime parseTime(String t) {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
     }
+
+     // objeto front K
+    private ZonaDTO convertZonaToDTO(Zona z) {
+        if (z == null) return null;
+        return ZonaDTO.builder()
+                .idZona(z.getIdZona()) // objeto front K
+                .nombre(z.getNombre()) // objeto front K
+                .descripcion(z.getDescripcion()) // objeto front K
+                .estado(z.getEstado()) // objeto front K
+                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
+                .build();
+    }
+
+    @Override
+    public AreaDeportivaDTO obtenerPorAdminId(Long Id) {
+        AreaDeportiva area = areaDeportivaRepository.findByAdministrador_Id(Id)
+            .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
+        return convertToDTO(area);
+    }
+
+    //MI_AREA k actualizar por adminId   
+    //Comentario : "rocio cambien las fechas ya no sons tring espero que no te afecte mucho perdon"
+    @Override
+    public AreaDeportivaDTO actualizarPorAdminId(Long adminId, AreaDeportivaDTO dto) {
+        AreaDeportiva area = areaDeportivaRepository.findByAdministrador_Id(adminId)
+            .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
+
+        areaDeportivaValidator.validarArea(dto); // validación como en otros métodos
+
+        Zona zona = zonaRepository.findById(dto.getIdZona())
+            .orElseThrow(() -> new RuntimeException("Zona no encontrada con ID: " + dto.getIdZona()));
+
+        // Actualiza los campos permitidos
+        area.setNombreArea(dto.getNombreArea());
+        area.setDescripcionArea(dto.getDescripcionArea());
+        area.setEmailArea(dto.getEmailArea());
+        area.setTelefonoArea(dto.getTelefonoArea());
+        area.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea(): null);
+        area.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea() : null);
+        area.setUrlImagen(dto.getUrlImagen());
+        area.setLatitud(dto.getLatitud());
+        area.setLongitud(dto.getLongitud());
+        area.setEstado(dto.getEstado());
+        area.setZona(zona);
+
+        AreaDeportiva actualizada = areaDeportivaRepository.save(area);
+        return convertToDTO(actualizada);
+    }
+
+
+
+
 
 }

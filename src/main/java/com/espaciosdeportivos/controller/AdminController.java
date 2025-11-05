@@ -2,9 +2,7 @@ package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.repository.AppUserRepository;
 import com.espaciosdeportivos.repository.RoleRepository;
-import com.espaciosdeportivos.model.Administrador;
 import com.espaciosdeportivos.model.AppUser;
-import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.Persona;
 import com.espaciosdeportivos.model.Role;
 import com.espaciosdeportivos.model.Role.RoleName;
@@ -12,16 +10,27 @@ import com.espaciosdeportivos.dto.AuthDTO.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.http.HttpStatus;
 import java.util.List;
+import java.util.stream.Collectors;
 import com.espaciosdeportivos.repository.PersonaRepository;
 import com.espaciosdeportivos.repository.ClienteRepository;
 import com.espaciosdeportivos.repository.AdministradorRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", maxAge = 3600)
 public class AdminController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private AppUserRepository userRepo;
@@ -38,84 +47,169 @@ public class AdminController {
     @Autowired
     private AdministradorRepository adminRepo;
 
-
-    // Devuelve las solicitudes pendientes
+    @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @GetMapping("/solicitudes")
-    public List<AppUser> listarSolicitudesPendientes() {
-        return userRepo.findByEstadoVerificacion("PENDIENTE");
+    public ResponseEntity<List<AppUser>> listarSolicitudesPendientes() {
+        logCurrentUser();
+        try {
+            List<AppUser> pendientes = userRepo.findByEstadoVerificacion("PENDIENTE");
+            logger.info("Encontradas {} solicitudes pendientes", pendientes.size());
+            
+            for (AppUser usuario : pendientes) {
+                if (usuario.getPersona() != null) {
+                    // Forzar la inicialización de las colecciones perezosas
+                    usuario.getPersona().getComentario().size(); // Esto inicializa la colección
+                }
+                usuario.getRoles().size(); // Esto inicializa los roles
+            }
+            
+            return ResponseEntity.ok(pendientes);
+        } catch (Exception e) {
+            logger.error("Error al obtener solicitudes: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // Aprobar una solicitud: asigna el rol solicitado y activa al usuario
+    @Transactional
+    @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @PostMapping("/solicitudes/{id}/aprobar")
     public ResponseEntity<?> aprobarSolicitud(@PathVariable Long id) {
-        AppUser u = userRepo.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        String solicitado = u.getRolSolicitado() == null ? "CLIENTE" : u.getRolSolicitado().toUpperCase();
+        logCurrentUser();
+        logger.info("Iniciando aprobación para solicitud ID: {}", id);
 
-        RoleName rn;
-        switch (solicitado) {
-            case "SUPERUSUARIO":
-                rn = RoleName.ROL_SUPERUSUARIO;
-                break;
-            case "ADMINISTRADOR":
-                rn = RoleName.ROL_ADMINISTRADOR;
-                break;
-            default:
-                rn = RoleName.ROL_CLIENTE;
+        try {
+            // 1. Buscar usuario
+            AppUser usuario = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+            
+            logger.info("Usuario encontrado: {}", usuario.getUsername());
+
+            // 2. Determinar rol solicitado
+            String solicitado = usuario.getRolSolicitado() == null ? "CLIENTE" : usuario.getRolSolicitado().toUpperCase();
+            RoleName rolName = determinarRoleName(solicitado);
+            logger.info("Rol solicitado: {} -> {}", solicitado, rolName);
+
+            // 3. Buscar rol en base de datos
+            Role rol = roleRepo.findByName(rolName)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + rolName));
+
+            // 4. Asignar rol al usuario
+            if (!usuario.getRoles().contains(rol)) {
+                usuario.getRoles().add(rol);
+            }
+            usuario.setEstadoVerificacion("APROBADO");
+            usuario.setActivo(true);
+            userRepo.save(usuario);
+            logger.info("Rol asignado y usuario activado: {}", usuario.getUsername());
+
+            // 5. Obtener y activar persona
+            Persona persona = usuario.getPersona();
+            if (persona == null) {
+                logger.error("Usuario no tiene persona asociada: {}", usuario.getId());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new MessageResponse("Error: Usuario no tiene datos de persona asociados."));
+            }
+
+            persona.setEstado(true);
+            persona = personaRepo.save(persona);
+            logger.info("Persona activada: {}", persona.getId());
+
+            // 6. Crear entidad específica según el rol
+            if (rolName == RoleName.ROL_CLIENTE) {
+                crearClienteSeguro(persona);
+            } else if (rolName == RoleName.ROL_ADMINISTRADOR) {
+                crearAdministradorSeguro(persona);
+            }
+            // Para SUPERUSUARIO no se crea entidad adicional
+
+            logger.info("Aprobación completada exitosamente para usuario: {}", usuario.getUsername());
+            return ResponseEntity.ok(new MessageResponse(
+                "Usuario aprobado exitosamente. Rol asignado: " + rolName.name().replace("ROL_", "")
+            ));
+
+        } catch (Exception e) {
+            logger.error("Error crítico al aprobar solicitud ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error al procesar la aprobación: " + e.getMessage()));
         }
-
-        Role role = roleRepo.findByName(rn).orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-        u.getRoles().add(role);
-        u.setEstadoVerificacion("APROBADO");
-        u.setActivo(true);
-        userRepo.save(u);
-
-
-        Persona persona = u.getPersona();
-
-        if (rn == RoleName.ROL_CLIENTE) {
-        Cliente cliente = Cliente.builder()
-                .id(persona.getId()) // usa el id existente de una Persona
-                .nombre(persona.getNombre())
-                .apellidoPaterno(persona.getApellidoPaterno())
-                .apellidoMaterno(persona.getApellidoMaterno())
-                .fechaNacimiento(persona.getFechaNacimiento())
-                .telefono(persona.getTelefono())
-                .email(persona.getEmail())
-                .urlImagen(persona.getUrlImagen())
-                .estado(true)
-                .categoria("REGULAR")
-                .build();
-        clienteRepo.save(cliente);
-        } else if (rn == RoleName.ROL_ADMINISTRADOR) {
-            Administrador admin = Administrador.builder()
-                    .id(persona.getId())
-                    .nombre(persona.getNombre())
-                    .apellidoPaterno(persona.getApellidoPaterno())
-                    .apellidoMaterno(persona.getApellidoMaterno())
-                    .fechaNacimiento(persona.getFechaNacimiento())
-                    .telefono(persona.getTelefono())
-                    .email(persona.getEmail())
-                    .urlImagen(persona.getUrlImagen())
-                    .estado(true)
-                    .cargo("Sin definir")
-                    .direccion("Pendiente de asignar")
-                    .build();
-            adminRepo.save(admin);
-        }
-
-        persona.setEstado(true);
-        personaRepo.save(persona);
-
-        return ResponseEntity.ok(new MessageResponse("Usuario aprobado y rol asignado: " + rn.name()));
     }
 
+    private void crearClienteSeguro(Persona persona) {
+        try {
+            // Verificar si ya existe
+            boolean existe = clienteRepo.existsById(persona.getId());
+            if (!existe) {
+                // Usar Native Query para evitar problemas de mapeo de herencia
+                clienteRepo.crearClienteSiNoExiste(persona.getId(), "REGULAR");
+                logger.info("Cliente creado exitosamente para persona ID: {}", persona.getId());
+            } else {
+                logger.info("Cliente ya existe para persona ID: {}", persona.getId());
+            }
+        } catch (Exception e) {
+            logger.error("Error al crear cliente para persona ID {}: {}", persona.getId(), e.getMessage());
+            // NO relanzar la excepción - continuar con la aprobación
+        }
+    }
 
+    private void crearAdministradorSeguro(Persona persona) {
+        try {
+            // Verificar si ya existe
+            boolean existe = adminRepo.existsById(persona.getId());
+            if (!existe) {
+                // Usar Native Query para evitar problemas de mapeo de herencia
+                adminRepo.crearAdministradorSiNoExiste(persona.getId(), "Administrador General", "Por asignar");
+                logger.info("Administrador creado exitosamente para persona ID: {}", persona.getId());
+            } else {
+                logger.info("Administrador ya existe para persona ID: {}", persona.getId());
+            }
+        } catch (Exception e) {
+            logger.error("Error al crear administrador para persona ID {}: {}", persona.getId(), e.getMessage());
+            // NO relanzar la excepción - continuar con la aprobación
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @PostMapping("/solicitudes/{id}/rechazar")
     public ResponseEntity<?> rechazarSolicitud(@PathVariable Long id, @RequestParam(required = false) String motivo) {
-        AppUser u = userRepo.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        u.setEstadoVerificacion("RECHAZADO");
-        u.setActivo(false);
-        userRepo.save(u);
-        return ResponseEntity.ok(new MessageResponse("Solicitud rechazada. Motivo: " + (motivo == null ? "Sin motivo" : motivo)));
+        logCurrentUser();
+        logger.info("Iniciando rechazo para solicitud ID: {}", id);
+
+        try {
+            AppUser usuario = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+
+            usuario.setEstadoVerificacion("RECHAZADO");
+            usuario.setActivo(false);
+            userRepo.save(usuario);
+
+            logger.info("Solicitud rechazada exitosamente para usuario: {}", usuario.getUsername());
+            return ResponseEntity.ok(new MessageResponse(
+                "Solicitud rechazada. Motivo: " + (motivo == null ? "No especificado" : motivo)
+            ));
+
+        } catch (Exception e) {
+            logger.error("Error al rechazar solicitud ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error al rechazar la solicitud: " + e.getMessage()));
+        }
+    }
+
+    private RoleName determinarRoleName(String solicitado) {
+        switch (solicitado) {
+            case "SUPERUSUARIO":
+                return RoleName.ROL_SUPERUSUARIO;
+            case "ADMINISTRADOR":
+                return RoleName.ROL_ADMINISTRADOR;
+            default:
+                return RoleName.ROL_CLIENTE;
+        }
+    }
+
+    private void logCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            logger.info("[AUTH] Usuario actual: principal={}, authorities={}",
+                    auth.getName(), auth.getAuthorities());
+        }
     }
 }

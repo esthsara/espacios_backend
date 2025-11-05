@@ -35,11 +35,11 @@ public class ReservaController {
         return ResponseEntity.ok(reserva);
     }
 
-    @PostMapping("/crearReserva")
+    /*@PostMapping("/crearReserva")
     public ResponseEntity<ReservaDTO> crearReserva(@RequestBody ReservaDTO dto) {
         ReservaDTO nuevaReserva = reservaService.crearReserva(dto);
         return ResponseEntity.ok(nuevaReserva);
-    }
+    }*/
 
     @PostMapping
     public ResponseEntity<ReservaDTO> crear(@Valid @RequestBody ReservaDTO dto) {

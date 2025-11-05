@@ -68,9 +68,10 @@ public class AreaDeportiva {
     @JoinColumn(name = "id_zona")
     private Zona zona;
 
-    @ManyToOne
-    @JoinColumn(name = "id_persona",nullable = false)
+    @OneToOne
+    @JoinColumn(name = "id_persona", nullable = false, unique = true)
     private Administrador administrador;
+
 
     @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Cancha> cancha;
