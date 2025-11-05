@@ -26,5 +26,6 @@ public interface disponeRepository extends JpaRepository<Dispone, DisponeId> {
 
     void deleteById_IdCanchaAndId_IdEquipamiento(Long idCancha, Long idEquipamiento);
 
-    List<Dispone> findByCanchaIdCancha(Long idCancha);
+    List<Dispone> findByCanchaIdCancha(Long idCancha); //aqui se agrego
+
 }

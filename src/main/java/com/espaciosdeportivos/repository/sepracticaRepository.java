@@ -16,6 +16,7 @@ import java.util.Optional;
 public interface sepracticaRepository extends JpaRepository<Sepractica, SepracticaId> {
 
     List<Sepractica> findById_IdCancha(Long idCancha);
+    List<Sepractica> findByCanchaIdCancha(Long idCancha);//agregue esta 
 
     List<Sepractica> findByDisciplina_IdDisciplina(Long idDisciplina);
 

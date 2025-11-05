@@ -18,6 +18,7 @@ import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Dispone;
 import com.espaciosdeportivos.model.Incluye;
+import com.espaciosdeportivos.model.Macrodistrito;
 //import com.espaciosdeportivos.model.sepractica;
 import com.espaciosdeportivos.repository.CanchaRepository;
 import com.espaciosdeportivos.repository.AreaDeportivaRepository;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 
 
 import com.espaciosdeportivos.dto.ImagenDTO;
+import com.espaciosdeportivos.dto.MacrodistritoDTO;
 import com.espaciosdeportivos.service.ImagenService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -168,6 +170,7 @@ public class CanchaServiceImpl implements ICanchaService {
     }
 
     @Override
+    @Transactional
     public CanchaDTO eliminarCancha(Long id, Boolean nuevoEstado) {
         Cancha existente = canchaRepository.findByIdCanchaAndEstadoTrue(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
@@ -285,6 +288,67 @@ public class CanchaServiceImpl implements ICanchaService {
 
 
 
+    
+
+    // --------- mapping ----------
+    private CanchaDTO convertToDTO(Cancha c) {
+        if (c == null) return null;
+        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
+
+        CanchaDTO dto = CanchaDTO.builder()
+                .idCancha(c.getIdCancha())
+                .nombre(c.getNombre())
+                .costoHora(c.getCostoHora())
+                .capacidad(c.getCapacidad())
+                .estado(c.getEstado())
+                .mantenimiento(c.getMantenimiento())
+                .horaInicio(c.getHoraInicio())
+                .horaFin(c.getHoraFin())
+                .tipoSuperficie(c.getTipoSuperficie())
+                .tamano(c.getTamano())
+                .iluminacion(c.getIluminacion())
+                .cubierta(c.getCubierta())
+                .urlImagen(c.getUrlImagen())
+                .idAreadeportiva(c.getAreaDeportiva() != null ? c.getAreaDeportiva().getIdAreaDeportiva() : null    )
+                .areaDeportiva(area != null ? convertAreaToDTO(area) : null)
+                .build();
+
+        // >>> Cargar disciplinas desde la tabla intermedia <<<
+        try {
+            List<Sepractica> sePracticas = sepracticaRepository.findByCanchaIdCancha(c.getIdCancha());
+            List<DisciplinaDTO> disciplinas = sePracticas.stream()
+                .map(sp -> convertDiciplinaToDTO(sp.getDisciplina()))
+                .toList();
+            dto.setDisciplinas(disciplinas);
+        } catch (Exception e) {
+            log.warn("Error cargando disciplinas para cancha {}", c.getIdCancha(), e);
+            dto.setDisciplinas(List.of());
+        }
+
+        // >>> Cargar equipamientos desde la tabla intermedia <<<
+        try {
+            List<Dispone> disponeList = disponeRepository.findByCanchaIdCancha(c.getIdCancha());
+            List<EquipamientoDTO> equipamientos = disponeList.stream()
+                .map(d -> convertEquipamientoToDTO(d.getEquipamiento()))
+                .toList();
+            dto.setEquipamientos(equipamientos);
+        } catch (Exception e) {
+            log.warn("Error cargando equipamientos para cancha {}", c.getIdCancha(), e);
+            dto.setEquipamientos(List.of());
+        }  
+        
+        // >>> Cargar imágenes asociadas a la cancha <<<
+        try {
+            List<ImagenDTO> imagenes = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO, c.getIdCancha());
+            dto.setImagenes(imagenes);
+        } catch (Exception e) {
+            log.warn("Error cargando imágenes para cancha {}: {}", c.getIdCancha(), e.getMessage());
+            dto.setImagenes(List.of());
+        }
+
+        return dto;
+    }
+
     //---diciplina--
     private DisciplinaDTO convertDiciplinaToDTO(Disciplina d) {
         return DisciplinaDTO.builder()
@@ -294,7 +358,7 @@ public class CanchaServiceImpl implements ICanchaService {
                 .estado(d.getEstado())
                 .build();
     }
-    //---reserva-------
+    //---reserva------- Comentario : esta no lo hize por que no va creo que aqui va mejor en reserva
     /*private ReservaDTO convertReservaToDTO(Reserva reserva) {
         Cliente cliente = reserva.getCliente();
 
@@ -319,60 +383,7 @@ public class CanchaServiceImpl implements ICanchaService {
                 .build();
     }
 
-    // --------- mapping ----------
-    private CanchaDTO convertToDTO(Cancha c) {
-        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
 
-        CanchaDTO dto = CanchaDTO.builder()
-                .idCancha(c.getIdCancha())
-                .nombre(c.getNombre())
-                .costoHora(c.getCostoHora())
-                .capacidad(c.getCapacidad())
-                .estado(c.getEstado())
-                .mantenimiento(c.getMantenimiento())
-                .horaInicio(c.getHoraInicio())
-                .horaFin(c.getHoraFin())
-                .tipoSuperficie(c.getTipoSuperficie())
-                .tamano(c.getTamano())
-                .iluminacion(c.getIluminacion())
-                .cubierta(c.getCubierta())
-                .urlImagen(c.getUrlImagen())
-                .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
-                .areaDeportiva(area != null ? convertAreaToDTO(area) : null)
-                .build();
-
-        try {
-            List<ImagenDTO> imagenes = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO, c.getIdCancha());
-            dto.setImagenes(imagenes);
-        } catch (Exception e) {
-            log.warn("Error cargando imágenes para cancha {}: {}", c.getIdCancha(), e.getMessage());
-            dto.setImagenes(List.of());
-        }
-
-        return dto;
-    }
-
-    /*private CanchaDTO convertToDTO(Cancha c) {
-        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
-
-        return CanchaDTO.builder()
-                .idCancha(c.getIdCancha())
-                .nombre(c.getNombre())
-                .costoHora(c.getCostoHora())
-                .capacidad(c.getCapacidad())
-                .estado(c.getEstado())
-                .mantenimiento(c.getMantenimiento())
-                .horaInicio(c.getHoraInicio())
-                .horaFin(c.getHoraFin())
-                .tipoSuperficie(c.getTipoSuperficie())
-                .tamano(c.getTamano())
-                .iluminacion(c.getIluminacion())
-                .cubierta(c.getCubierta())
-                .urlImagen(c.getUrlImagen())
-                .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
-                .areaDeportiva(area != null ? convertAreaToDTO(area) : null) // objeto front K
-                .build();
-    }*/
 
     private Cancha convertToEntity(CanchaDTO d) {
         AreaDeportiva area = areaDeportivaRepository.findById(d.getIdAreadeportiva())
@@ -424,10 +435,22 @@ public class CanchaServiceImpl implements ICanchaService {
                 .descripcion(z.getDescripcion()) // objeto front K
                 .estado(z.getEstado()) // objeto front K
                 .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
+                .macrodistrito(convertMacrodistritoToDTO(z.getMacrodistrito()))
                 .build();
     }
 
-    
+    private MacrodistritoDTO convertMacrodistritoToDTO(Macrodistrito z) {
+        if (z == null) return null;
+        return MacrodistritoDTO.builder()
+                .idMacrodistrito(z.getIdMacrodistrito())
+                .nombre(z.getNombre())
+                .descripcion(z.getDescripcion())
+                .estado(z.getEstado())
+                .build();
+    }
+
+
+    //falta macrodistrito
 
 
     private LocalTime parseTime(String t) {
@@ -442,6 +465,27 @@ public class CanchaServiceImpl implements ICanchaService {
                     .collect(Collectors.toList());
     }
 
+        /*private CanchaDTO convertToDTO(Cancha c) {
+        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
+
+        return CanchaDTO.builder()
+                .idCancha(c.getIdCancha())
+                .nombre(c.getNombre())
+                .costoHora(c.getCostoHora())
+                .capacidad(c.getCapacidad())
+                .estado(c.getEstado())
+                .mantenimiento(c.getMantenimiento())
+                .horaInicio(c.getHoraInicio())
+                .horaFin(c.getHoraFin())
+                .tipoSuperficie(c.getTipoSuperficie())
+                .tamano(c.getTamano())
+                .iluminacion(c.getIluminacion())
+                .cubierta(c.getCubierta())
+                .urlImagen(c.getUrlImagen())
+                .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
+                .areaDeportiva(area != null ? convertAreaToDTO(area) : null) // objeto front K
+                .build();
+    }*/
 
 
 

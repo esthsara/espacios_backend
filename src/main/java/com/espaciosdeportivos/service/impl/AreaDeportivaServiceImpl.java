@@ -1,9 +1,11 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
+import com.espaciosdeportivos.dto.MacrodistritoDTO;
 //import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
 import com.espaciosdeportivos.model.AreaDeportiva;
+import com.espaciosdeportivos.model.Macrodistrito;
 //import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Administrador;
@@ -276,7 +278,7 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
     }
 
-     // objeto front K
+     // objeto front 
     private ZonaDTO convertZonaToDTO(Zona z) {
         if (z == null) return null;
         return ZonaDTO.builder()
@@ -285,6 +287,17 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .descripcion(z.getDescripcion()) // objeto front K
                 .estado(z.getEstado()) // objeto front K
                 .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
+                .macrodistrito(convertMacrodistritoToDTO(z.getMacrodistrito()))
+                .build();
+    }
+
+    private MacrodistritoDTO convertMacrodistritoToDTO(Macrodistrito z) {
+        if (z == null) return null;
+        return MacrodistritoDTO.builder()
+                .idMacrodistrito(z.getIdMacrodistrito())
+                .nombre(z.getNombre())
+                .descripcion(z.getDescripcion())
+                .estado(z.getEstado())
                 .build();
     }
 
