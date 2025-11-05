@@ -3,7 +3,6 @@ package com.espaciosdeportivos.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,13 +48,6 @@ public class Reserva {
 
     @Column(name = "duracion_minutos")
     private Integer duracionMinutos;
-
-    /* 
-    @Column(name = "codigo_reserva", unique = true)
-    private String codigoReserva;
-    @UpdateTimestamp
-    @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;*/
 
 
     // RELACIÓNES

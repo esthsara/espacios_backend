@@ -35,7 +35,9 @@ public class Equipamiento {
     @Column(name ="url_imagen" , length = 800)
     private String urlImagen;
 
-    @OneToMany(mappedBy = "equipamiento")
+
+    @OneToMany(mappedBy = "equipamiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Dispone> cancha;
+
 
 }

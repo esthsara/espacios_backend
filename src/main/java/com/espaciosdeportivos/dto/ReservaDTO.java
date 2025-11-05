@@ -49,23 +49,16 @@ public class ReservaDTO implements Serializable {
     private Long clienteId; // id_persona del cliente
     
     private Integer duracionMinutos;
-    
-    // Campos opcionales
-    
-
-    //private String codigoReserva;
 
     //objetos
     private ClienteDTO cliente;
     private CanchaDTO cancha;
-    private AreaDeportivaDTO areaDeportiva;
     private DisciplinaDTO disciplina;
     private List<PagoDTO> pagos;
     private List<QrDTO> qrs;
-
     private Integer capacidadTotal;
     private Integer invitadosConfirmados;
-    // Información de pagos
+    //capos de pagos
     private Double totalPagado;
     private Double saldoPendiente;
     private Boolean pagadaCompleta;

@@ -39,10 +39,11 @@ public class Disciplina {
     private LocalDateTime fechaActualizacion;
 
     // Relaciones con Cancha (a través de la tabla intermedia se_practica)
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Sepractica> canchas;
 
-    // Relación con Reserva (a través de la tabla intermedia incluye)
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Incluye> incluidos;
+
 }
