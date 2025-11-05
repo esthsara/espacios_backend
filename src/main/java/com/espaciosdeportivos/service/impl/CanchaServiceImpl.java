@@ -298,7 +298,7 @@ public class CanchaServiceImpl implements ICanchaService {
 
     
 
-    // --------- mapping ----------
+    // --------- MAPEO ----------
     private CanchaDTO convertToDTO(Cancha c) {
         if (c == null) return null;
         AreaDeportiva area = c.getAreaDeportiva(); // objeto front K

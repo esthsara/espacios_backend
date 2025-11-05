@@ -11,6 +11,8 @@ import java.util.List;
 
 @Repository
 public  interface IncluyeRepository extends JpaRepository<Incluye, IncluyeId>{
+    List<Incluye> findByReservaIdReserva(Long idReserva);
+
     
      List<Incluye> findByCanchaIdCancha(Long idCancha);
      //Optional<Incluye> findByReservaId(Long idReserva);

@@ -55,29 +55,28 @@ public class Reserva {
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)
     private Cliente cliente;
 
-  //elaciones afuera de la reserva
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
-    private List<Incluye> Incluidos;  // R
+  //elaciones afuera de la reserva aqui si es bueno usar el cascade all
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Incluye> Incluidos;  // 
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Pago> pagos;
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Qr> qr; 
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Participa> invitados;
 
-    @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "reserva",  cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Cancelacion cancelacion;
+
 
     // ========== VALIDACIONES DE NEGOCIO ==========
     // Enums para estados
     public enum EstadoReserva {
         PENDIENTE, CONFIRMADA, EN_CURSO, COMPLETADA, CANCELADA, NO_SHOW
     }
-
-    // Método para calcular duración
 
     public boolean puedeReprogramar() {
         LocalDateTime inicioReserva = fechaReserva.atTime(horaInicio);
@@ -112,7 +111,6 @@ public class Reserva {
         }
     }
 
-    // Métodos de negocio
     public boolean estaActiva() {
         return estadoReserva.equals(EstadoReserva.CONFIRMADA.name()) || 
                estadoReserva.equals(EstadoReserva.EN_CURSO.name());

@@ -5,6 +5,8 @@ import com.espaciosdeportivos.dto.CancelacionDTO;
 import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.ClienteDTO;
 import com.espaciosdeportivos.dto.DisciplinaDTO;
+import com.espaciosdeportivos.dto.EquipamientoDTO;
+import com.espaciosdeportivos.dto.ImagenDTO;
 import com.espaciosdeportivos.dto.ReprogramacionDTO;
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.AreaDeportiva;
@@ -12,8 +14,12 @@ import com.espaciosdeportivos.model.Cancelacion;
 import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.Disciplina;
+import com.espaciosdeportivos.model.Dispone;
 import com.espaciosdeportivos.model.Incluye;
+import com.espaciosdeportivos.model.Pago;
+import com.espaciosdeportivos.model.Qr;
 import com.espaciosdeportivos.model.Reserva;
+import com.espaciosdeportivos.model.Sepractica;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.sepracticaRepository;
@@ -200,22 +206,30 @@ public class ReservaServiceImpl implements IReservaService {
     
     private boolean isSlotOcupado(LocalTime slotInicio, List<Reserva> reservas) {
     
-    // Asumimos que el "slot" que estamos verificando tiene una duración de 30 minutos
-    LocalTime slotFin = slotInicio.plusMinutes(30); 
-    
-    for (Reserva r : reservas) {
-        LocalTime reservaInicio = r.getHoraInicio();
-        LocalTime reservaFin = r.getHoraFin();
+        // Asumimos que el "slot" que estamos verificando tiene una duración de 30 minutos
+        LocalTime slotFin = slotInicio.plusMinutes(30); 
         
-        // La condición es: A no termina antes de que B empiece Y B no termina antes de que A empiece.
-        // O más simple: el inicio del slot es ANTES del fin de la reserva,
-        // Y el fin del slot es DESPUÉS del inicio de la reserva.
-        if (slotInicio.isBefore(reservaFin) && slotFin.isAfter(reservaInicio)) {
-            return true; // El slot de 30 minutos está cubierto por una reserva.
+        for (Reserva r : reservas) {
+            LocalTime reservaInicio = r.getHoraInicio();
+            LocalTime reservaFin = r.getHoraFin();
+            
+            // La condición es: A no termina antes de que B empiece Y B no termina antes de que A empiece.
+            // O más simple: el inicio del slot es ANTES del fin de la reserva,
+            // Y el fin del slot es DESPUÉS del inicio de la reserva.
+            if (slotInicio.isBefore(reservaFin) && slotFin.isAfter(reservaInicio)) {
+                return true; // El slot de 30 minutos está cubierto por una reserva.
+            }
         }
+        return false; // El slot está libre.
     }
-    return false; // El slot está libre.
-}
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservaDTO> listarTodas() {
+        return reservaRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     @Override
     @Transactional
@@ -291,21 +305,7 @@ public class ReservaServiceImpl implements IReservaService {
     // BÚSQUEDAS
     // ======================
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ReservaDTO> listarTodas() {
-        return reservaRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-/* 
-    @Override
-    @Transactional(readOnly = true)
-    public ReservaDTO obtenerPorCodigoReserva(String codigoReserva) {
-        Reserva reserva = reservaRepository.findByCodigoReserva(codigoReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con código: " + codigoReserva));
-        return convertToDTO(reserva);
-    }*/
+
 
     @Override
     @Transactional(readOnly = true)
@@ -438,29 +438,76 @@ public class ReservaServiceImpl implements IReservaService {
         return ingresos != null ? ingresos : 0.0;
     }
 
+
     // ======================
     // MAPEO
     // ======================
 
     private ReservaDTO convertToDTO(Reserva reserva) {
         if (reserva == null) return null;
+
         Cliente cliente = reserva.getCliente();
 
-        return ReservaDTO.builder()
-                .idReserva(reserva.getIdReserva())
-                .fechaCreacion(reserva.getFechaCreacion() != null ? reserva.getFechaCreacion() : LocalDateTime.now())
-                .fechaReserva(reserva.getFechaReserva())
-                .horaInicio(reserva.getHoraInicio())
-                .horaFin(reserva.getHoraFin())
-                .estadoReserva(reserva.getEstadoReserva())
-                .montoTotal(reserva.getMontoTotal())
-                .observaciones(reserva.getObservaciones())
-                .clienteId(cliente != null ? cliente.getId() : null)
-                .cliente(cliente != null ? convertClienteToDTO(cliente) : null) // objeto anidado, como en Cancha
-                .duracionMinutos(reserva.getDuracionMinutos())
-                //.codigoReserva(reserva.getCodigoReserva())
-                //.fechaActualizacion(reserva.getFechaActualizacion() != null ? reserva.getFechaActualizacion().toLocalDate() : null)
-                .build();
+        // Crear el DTO básico
+        ReservaDTO dto = ReservaDTO.builder()
+            .idReserva(reserva.getIdReserva())
+            .fechaCreacion(reserva.getFechaCreacion() != null ? reserva.getFechaCreacion() : LocalDateTime.now())
+            .fechaReserva(reserva.getFechaReserva())
+            .horaInicio(reserva.getHoraInicio())
+            .horaFin(reserva.getHoraFin())
+            .estadoReserva(reserva.getEstadoReserva())
+            .montoTotal(reserva.getMontoTotal())
+            .observaciones(reserva.getObservaciones())
+            .clienteId(cliente != null ? cliente.getId() : null)
+            .cliente(cliente != null ? convertClienteToDTO(cliente) : null)
+            .duracionMinutos(reserva.getDuracionMinutos())
+            .build();
+
+        try {
+            List<Incluye> incluidos = incluyeRepository.findByReservaIdReserva(reserva.getIdReserva());
+            if (!incluidos.isEmpty()) {
+                Incluye incluye = incluidos.get(0);
+                dto.setCancha(convertCanchaToDTO(incluye.getCancha()));
+                dto.setDisciplina(convertDisciplinaToDTO(incluye.getDisciplina()));
+            }
+        } catch (Exception e) {
+            log.warn("Error cargando cancha/disciplina para reserva {}", reserva.getIdReserva(), e);
+            dto.setCancha(null);
+            dto.setDisciplina(null);
+        }
+
+        // >>> Cargar PAGOS <<<
+        /*try {
+            List<Pago> pagos = pagoRepository.findByReservaIdReserva(reserva.getIdReserva());
+            dto.setPagos(pagos.stream()
+                .map(this::convertPagoToDTO)
+                .toList());
+        } catch (Exception e) {
+            log.warn("Error cargando pagos para reserva {}", reserva.getIdReserva(), e);
+            dto.setPagos(List.of());
+        }
+
+        // >>> Cargar QRs <<<
+        try {
+            List<Qr> qrs = qrRepository.findByReservaIdReserva(reserva.getIdReserva());
+            dto.setQrs(qrs.stream()
+                .map(this::convertQrToDTO)
+                .toList());
+        } catch (Exception e) {
+            log.warn("Error cargando QRs para reserva {}", reserva.getIdReserva(), e);
+            dto.setQrs(List.of());
+        }
+
+        // >>> Cargar CANCELACIÓN (0 o 1) <<<
+        try {
+            Optional<Cancelacion> cancelacionOpt = cancelacionRepository.findByReservaIdReserva(reserva.getIdReserva());
+            dto.setCancelacion(cancelacionOpt.map(this::convertCancelacionToDTO).orElse(null));
+        } catch (Exception e) {
+            log.warn("Error cargando cancelación para reserva {}", reserva.getIdReserva(), e);
+            dto.setCancelacion(null);
+        }*/
+
+        return dto;
     }
 
     private Reserva convertToEntity(ReservaDTO dto) {
@@ -492,32 +539,36 @@ public class ReservaServiceImpl implements IReservaService {
                 .build();
     }
 
-    private AreaDeportivaDTO convertAreaToDTO(AreaDeportiva area) {
-        if (area == null) return null;
-        return AreaDeportivaDTO.builder()
-                .idAreadeportiva(area.getIdAreaDeportiva())
-                .nombreArea(area.getNombreArea())
-                .horaInicioArea(area.getHoraInicioArea())
-                .horaFinArea(area.getHoraFinArea())
-                .build();
-    }
 
-    private CanchaDTO convertCanchaToDTO(Cancha cancha) {
+    private CanchaDTO convertCanchaToDTO(Cancha c) {
         return CanchaDTO.builder()
-                .idCancha(cancha.getIdCancha())
-                .nombre(cancha.getNombre())
-                .capacidad(cancha.getCapacidad())
-                .estado(cancha.getEstado())
+                .idCancha(c.getIdCancha())
+                .nombre(c.getNombre())
+                .costoHora(c.getCostoHora())
+                .capacidad(c.getCapacidad())
+                .estado(c.getEstado())
+                .mantenimiento(c.getMantenimiento())
+                .horaInicio(c.getHoraInicio())
+                .horaFin(c.getHoraFin())
+                .tipoSuperficie(c.getTipoSuperficie())
+                .tamano(c.getTamano())
+                .iluminacion(c.getIluminacion())
+                .cubierta(c.getCubierta())
+                .urlImagen(c.getUrlImagen())
+                .idAreadeportiva(c.getAreaDeportiva() != null ? c.getAreaDeportiva().getIdAreaDeportiva() : null    )
                 .build();
     }
 
-    private DisciplinaDTO convertDisciplinaToDTO(Disciplina disciplina) {
+
+    private DisciplinaDTO convertDisciplinaToDTO(Disciplina d) {
         return DisciplinaDTO.builder()
-                .idDisciplina(disciplina.getIdDisciplina())
-                .nombre(disciplina.getNombre())
-                .descripcion(disciplina.getDescripcion())
+                .idDisciplina(d.getIdDisciplina())
+                .nombre(d.getNombre())
+                .descripcion(d.getDescripcion())
+                .estado(d.getEstado())
                 .build();
     }
+
 
 
 }
