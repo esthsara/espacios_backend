@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.controller;
 
+import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.model.Equipamiento;
 import com.espaciosdeportivos.service.IEquipamientoService;
@@ -36,6 +37,14 @@ public class EquipamientoController {
     @GetMapping
     public ResponseEntity<List<EquipamientoDTO>> obtenerTodos() {
         logger.info("[EQUIP] Inicio obtenerTodos");
+        List<EquipamientoDTO> lista = equipamientoService.ListarTodos();
+        logger.info("[EQUIP] Fin obtenerTodos ({} registros)", lista.size());
+        return ResponseEntity.ok(lista);
+    }
+    
+    @GetMapping("/activos")
+    public ResponseEntity<List<EquipamientoDTO>> obtenerTodosActivos() {
+        logger.info("[EQUIP] Inicio obtenerTodos los activos");
         List<EquipamientoDTO> lista = equipamientoService.obtenerTodosLosEquipamientos();
         logger.info("[EQUIP] Fin obtenerTodos ({} registros)", lista.size());
         return ResponseEntity.ok(lista);
@@ -77,6 +86,18 @@ public class EquipamientoController {
         logger.info("[EQUIP] Fin eliminar (baja lógica): {}", id);
         return ResponseEntity.ok(eliminado);
     }
+
+    //eliminacion con el patch 
+    @PatchMapping("/{id}/estado")
+    @Transactional
+    public ResponseEntity<EquipamientoDTO> cambiarEstadoCancha(@PathVariable Long id, @RequestParam Boolean nuevoEstado) {
+        logger.info("[CANCHA] Inicio cambiar estado equipamiento: {}", id);
+        EquipamientoDTO actualizada = equipamientoService.eliminar(id, nuevoEstado);
+        logger.info("[CANCHA] Inicio cambiar estado equipamiento: {}", id);
+        return ResponseEntity.ok(actualizada);
+    }
+
+
 
     @GetMapping("/{id}/lock")
     public ResponseEntity<Equipamiento> obtenerEquipamientoConBloqueo(@PathVariable Long id) {

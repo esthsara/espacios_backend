@@ -1,7 +1,10 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.DisciplinaDTO;
+import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.service.IDisciplinaService;
+
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +59,18 @@ public class DisciplinaController {
     }
     
     @GetMapping
+    public ResponseEntity<List<DisciplinaDTO>> ListarTodos() {
+        log.info("GET /api/disciplina");
+        
+        try {
+            List<DisciplinaDTO> response = disciplinaService.listarTodas();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error obteniendo disciplinas: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    @GetMapping("/activos")
     public ResponseEntity<List<DisciplinaDTO>> obtenerTodasLasDisciplinas() {
         log.info("GET /api/disciplina");
         
@@ -63,7 +78,7 @@ public class DisciplinaController {
             List<DisciplinaDTO> response = disciplinaService.obtenerTodasLasDisciplinas();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error obteniendo disciplinas: {}", e.getMessage());
+            log.error("Error obteniendo disciplinas activas: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -103,6 +118,15 @@ public class DisciplinaController {
             log.error("Error eliminando lógicamente disciplina: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
+    }
+    //eliminacion con el patch 
+    @PatchMapping("/{id}/estado")
+    @Transactional
+    public ResponseEntity<DisciplinaDTO> eliminar(@PathVariable Long id, @RequestParam Boolean nuevoEstado) {
+        log.info("[DISCIPLINA] Inicio cambiar estado equipamiento: {}", id);
+        DisciplinaDTO actualizada = disciplinaService.eliminar(id, nuevoEstado);
+        log.info("[DISCIPLINA] Inicio cambiar estado equipamiento: {}", id);
+        return ResponseEntity.ok(actualizada);
     }
     
     @DeleteMapping("/{idDisciplina}")

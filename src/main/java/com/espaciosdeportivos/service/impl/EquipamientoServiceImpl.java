@@ -1,7 +1,8 @@
 package com.espaciosdeportivos.service.impl;
 
+import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
-
+import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Equipamiento;
 
 import com.espaciosdeportivos.repository.EquipamientoRepository;
@@ -40,12 +41,25 @@ public class EquipamientoServiceImpl implements IEquipamientoService {
     @Override
     @Transactional(readOnly = true)
     public List<EquipamientoDTO> obtenerTodosLosEquipamientos() {
+        log.info("Obteniendo todas los equipamientos");
         return equipamientoRepository.findByEstadoTrue()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
                 //.toList();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<EquipamientoDTO> ListarTodos() {
+        log.info("Obteniendo todos los equipamientos");
+        return equipamientoRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+                //.toList();
+    }
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -101,6 +115,15 @@ public class EquipamientoServiceImpl implements IEquipamientoService {
         existente.setEstado(Boolean.FALSE); // baja lógica
         return convertToDTO(equipamientoRepository.save(existente));
     }
+    @Override
+    public EquipamientoDTO eliminar(Long id, Boolean nuevoEstado) {
+        Equipamiento existente = equipamientoRepository.findByIdEquipamientoAndEstadoTrue(id)
+                .orElseThrow(() -> new RuntimeException("Equipamiento no encontrado con ID: " + id));
+        existente.setEstado(nuevoEstado); // baja lógica
+        return convertToDTO(equipamientoRepository.save(existente));
+    }
+
+
     @Override
     @Transactional
     public Equipamiento obtenerEquipamientoConBloqueo(Long id) {

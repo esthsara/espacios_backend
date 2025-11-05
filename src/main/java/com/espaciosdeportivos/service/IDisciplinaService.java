@@ -12,14 +12,16 @@ public interface IDisciplinaService {
     DisciplinaDTO obtenerDisciplinaPorId(Long idDisciplina);
     // listar todas las disciplinas
     List<DisciplinaDTO> obtenerTodasLasDisciplinas();
-    //listar disciplinas activas
-    //List<DisciplinaDTO> obtenerDisciplinasActivas();
+    //listar disciplinas 
+    List<DisciplinaDTO> listarTodas();
     // actualizar disciplina ojo
     DisciplinaDTO actualizarDisciplina(Long idDisciplina, DisciplinaDTO disciplinaDTO);
     // eliminar disciplina lógicamente
     void eliminarDisciplinaLogicamente(Long idDisciplina);
     // eliminar disciplina físicamente
     void eliminarDisciplinaFisicamente(Long idDisciplina);
+
+    DisciplinaDTO eliminar(Long id, Boolean nuevoEstado);
     
     // NUEVOS MÉTODOS RECOMENDADOS
     List<DisciplinaDTO> buscarPorNombre(String nombre);

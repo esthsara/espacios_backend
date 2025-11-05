@@ -33,12 +33,7 @@ public class DisciplinaDTO implements Serializable {
 
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
-
-    //objeto
-    private Long idCancha;
-    private CanchaDTO cancha;
-
-    
+ 
     // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;
     private LocalDateTime fechaCreacion;

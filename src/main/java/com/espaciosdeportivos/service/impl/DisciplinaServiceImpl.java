@@ -27,6 +27,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     private static final String ENTIDAD_TIPO = "DISCIPLINA";
     
     @Override
+    @Transactional
     public DisciplinaDTO crearDisciplina(DisciplinaDTO disciplinaDTO) {
         log.info("Creando disciplina: {}", disciplinaDTO.getNombre());
 
@@ -71,8 +72,24 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
             .map(this::convertDisciplinaToDTO)
             .collect(Collectors.toList());
     }
-    
+
     @Override
+    @Transactional(readOnly = true)
+    public List<DisciplinaDTO> listarTodas() {
+        log.info("Obteniendo todas las disciplinas activas");
+        
+        List<Disciplina> disciplinas = disciplinaRepository.findAll();
+        return disciplinas.stream()
+            .map(this::convertDisciplinaToDTO)
+            .collect(Collectors.toList());
+    }
+    
+
+    
+
+
+    @Override
+    @Transactional
     public DisciplinaDTO actualizarDisciplina(Long idDisciplina, DisciplinaDTO disciplinaDTO) {
         log.info("Actualizando disciplina ID: {}", idDisciplina);
         
@@ -117,8 +134,20 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
         
         log.info("Disciplina desactivada");
     }
+
+    @Override
+    @Transactional
+    public DisciplinaDTO eliminar(Long id, Boolean nuevoEstado) {
+        log.info("Eliminando lógicamente disciplina ID: {}", id);
+    
+        Disciplina disciplina = disciplinaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Disciplina no encontrada con id: " + id));
+        disciplina.setEstado(nuevoEstado);
+        return convertDisciplinaToDTO(disciplinaRepository.save(disciplina));
+    }
     
     @Override
+    @Transactional
     public void eliminarDisciplinaFisicamente(Long idDisciplina) {
         log.info("Eliminando físicamente disciplina ID: {}", idDisciplina);
         
@@ -251,7 +280,7 @@ public class DisciplinaServiceImpl implements IDisciplinaService {
     @Override
     @Transactional(readOnly = true)
     public List<DisciplinaDTO> obtenerRecientes(int limite) {
-        log.info("Obteniendo {} disciplinas más recientes", limite);
+        log.info("gObteniendo {} disciplinas más recientes", limite);
         
         List<Disciplina> disciplinas = disciplinaRepository.findByEstadoTrueOrderByFechaCreacionDesc();
         

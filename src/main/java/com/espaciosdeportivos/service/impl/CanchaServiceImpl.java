@@ -285,6 +285,14 @@ public class CanchaServiceImpl implements ICanchaService {
         return obtenerCanchaPorId(idCancha);
     }
 
+    @Override
+    public List<CanchaDTO> obtenerCanchasPorArea(Long idArea) {
+        List<Cancha> canchas = canchaRepository.findByAreaDeportiva_IdAreaDeportiva(idArea);
+        return canchas.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+    }
+
 
 
 
@@ -450,20 +458,13 @@ public class CanchaServiceImpl implements ICanchaService {
     }
 
 
-    //falta macrodistrito
 
 
     private LocalTime parseTime(String t) {
         return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
     }
 
-    @Override
-    public List<CanchaDTO> obtenerCanchasPorArea(Long idArea) {
-        List<Cancha> canchas = canchaRepository.findByAreaDeportiva_IdAreaDeportiva(idArea);
-        return canchas.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-    }
+    
 
         /*private CanchaDTO convertToDTO(Cancha c) {
         AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
