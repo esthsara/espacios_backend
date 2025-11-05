@@ -162,9 +162,69 @@ public class ReservaServiceImpl implements IReservaService {
         return convertToDTO(reservaGuardada);
     }*/
 
+    public List<String> obtenerHorasDisponibles(Long idCancha, LocalDate fecha) {
+        Cancha cancha = canchaRepository.findById(idCancha)
+                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada"));
+
+        AreaDeportiva area = cancha.getAreaDeportiva();
+        if (area == null) {
+            throw new EntityNotFoundException("Área deportiva no asociada a la cancha");
+        }
+
+        LocalTime apertura = area.getHoraInicioArea();
+        LocalTime cierre = area.getHoraFinArea();
+
+        // 1️⃣ Obtener reservas de esa cancha en esa fecha
+        List<Reserva> reservas = reservaRepository.findByCanchaAndFecha(idCancha, fecha);
+
+        // Ordenar reservas por hora de inicio
+        reservas.sort(Comparator.comparing(Reserva::getHoraInicio));
+
+        List<String> horariosDisponibles = new ArrayList<>();
+        LocalTime horaActual = apertura;
+
+        // 2️⃣ Recorrer reservas y detectar huecos entre ellas
+        for (Reserva reserva : reservas) {
+            LocalTime inicioReserva = reserva.getHoraInicio();
+            if (horaActual.isBefore(inicioReserva)) {
+                // Agregar rango disponible entre horaActual y la siguiente reserva
+                horariosDisponibles.add(formatearRango(horaActual, inicioReserva));
+            }
+            // Actualizar horaActual al final de la reserva
+            horaActual = reserva.getHoraFin();
+        }
+
+        // 3️⃣ Si después de la última reserva aún hay tiempo libre hasta el cierre
+        if (horaActual.isBefore(cierre)) {
+            horariosDisponibles.add(formatearRango(horaActual, cierre));
+        }
+
+        return ajustarRangosCada30Minutos(horariosDisponibles);
+    }
+
+    private List<String> ajustarRangosCada30Minutos(List<String> rangos) {
+        List<String> bloques30 = new ArrayList<>();
+
+        for (String rango : rangos) {
+            String[] partes = rango.split(" - ");
+            LocalTime inicio = LocalTime.parse(partes[0]);
+            LocalTime fin = LocalTime.parse(partes[1]);
+
+            while (inicio.plusMinutes(30).isBefore(fin) || inicio.plusMinutes(30).equals(fin)) {
+                bloques30.add(inicio + " - " + inicio.plusMinutes(30));
+                inicio = inicio.plusMinutes(30);
+            }
+        }
+        return bloques30;
+    }
+
+    
+    private String formatearRango(LocalTime inicio, LocalTime fin) {
+        return inicio + " - " + fin;
+    }
 
 
-    public List<LocalTime> obtenerHorasDisponibles(Long idCancha, LocalDate fecha) {
+    /*public List<LocalTime> obtenerHorasDisponibles(Long idCancha, LocalDate fecha) {
         Cancha cancha = canchaRepository.findById(idCancha)
                 .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada"));
 
@@ -191,7 +251,8 @@ public class ReservaServiceImpl implements IReservaService {
         }
 
         return todasLasHoras;
-    }
+    }*/
+
 
     private List<LocalTime> generarHorasEnRango(LocalTime inicio, LocalTime fin) {
         List<LocalTime> horas = new java.util.ArrayList<>();
@@ -204,24 +265,7 @@ public class ReservaServiceImpl implements IReservaService {
         return horas;
     }
     
-    private boolean isSlotOcupado(LocalTime slotInicio, List<Reserva> reservas) {
-    
-        // Asumimos que el "slot" que estamos verificando tiene una duración de 30 minutos
-        LocalTime slotFin = slotInicio.plusMinutes(30); 
-        
-        for (Reserva r : reservas) {
-            LocalTime reservaInicio = r.getHoraInicio();
-            LocalTime reservaFin = r.getHoraFin();
-            
-            // La condición es: A no termina antes de que B empiece Y B no termina antes de que A empiece.
-            // O más simple: el inicio del slot es ANTES del fin de la reserva,
-            // Y el fin del slot es DESPUÉS del inicio de la reserva.
-            if (slotInicio.isBefore(reservaFin) && slotFin.isAfter(reservaInicio)) {
-                return true; // El slot de 30 minutos está cubierto por una reserva.
-            }
-        }
-        return false; // El slot está libre.
-    }
+
     
     @Override
     @Transactional(readOnly = true)
@@ -305,8 +349,6 @@ public class ReservaServiceImpl implements IReservaService {
     // BÚSQUEDAS
     // ======================
 
-
-
     @Override
     @Transactional(readOnly = true)
     public List<ReservaDTO> buscarPorCliente(Long idCliente) {
@@ -345,97 +387,6 @@ public class ReservaServiceImpl implements IReservaService {
         return reservaRepository.findReservasConfirmadasDelDia(fecha).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-    }
-
-    // ======================
-    // GESTIÓN DE ESTADOS
-    // ======================
-
-    /*@Override
-    @Transactional
-    public ReservaDTO confirmarReserva(Long idReserva) {
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        reservaValidator.validarConfirmacion(reserva.getEstadoReserva());
-        reserva.setEstadoReserva(Reserva.EstadoReserva.CONFIRMADA.name());
-        return convertToDTO(reservaRepository.save(reserva));
-    }*/
-
-    /*@Override
-    @Transactional
-    public ReservaDTO cancelarReserva(Long idReserva, String motivo) {
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        reservaValidator.validarCancelacion(reserva.getEstadoReserva());
-        reserva.setEstadoReserva(Reserva.EstadoReserva.CANCELADA.name());
-        reserva.setObservaciones("CANCELADA: " + motivo + 
-            (reserva.getObservaciones() != null ? ". " + reserva.getObservaciones() : ""));
-        return convertToDTO(reservaRepository.save(reserva));
-    }*/
-
-    @Override
-    @Transactional
-    public ReservaDTO marcarComoEnCurso(Long idReserva) {
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        if (!Reserva.EstadoReserva.CONFIRMADA.name().equals(reserva.getEstadoReserva())) {
-            throw new IllegalArgumentException("Solo reservas CONFIRMADAS pueden estar EN CURSO");
-        }
-        reserva.setEstadoReserva(Reserva.EstadoReserva.EN_CURSO.name());
-        return convertToDTO(reservaRepository.save(reserva));
-    }
-
-    @Override
-    @Transactional
-    public ReservaDTO marcarComoCompletada(Long idReserva) {
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        if (!Reserva.EstadoReserva.EN_CURSO.name().equals(reserva.getEstadoReserva())) {
-            throw new IllegalArgumentException("Solo reservas EN CURSO pueden COMPLETARSE");
-        }
-        reserva.setEstadoReserva(Reserva.EstadoReserva.COMPLETADA.name());
-        return convertToDTO(reservaRepository.save(reserva));
-    }
-
-    @Override
-    @Transactional
-    public ReservaDTO marcarComoNoShow(Long idReserva) {
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        if (!Reserva.EstadoReserva.CONFIRMADA.name().equals(reserva.getEstadoReserva())) {
-            throw new IllegalArgumentException("Solo reservas CONFIRMADAS pueden ser NO-SHOW");
-        }
-        reserva.setEstadoReserva(Reserva.EstadoReserva.NO_SHOW.name());
-        return convertToDTO(reservaRepository.save(reserva));
-    }
-
-    // ======================
-    // UTILIDADES
-    // ======================
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean validarDisponibilidad(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
-        return reservaRepository.findReservasSolapadas(fecha, horaInicio, horaFin).isEmpty();
-    }
-
-    @Override
-    public void validarFechaReserva(LocalDate fechaReserva) {
-        if (fechaReserva.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("No se puede reservar una fecha pasada");
-        }
-    }
-
-    /*@Override
-    public String generarCodigoReserva() {
-        return "RES-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }*/
-
-    @Override
-    @Transactional(readOnly = true)
-    public Double calcularIngresosEnRango(LocalDate inicio, LocalDate fin) {
-        Double ingresos = reservaRepository.calcularIngresosEnRango(inicio, fin);
-        return ingresos != null ? ingresos : 0.0;
     }
 
 
@@ -570,5 +521,93 @@ public class ReservaServiceImpl implements IReservaService {
     }
 
 
+    
+    // ======================
+    // GESTIÓN DE ESTADOS
+    // ======================
+
+    /*@Override
+    @Transactional
+    public ReservaDTO confirmarReserva(Long idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+        reservaValidator.validarConfirmacion(reserva.getEstadoReserva());
+        reserva.setEstadoReserva(Reserva.EstadoReserva.CONFIRMADA.name());
+        return convertToDTO(reservaRepository.save(reserva));
+    }*/
+
+    /*@Override
+    @Transactional
+    public ReservaDTO cancelarReserva(Long idReserva, String motivo) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+        reservaValidator.validarCancelacion(reserva.getEstadoReserva());
+        reserva.setEstadoReserva(Reserva.EstadoReserva.CANCELADA.name());
+        reserva.setObservaciones("CANCELADA: " + motivo + 
+            (reserva.getObservaciones() != null ? ". " + reserva.getObservaciones() : ""));
+        return convertToDTO(reservaRepository.save(reserva));
+    }*/
+
+    @Override
+    @Transactional
+    public ReservaDTO marcarComoEnCurso(Long idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+        if (!Reserva.EstadoReserva.CONFIRMADA.name().equals(reserva.getEstadoReserva())) {
+            throw new IllegalArgumentException("Solo reservas CONFIRMADAS pueden estar EN CURSO");
+        }
+        reserva.setEstadoReserva(Reserva.EstadoReserva.EN_CURSO.name());
+        return convertToDTO(reservaRepository.save(reserva));
+    }
+
+    @Override
+    @Transactional
+    public ReservaDTO marcarComoCompletada(Long idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+        if (!Reserva.EstadoReserva.EN_CURSO.name().equals(reserva.getEstadoReserva())) {
+            throw new IllegalArgumentException("Solo reservas EN CURSO pueden COMPLETARSE");
+        }
+        reserva.setEstadoReserva(Reserva.EstadoReserva.COMPLETADA.name());
+        return convertToDTO(reservaRepository.save(reserva));
+    }
+
+    @Override
+    @Transactional
+    public ReservaDTO marcarComoNoShow(Long idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+        if (!Reserva.EstadoReserva.CONFIRMADA.name().equals(reserva.getEstadoReserva())) {
+            throw new IllegalArgumentException("Solo reservas CONFIRMADAS pueden ser NO-SHOW");
+        }
+        reserva.setEstadoReserva(Reserva.EstadoReserva.NO_SHOW.name());
+        return convertToDTO(reservaRepository.save(reserva));
+    }
+
+    
+    // ======================
+    // UTILIDADES
+    // ======================
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean validarDisponibilidad(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+        return reservaRepository.findReservasSolapadas(fecha, horaInicio, horaFin).isEmpty();
+    }
+
+    @Override
+    public void validarFechaReserva(LocalDate fechaReserva) {
+        if (fechaReserva.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("No se puede reservar una fecha pasada");
+        }
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Double calcularIngresosEnRango(LocalDate inicio, LocalDate fin) {
+        Double ingresos = reservaRepository.calcularIngresosEnRango(inicio, fin);
+        return ingresos != null ? ingresos : 0.0;
+    }
 
 }

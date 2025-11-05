@@ -57,7 +57,7 @@ public interface IReservaService {
 
     //List<Reserva> findReservaByCancha(Long idCancha);
     
-    List<LocalTime> obtenerHorasDisponibles(Long idCancha, LocalDate fecha);
+    List<String> obtenerHorasDisponibles(Long idCancha, LocalDate fecha);
 
     //ReservaDTO crearReserva(ReservaDTO dto);
    

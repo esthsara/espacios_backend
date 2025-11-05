@@ -81,20 +81,18 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @GetMapping("/Horario-Disponible")
+
+    @GetMapping("/horario-disponible")
     public ResponseEntity<List<String>> getHorasDisponibles(
             @RequestParam Long canchaId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
-        List<LocalTime> horasDisponibles = reservaService.obtenerHorasDisponibles(canchaId, fecha);
+        List<String> horasDisponibles = reservaService.obtenerHorasDisponibles(canchaId, fecha);
 
-        // Convertir a string tipo "08:00", "09:00"
-        List<String> horas = horasDisponibles.stream()
-                .map(LocalTime::toString)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(horas);
+        // Ya son strings del tipo "08:00 - 08:30"
+        return ResponseEntity.ok(horasDisponibles);
     }
+
     
     
 
