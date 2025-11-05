@@ -8,6 +8,8 @@ import com.espaciosdeportivos.repository.AdministradorRepository;
 import com.espaciosdeportivos.repository.SupervisaRepository;
 import com.espaciosdeportivos.service.AdministradorService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +18,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//Comentario aqui agregue transacional nose si afecte pero creoq eu deberia estar
 @Service
+@Transactional
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
@@ -32,6 +36,7 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AdministradorDTO> obtenerTodoslosAdministradores() {
         return administradorRepository.findByEstadoTrue().stream()
                 .map(this::mapToDTO)
@@ -39,6 +44,7 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AdministradorDTO> listarTodos() {
         return administradorRepository.findAll().stream()
                 .map(this::mapToDTO)
@@ -46,6 +52,7 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AdministradorDTO obtenerAdministradorPorId(Long id) {
         Administrador admin = administradorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
@@ -53,6 +60,7 @@ public class AdministradorServiceImpl implements AdministradorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AdministradorDTO> buscarPorNombre(String nombre) {
         return administradorRepository.findByNombreContainingIgnoreCase(nombre).stream()
                 .map(this::mapToDTO)
@@ -106,6 +114,8 @@ public class AdministradorServiceImpl implements AdministradorService {
         return mapToDTO(admin);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<AdministradorDTO> buscarPorRangoFecha(LocalDate inicio, LocalDate fin) {
         return administradorRepository.findByFechaNacimientoBetween(inicio, fin)
                 .stream()
@@ -113,6 +123,8 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<AdministradorDTO> buscarPorNombreApellidos(String nombre, String aPaterno, String aMaterno) {
         return administradorRepository.buscarPorNombreApellidos(nombre, aPaterno, aMaterno)
                 .stream()
@@ -122,6 +134,7 @@ public class AdministradorServiceImpl implements AdministradorService {
 
     //  Nuevo método: obtener usuarios de control por administrador
     @Override
+    @Transactional(readOnly = true)
     public List<UsuarioControlDTO> obtenerUsuariosControlPorAdministrador(Long idAdmin) {
         List<UsuarioControl> usuarios = supervisaRepository.findUsuariosControlByAdministradorId(idAdmin);
         return usuarios.stream()

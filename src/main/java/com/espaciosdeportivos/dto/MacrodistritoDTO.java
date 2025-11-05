@@ -22,5 +22,7 @@ public class MacrodistritoDTO implements Serializable{
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
 
+
+    //con esto jalamos los objetos de zona dentro de macrodistrito pero no afecta en nadda
     private List<ZonaDTO> zonas;
 }
