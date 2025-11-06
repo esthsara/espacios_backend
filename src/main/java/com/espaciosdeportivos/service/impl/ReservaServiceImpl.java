@@ -224,35 +224,6 @@ public class ReservaServiceImpl implements IReservaService {
     }
 
 
-    /*public List<LocalTime> obtenerHorasDisponibles(Long idCancha, LocalDate fecha) {
-        Cancha cancha = canchaRepository.findById(idCancha)
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada"));
-
-        AreaDeportiva area = cancha.getAreaDeportiva();
-        if (area == null) {
-            throw new EntityNotFoundException("Área deportiva no asociada a la cancha");
-        }
-
-        LocalTime apertura = area.getHoraInicioArea();
-        LocalTime cierre = area.getHoraFinArea();
-
-        // Generar todas las horas posibles (por ejemplo de 08:00 a 20:00)
-        List<LocalTime> todasLasHoras = generarHorasEnRango(apertura, cierre);
-
-        // 2. Obtener reservas de esa cancha en esa fecha
-        List<Reserva> reservas = reservaRepository.findByCanchaAndFecha(idCancha, fecha);
-
-        // 3. Marcar horas ocupadas
-        for (Reserva r : reservas) {
-            LocalTime inicio = r.getHoraInicio();
-            LocalTime fin = r.getHoraFin();
-            List<LocalTime> ocupadas = generarHorasEnRango(inicio, fin);
-            todasLasHoras.removeAll(ocupadas);
-        }
-
-        return todasLasHoras;
-    }*/
-
 
     private List<LocalTime> generarHorasEnRango(LocalTime inicio, LocalTime fin) {
         List<LocalTime> horas = new java.util.ArrayList<>();
