@@ -46,7 +46,7 @@ public interface IReservaService {
     List<ReservaDTO> buscarReservasActivasDelCliente(Long clienteId);
     List<ReservaDTO> obtenerReservasDelDia(LocalDate fecha);
     //List<ReservaDTO> obtenerReservasProximas();
-    Double calcularIngresosEnRango(LocalDate inicio, LocalDate fin);
+    //Double calcularIngresosEnRango(LocalDate inicio, LocalDate fin);
     
     // Utilidades
     //String generarCodigoReserva();

@@ -15,4 +15,7 @@ public interface IIncluyeService {
     List<IncluyeDTO> obtenerPorCancha(Long idCancha);
 
     List<IncluyeDTO> obtenerPorDisciplina(Long idDisciplina);
+
+    Double obtenerMontoTotal(Long idReserva, Long idCancha, Long idDisciplina);
+
 }

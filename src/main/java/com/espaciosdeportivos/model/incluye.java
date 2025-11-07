@@ -29,4 +29,7 @@ public class Incluye {
     @MapsId("idDisciplina")
     @JoinColumn(name = "id_disciplina", nullable = false)
     private Disciplina disciplina;
+
+    @Column(name = "monto_total", nullable = false)
+    private Double montoTotal;
 }

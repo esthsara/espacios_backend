@@ -95,4 +95,21 @@ public class IncluyeController {
         List<IncluyeDTO> lista = incluyeService.obtenerPorDisciplina(idDisciplina);
         return ResponseEntity.ok(lista);
     }
+
+    //
+    // ---------------------------
+    // Obtener monto total de una asociación específica
+    // ---------------------------
+
+    @GetMapping("/monto-total")
+    public ResponseEntity<Double> obtenerMontoTotal(
+            @RequestParam Long idReserva,
+            @RequestParam Long idCancha,
+            @RequestParam Long idDisciplina) {
+
+        Double monto = incluyeService.obtenerMontoTotal(idReserva, idCancha, idDisciplina);
+        return ResponseEntity.ok(monto);
+    }
+    
 }
+

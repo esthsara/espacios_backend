@@ -43,17 +43,34 @@ public class IncluyeServiceImpl implements IIncluyeService {
             throw new IllegalStateException("La asociación ya existe");
         }
 
+        // Calcular monto total
+        //double horas = java.time.Duration.between(reserva.getHoraInicio(), reserva.getHoraFin()).toHours();
+        double minutos = java.time.Duration.between(reserva.getHoraInicio(), reserva.getHoraFin()).toMinutes();
+        double horas = minutos / 60.0;
+        double montoTotal = cancha.getCostoHora() * horas;
+
         // Crear y guardar
+        //Incluye incluye = convertToEntity(dto);
         Incluye incluye = Incluye.builder()
                 .id(id)
                 .reserva(reserva)
                 .cancha(cancha)
                 .disciplina(disciplina)
+                .montoTotal(montoTotal)
                 .build();
 
         incluye = incluyeRepository.save(incluye);
         return convertToDTO(incluye);
     }
+
+    @Override
+    public Double obtenerMontoTotal(Long idReserva, Long idCancha, Long idDisciplina) {
+        IncluyeId id = new IncluyeId(idCancha, idReserva, idDisciplina);
+        Incluye incluye = incluyeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Asociación no encontrada"));
+        return incluye.getMontoTotal();
+    }
+
 
     @Override
     public IncluyeDTO obtenerPorReservaCanchaDisciplina(Long idReserva, Long idCancha, Long idDisciplina) {
@@ -101,12 +118,29 @@ public class IncluyeServiceImpl implements IIncluyeService {
                 .idReserva(incluye.getReserva().getIdReserva())
                 .idCancha(incluye.getCancha().getIdCancha())
                 .idDisciplina(incluye.getDisciplina().getIdDisciplina())
+                .montoTotal(incluye.getMontoTotal())
                 .build();
     }
+    // Dentro de IncluyeServiceImpl.java
+
     private Incluye convertToEntity(IncluyeDTO dto) {
-        IncluyeId id = new IncluyeId(dto.getIdCancha(), dto.getIdReserva(), dto.getIdDisciplina());
+        if (dto == null) return null;
+        
+        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + dto.getIdReserva()));
+
+        Cancha cancha = canchaRepository.findById(dto.getIdCancha())
+                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + dto.getIdCancha()));
+
+        Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
+
+        // 3. **CONSTRUIR LA ENTIDAD** (Sintaxis corregida)
         return Incluye.builder()
-                .id(id)
+                .reserva(reserva) // Asignar la entidad Reserva
+                .cancha(cancha)   // Asignar la entidad Cancha
+                .disciplina(disciplina) // Asignar la entidad Disciplina
+                .montoTotal(dto.getMontoTotal()) // Asignar el monto
                 .build();
     }
 }

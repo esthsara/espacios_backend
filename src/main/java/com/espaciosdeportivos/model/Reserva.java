@@ -40,8 +40,8 @@ public class Reserva {
     @Column(name = "estado_reserva", nullable = false, length = 50)
     private String estadoReserva;
 
-    @Column(name = "monto_total", nullable = false)
-    private Double montoTotal;
+    /*@Column(name = "monto_total", nullable = false)
+    private Double montoTotal;*/
 
     @Column(name = "observaciones", length = 500)
     private String observaciones;

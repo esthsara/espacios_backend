@@ -1,8 +1,10 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.PagoDTO;
+import com.espaciosdeportivos.model.Incluye;
 import com.espaciosdeportivos.model.Pago;
 import com.espaciosdeportivos.model.Reserva;
+import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.PagoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IPagoService;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +30,10 @@ public class PagoServiceImpl implements IPagoService {
     private PagoRepository pagoRepository;
     private ReservaRepository reservaRepository;
     private PagoValidator pagoValidator;
+    private final IncluyeRepository incluyeRepository;
+
+
+
 
 
     @Override
@@ -35,10 +43,11 @@ public class PagoServiceImpl implements IPagoService {
         
         Reserva reserva = reservaRepository.findById(dto.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
+        Incluye incluye = incluyeRepository.findByReservaIdReserva(dto.getIdReserva())
+                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado con id de reserva: " + dto.getIdReserva()));
 
-        // Validar que el monto no exceda el saldo pendiente
         Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
-        Double saldoPendiente = reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
+        Double saldoPendiente = incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
         
         if (dto.getMonto() > saldoPendiente) {
             throw new IllegalArgumentException(
@@ -297,11 +306,14 @@ public class PagoServiceImpl implements IPagoService {
     @Override
     @Transactional(readOnly = true)
     public Double obtenerSaldoPendienteReserva(Long idReserva) {
+
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + idReserva));
-        
+        Incluye incluye = incluyeRepository.findByReservaIdReserva(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado con id de reserva: " + idReserva));
+
         Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(idReserva);
-        return reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
+        return incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
     }
 
     // VALIDACIONES
@@ -322,10 +334,12 @@ public class PagoServiceImpl implements IPagoService {
     private PagoDTO mapToDTO(Pago pago) {
 
         Reserva reserva = pago.getReserva();
+        Incluye incluye = incluyeRepository.findByReservaIdReserva(reserva.getIdReserva())
+                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado con id de reserva: " + reserva.getIdReserva()));
         
         // Calcular saldo pendiente
         Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
-        Double saldoPendiente = reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
+        Double saldoPendiente = incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
         
         return PagoDTO.builder()
                 .idPago(pago.getIdPago())

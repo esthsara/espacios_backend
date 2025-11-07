@@ -21,7 +21,7 @@ public class ReservaValidator {
         validarFechas(dto.getFechaCreacion(), dto.getFechaReserva());
         validarHoras(dto.getHoraInicio(), dto.getHoraFin());
         validarEstado(dto.getEstadoReserva());
-        validarMonto(dto.getMontoTotal());
+        //validarMonto(dto.getMontoTotal());
         validarCliente(dto.getClienteId());
         validarDuracion(dto.getHoraInicio(), dto.getHoraFin());
     }
@@ -113,14 +113,14 @@ public class ReservaValidator {
         }
     }
 
-    private void validarMonto(Double monto) {
+    /*private void validarMonto(Double monto) {
         if (monto == null || monto <= 0) {
             throw new BusinessException("El monto total debe ser mayor a 0.");
         }
-        /*if (monto > 10000) {
+        if (monto > 10000) {
             throw new BusinessException("El monto total no puede exceder los 10,000.");
         }*/
-    }
+    //}
 
     private void validarCliente(Long clienteId) {
         if (clienteId == null || clienteId <= 0) {

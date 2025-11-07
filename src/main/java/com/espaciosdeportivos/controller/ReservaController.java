@@ -168,7 +168,7 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }*/
 
-    @GetMapping("/reporte/ingresos")
+    /*@GetMapping("/reporte/ingresos")
     public ResponseEntity<Map<String, Object>> calcularIngresos(
             @RequestParam String inicio,
             @RequestParam String fin) {
@@ -180,7 +180,7 @@ public class ReservaController {
             "ingresos", ingresos,
             "moneda", "BOB"
         ));
-    }
+    }*/
 
     // HEALTH CHECK
     @GetMapping("/health")

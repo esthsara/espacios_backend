@@ -48,9 +48,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
            "r.estadoReserva = 'CONFIRMADA' ORDER BY r.horaInicio")
     List<Reserva> findReservasConfirmadasDelDia(@Param("fecha") LocalDate fecha);
 
-    @Query("SELECT SUM(r.montoTotal) FROM Reserva r WHERE r.fechaReserva BETWEEN :inicio AND :fin " +
+    /*@Query("SELECT SUM(r.montoTotal) FROM Reserva r WHERE r.fechaReserva BETWEEN :inicio AND :fin " +
            "AND r.estadoReserva = 'COMPLETADA'")
-    Double calcularIngresosEnRango(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+    Double calcularIngresosEnRango(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);*/
 
     // Reservas activas del cliente (futuras o en curso hoy)
     @Query("SELECT r FROM Reserva r WHERE r.cliente.id = :clienteId " +

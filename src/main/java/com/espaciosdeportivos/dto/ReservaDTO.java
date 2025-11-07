@@ -38,9 +38,9 @@ public class ReservaDTO implements Serializable {
              message = "Estado de reserva no válido")
     private String estadoReserva;
 
-    @NotNull(message = "El monto total es obligatorio")
+    /*@NotNull(message = "El monto total es obligatorio")
     @DecimalMin(value = "0.01", message = "El monto debe ser mayor a 0")
-    private Double montoTotal;
+    private Double montoTotal;*/
 
     @Size(max = 500, message = "Las observaciones no pueden superar los 500 caracteres")
     private String observaciones;
@@ -58,7 +58,7 @@ public class ReservaDTO implements Serializable {
     private List<QrDTO> qrs;
 
     private Integer capacidadTotal;
-    private Integer invitadosConfirmados;
+    private Integer invitadosConfirmados;//esto mejro en incluye
     //capos de pagos
     private Double totalPagado;
     private Double saldoPendiente;
