@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,31 @@ public class IncluyeServiceImpl implements IIncluyeService {
                 .orElseThrow(() -> new EntityNotFoundException("Asociación no encontrada"));
         return incluye.getMontoTotal();
     }
+
+    @Override
+    public Double calcularMonto(Long idCancha, Long idDisciplina, LocalTime horaInicio, LocalTime horaFin) {
+        // Buscar la cancha
+        Cancha cancha = canchaRepository.findById(idCancha)
+                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + idCancha));
+
+        // Validar disciplina (aunque no afecta el costo, para consistencia)
+        disciplinaRepository.findById(idDisciplina)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + idDisciplina));
+
+        // Calcular diferencia en minutos
+        long minutos = java.time.Duration.between(horaInicio, horaFin).toMinutes();
+
+        if (minutos <= 0) {
+                throw new IllegalArgumentException("La hora de fin debe ser posterior a la de inicio");
+        }
+
+        // Calcular monto proporcional
+        double horas = minutos / 60.0;
+        double montoTotal = cancha.getCostoHora() * horas;
+
+        return Math.round(montoTotal * 100.0) / 100.0; // redondeo a 2 decimales
+}
+
 
 
     @Override

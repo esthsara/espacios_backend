@@ -10,7 +10,7 @@ import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IPagoService;
 import com.espaciosdeportivos.validation.PagoValidator;
 import com.espaciosdeportivos.validation.PagoValidator.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,9 +27,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class PagoServiceImpl implements IPagoService {
 
-    private PagoRepository pagoRepository;
-    private ReservaRepository reservaRepository;
-    private PagoValidator pagoValidator;
+    private final PagoRepository pagoRepository;
+    private final ReservaRepository reservaRepository;
+    private final PagoValidator pagoValidator;
     private final IncluyeRepository incluyeRepository;
 
 

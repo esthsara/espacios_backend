@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.service;
 import com.espaciosdeportivos.dto.IncluyeDTO;
 
+import java.time.LocalTime;
 import java.util.List;
 public interface IIncluyeService { 
 
@@ -17,5 +18,8 @@ public interface IIncluyeService {
     List<IncluyeDTO> obtenerPorDisciplina(Long idDisciplina);
 
     Double obtenerMontoTotal(Long idReserva, Long idCancha, Long idDisciplina);
+
+    Double calcularMonto(Long idCancha, Long idDisciplina, LocalTime horaInicio, LocalTime horaFin);
+
 
 }
