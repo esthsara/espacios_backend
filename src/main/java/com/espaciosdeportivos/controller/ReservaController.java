@@ -2,9 +2,12 @@ package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.service.IReservaService;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,6 +83,19 @@ public class ReservaController {
             LocalDate.parse(inicio), LocalDate.parse(fin));
         return ResponseEntity.ok(reservas);
     }
+
+    @PutMapping("/{id}/actualizar-pago")
+    public ResponseEntity<?> actualizarEstadoPago(@PathVariable Long id) {
+        try {
+            ReservaDTO reservaDTO = reservaService.actualizarEstadoPagoReserva(id);
+            return ResponseEntity.ok(reservaDTO);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el estado de pago.");
+        }
+    }
+
 
 
     @GetMapping("/horario-disponible")

@@ -70,61 +70,6 @@ public class ReservaServiceImpl implements IReservaService {
     private final IncluyeRepository incluyeRepository;
 
 
-/* @Override
-    @Transactional
-    public ReservaDTO crearReserva(ReservaDTO dto) {
-
-        // ✅ Calcular duración en minutos
-        long duracion = Duration.between(dto.getHoraInicio(), dto.getHoraFin()).toMinutes();
-        dto.setDuracionMinutos((int) duracion);
-
-        // ✅ Validaciones generales
-        reservaValidator.validarReserva(dto);
-        validarFechaReserva(dto.getFechaReserva());
-
-        if (!validarDisponibilidad(dto.getFechaReserva(), dto.getHoraInicio(), dto.getHoraFin())) {
-            throw new IllegalArgumentException("No hay disponibilidad para el horario seleccionado");
-        }
-
-        // ✅ Convertir DTO a entidad Reserva
-        Reserva reserva = convertToEntity(dto);
-
-        // ✅ Establecer estado por defecto si no se envía
-        if (reserva.getEstadoReserva() == null || reserva.getEstadoReserva().isEmpty()) {
-            reserva.setEstadoReserva(Reserva.EstadoReserva.PENDIENTE.name());
-        }
-
-        // ✅ Guardar la reserva primero (para obtener el ID generado)
-        Reserva reservaGuardada = reservaRepository.save(reserva);
-
-        // ✅ Obtener la cancha asociada
-        Cancha cancha = canchaRepository.findById(dto.getCancha().getIdCancha())
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada"));
-
-        // ✅ Obtener la disciplina asociada
-        Disciplina disciplina = disciplinaRepository.findById(dto.getDisciplina().getIdDisciplina())
-                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada"));
-
-        // ✅ Calcular monto total en base al costo de la cancha
-        double horas = duracion / 60.0;
-        double montoTotal = horas * cancha.getCostoHora();
-        reservaGuardada.setMontoTotal(montoTotal);
-
-        // ✅ Crear registro en la tabla intermedia Incluye
-        Incluye incluye = new Incluye();
-        incluye.setReserva(reservaGuardada);
-        incluye.setCancha(cancha);
-        incluye.setDisciplina(disciplina);
-        incluyeRepository.save(incluye);
-
-        // ✅ Guardar nuevamente la reserva actualizada con el monto total
-        reservaRepository.save(reservaGuardada);
-
-        // ✅ Retornar DTO actualizado
-        return convertToDTO(reservaGuardada);
-    }*/
-
-
     ///reservas/horario-disponible
     public List<String> obtenerHorasDisponibles(Long idCancha, LocalDate fecha) {
         Cancha cancha = canchaRepository.findById(idCancha)
@@ -166,6 +111,8 @@ public class ReservaServiceImpl implements IReservaService {
         return ajustarRangosCada30Minutos(horariosDisponibles);
     }
 
+    
+
     private List<String> ajustarRangosCada30Minutos(List<String> rangos) {
         List<String> bloques30 = new ArrayList<>();
 
@@ -185,6 +132,30 @@ public class ReservaServiceImpl implements IReservaService {
     
     private String formatearRango(LocalTime inicio, LocalTime fin) {
         return inicio + " - " + fin;
+    }
+
+
+    @Override
+    @Transactional
+    public ReservaDTO actualizarEstadoPagoReserva(Long idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+
+        Incluye incluye = incluyeRepository.findByReservaIdReserva(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado para reserva: " + idReserva));
+
+        Double montoTotal = incluye.getMontoTotal();
+        Double totalPagado = pagoRepository.sumMontoConfirmadoPorReserva(idReserva);
+        if (totalPagado == null) totalPagado = 0.0;
+
+        double saldoPendiente = montoTotal - totalPagado;
+        boolean pagadaCompleta = Math.abs(saldoPendiente) <= 0.01;
+
+        reserva.setTotalPagado(totalPagado);
+        reserva.setSaldoPendiente(saldoPendiente);
+        reserva.setPagadaCompleta(pagadaCompleta);
+
+        return convertToDTO(reservaRepository.save(reserva));
     }
 
     //listar todas las reservas
@@ -315,6 +286,62 @@ public class ReservaServiceImpl implements IReservaService {
                 .collect(Collectors.toList());
     }
 
+    /*@Override
+    @Transactional
+    public ReservaDTO actualizarEstadoPagoReserva(Long idReserva) {
+        // 1️⃣ Obtener reserva
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
+
+        // 2️⃣ Obtener monto total desde 'Incluye'
+        Incluye incluye = incluyeRepository.findByReservaIdReserva(idReserva)
+                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado para reserva: " + idReserva));
+
+        Double montoTotal = incluye.getMontoTotal();
+
+        // 3️⃣ Calcular total pagado (solo pagos CONFIRMADOS)
+        Double totalPagado = pagoRepository.sumMontoConfirmadoPorReserva(idReserva);
+        if (totalPagado == null) totalPagado = 0.0;
+
+        // 4️⃣ Calcular saldo y estado de pago
+        double saldoPendiente = montoTotal - totalPagado;
+        boolean pagadaCompleta = Math.abs(saldoPendiente) <= 0.01;
+
+        // 5️⃣ Actualizar la entidad Reserva con los nuevos valores
+        reserva.setTotalPagado(totalPagado);
+        reserva.setSaldoPendiente(saldoPendiente);
+        reserva.setPagadaCompleta(pagadaCompleta);
+        
+        // Guardar los cambios en la entidad
+        reserva = reservaRepository.save(reserva);
+
+        // 6️⃣ Mapear a DTO
+        ReservaDTO reservaDTO = ReservaDTO.builder()
+                .idReserva(reserva.getIdReserva())
+                .totalPagado(reserva.getTotalPagado())
+                .saldoPendiente(reserva.getSaldoPendiente())
+                .pagadaCompleta(reserva.getPagadaCompleta())
+                .build();
+
+        // 7️⃣ Generar QR si corresponde 
+        if (pagadaCompleta && !qrRepository.existsByReservaIdReserva(idReserva)) {
+            generarQrParaReserva(reservaDTO);
+        }
+
+        return reservaDTO;
+    }*/
+
+
+    /*private void generarQrParaReserva(Reserva reserva) {
+        // Lógica para generar QR (ejemplo simplificado)
+        Qr qr = Qr.builder()
+                .reserva(reserva)
+                .codigoQr("QR_RESERVA_" + reserva.getIdReserva() + "_" + System.currentTimeMillis())
+                .fechaGeneracion(LocalDate.now())
+                .build();
+        qrRepository.save(qr);
+    }*/
+
 
     // ======================
     // MAPEO
@@ -339,6 +366,40 @@ public class ReservaServiceImpl implements IReservaService {
             .cliente(cliente != null ? convertClienteToDTO(cliente) : null)
             .duracionMinutos(reserva.getDuracionMinutos())
             .build();
+
+        // >>> Cargar valores de pago: priorizar valores en la entidad, si faltan calcularlos
+        try {
+            Double totalPagado = reserva.getTotalPagado();
+            if (totalPagado == null) {
+                totalPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
+            }
+            dto.setTotalPagado(totalPagado != null ? totalPagado : 0.0);
+
+            Double saldo = reserva.getSaldoPendiente();
+            if (saldo == null) {
+                // intentar calcular desde incluye
+                try {
+                    var incluidos = incluyeRepository.findByReservaIdReserva(reserva.getIdReserva());
+                    if (!incluidos.isEmpty()) {
+                        saldo = incluidos.get().getMontoTotal() - (totalPagado != null ? totalPagado : 0.0);
+                    }
+                } catch (Exception ignored) {
+                    saldo = null;
+                }
+            }
+            dto.setSaldoPendiente(saldo);
+
+            Boolean pagada = reserva.getPagadaCompleta();
+            if (pagada == null) {
+                pagada = (dto.getSaldoPendiente() != null) && Math.abs(dto.getSaldoPendiente()) <= 0.01;
+            }
+            dto.setPagadaCompleta(pagada);
+        } catch (Exception e) {
+            log.warn("No se pudo calcular campos de pago para reserva {}: {}", reserva.getIdReserva(), e.getMessage());
+            dto.setTotalPagado(dto.getTotalPagado() == null ? 0.0 : dto.getTotalPagado());
+            dto.setSaldoPendiente(dto.getSaldoPendiente());
+            dto.setPagadaCompleta(dto.getPagadaCompleta());
+        }
 
         try {
             Optional<Incluye> incluidos = incluyeRepository.findByReservaIdReserva(reserva.getIdReserva());

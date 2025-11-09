@@ -49,6 +49,15 @@ public class Reserva {
     @Column(name = "duracion_minutos")
     private Integer duracionMinutos;
 
+    @Column(name = "total_pagado")
+    private Double totalPagado;
+
+    @Column(name = "saldo_pendiente")
+    private Double saldoPendiente;
+
+    @Column(name = "pagada_completa")
+    private Boolean pagadaCompleta;
+
 
     // RELACIÓNES
     @ManyToOne(fetch = FetchType.LAZY)

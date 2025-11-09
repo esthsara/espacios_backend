@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.PagoDTO;
+import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.Incluye;
 import com.espaciosdeportivos.model.Pago;
 import com.espaciosdeportivos.model.Reserva;
@@ -8,6 +9,7 @@ import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.PagoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IPagoService;
+import com.espaciosdeportivos.service.IReservaService;
 import com.espaciosdeportivos.validation.PagoValidator;
 import com.espaciosdeportivos.validation.PagoValidator.BusinessException;
 
@@ -31,10 +33,7 @@ public class PagoServiceImpl implements IPagoService {
     private final ReservaRepository reservaRepository;
     private final PagoValidator pagoValidator;
     private final IncluyeRepository incluyeRepository;
-
-
-
-
+    private final IReservaService reservaService;
 
     @Override
     @Transactional
@@ -240,8 +239,19 @@ public class PagoServiceImpl implements IPagoService {
         
         pago.setEstado(Pago.EstadoPago.CONFIRMADO.name());
         pago.setCodigoTransaccion(codigoTransaccion);
-        
-        return mapToDTO(pagoRepository.save(pago));
+
+        Pago pagoGuardado = pagoRepository.save(pago);
+        PagoDTO pagoConfirmado = mapToDTO(pagoGuardado);
+
+        // Actualizar montos/estado de la reserva asociada
+        try {
+            reservaService.actualizarEstadoPagoReserva(pagoGuardado.getReserva().getIdReserva());
+        } catch (Exception e) {
+            // No interrumpir la confirmación por un fallo secundario en la actualización de reserva
+            System.err.println("Warning: fallo al actualizar estado de reserva tras confirmar pago: " + e.getMessage());
+        }
+
+        return pagoConfirmado;
     }
 
     @Override
@@ -333,14 +343,7 @@ public class PagoServiceImpl implements IPagoService {
 
     private PagoDTO mapToDTO(Pago pago) {
 
-        Reserva reserva = pago.getReserva();
-        Incluye incluye = incluyeRepository.findByReservaIdReserva(reserva.getIdReserva())
-                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado con id de reserva: " + reserva.getIdReserva()));
-        
-        // Calcular saldo pendiente
-        Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
-        Double saldoPendiente = incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
-        
+    
         return PagoDTO.builder()
                 .idPago(pago.getIdPago())
                 .monto(pago.getMonto())

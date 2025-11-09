@@ -60,5 +60,8 @@ public interface IReservaService {
     List<String> obtenerHorasDisponibles(Long idCancha, LocalDate fecha);
 
     //ReservaDTO crearReserva(ReservaDTO dto);
+
+    //añadi
+    ReservaDTO actualizarEstadoPagoReserva(Long idReserva);
    
 }
