@@ -7,6 +7,7 @@ import com.espaciosdeportivos.dto.ClienteDTO;
 import com.espaciosdeportivos.dto.DisciplinaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.dto.ImagenDTO;
+import com.espaciosdeportivos.dto.PagoDTO;
 import com.espaciosdeportivos.dto.ReprogramacionDTO;
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.AreaDeportiva;
@@ -68,6 +69,93 @@ public class ReservaServiceImpl implements IReservaService {
     private final ReservaValidator reservaValidator;
     private final CancelacionRepository cancelacionRepository;
     private final IncluyeRepository incluyeRepository;
+
+
+
+    //listar todas las reservas
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservaDTO> listarTodas() {
+        return reservaRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    //obtener por id
+    @Override
+    @Transactional(readOnly = true)
+    public ReservaDTO obtenerPorId(Long id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + id));
+        return convertToDTO(reserva);
+    }
+
+    //crear reservas
+    @Override
+    @Transactional
+    public ReservaDTO crear(ReservaDTO dto) {
+        reservaValidator.validarReserva(dto);
+        validarFechaReserva(dto.getFechaReserva());
+
+        if (!validarDisponibilidad(dto.getFechaReserva(), dto.getHoraInicio(), dto.getHoraFin())) {
+            throw new IllegalArgumentException("No hay disponibilidad para el horario seleccionado");
+        }
+
+        Reserva reserva = convertToEntity(dto);
+        
+        if (reserva.getEstadoReserva() == null || reserva.getEstadoReserva().isEmpty()) {
+            reserva.setEstadoReserva(Reserva.EstadoReserva.PENDIENTE.name());
+        }
+
+        return convertToDTO(reservaRepository.save(reserva));
+    }
+
+    //actuaalizar reservas
+    @Override
+    @Transactional
+    public ReservaDTO actualizar(Long id, ReservaDTO dto) {
+        reservaValidator.validarReserva(dto);
+        validarFechaReserva(dto.getFechaReserva());
+
+        Reserva existente = reservaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + id));
+
+        if (!existente.esModificable()) {
+            throw new IllegalArgumentException("No se puede modificar una reserva completada o cancelada");
+        }
+
+        if (!existente.getFechaReserva().equals(dto.getFechaReserva()) ||
+            !existente.getHoraInicio().equals(dto.getHoraInicio()) ||
+            !existente.getHoraFin().equals(dto.getHoraFin())) {
+            if (!validarDisponibilidad(dto.getFechaReserva(), dto.getHoraInicio(), dto.getHoraFin())) {
+                throw new IllegalArgumentException("No hay disponibilidad para el nuevo horario");
+            }
+        }
+
+        existente.setFechaReserva(dto.getFechaReserva());
+        existente.setHoraInicio(dto.getHoraInicio());
+        existente.setHoraFin(dto.getHoraFin());
+        existente.setEstadoReserva(dto.getEstadoReserva());
+        //existente.setMontoTotal(dto.getMontoTotal());
+        existente.setObservaciones(dto.getObservaciones());
+        existente.setCliente(clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado con ID: " + dto.getClienteId())));
+
+        return convertToDTO(reservaRepository.save(existente));
+    }
+
+
+    //eliminar reserva
+    @Override
+    @Transactional
+    public void eliminar(Long id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + id));
+        if (reserva.estaActiva()) {
+            throw new IllegalArgumentException("No se puede eliminar una reserva activa");
+        }
+        reservaRepository.deleteById(id);
+    }
 
 
     ///reservas/horario-disponible
@@ -158,90 +246,6 @@ public class ReservaServiceImpl implements IReservaService {
         return convertToDTO(reservaRepository.save(reserva));
     }
 
-    //listar todas las reservas
-    @Override
-    @Transactional(readOnly = true)
-    public List<ReservaDTO> listarTodas() {
-        return reservaRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    //crear reservas
-    @Override
-    @Transactional
-    public ReservaDTO crear(ReservaDTO dto) {
-        reservaValidator.validarReserva(dto);
-        validarFechaReserva(dto.getFechaReserva());
-
-        if (!validarDisponibilidad(dto.getFechaReserva(), dto.getHoraInicio(), dto.getHoraFin())) {
-            throw new IllegalArgumentException("No hay disponibilidad para el horario seleccionado");
-        }
-
-        Reserva reserva = convertToEntity(dto);
-        
-        if (reserva.getEstadoReserva() == null || reserva.getEstadoReserva().isEmpty()) {
-            reserva.setEstadoReserva(Reserva.EstadoReserva.PENDIENTE.name());
-        }
-
-        return convertToDTO(reservaRepository.save(reserva));
-    }
-
-    //actuaalizar reservas
-    @Override
-    @Transactional
-    public ReservaDTO actualizar(Long id, ReservaDTO dto) {
-        reservaValidator.validarReserva(dto);
-        validarFechaReserva(dto.getFechaReserva());
-
-        Reserva existente = reservaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + id));
-
-        if (!existente.esModificable()) {
-            throw new IllegalArgumentException("No se puede modificar una reserva completada o cancelada");
-        }
-
-        if (!existente.getFechaReserva().equals(dto.getFechaReserva()) ||
-            !existente.getHoraInicio().equals(dto.getHoraInicio()) ||
-            !existente.getHoraFin().equals(dto.getHoraFin())) {
-            if (!validarDisponibilidad(dto.getFechaReserva(), dto.getHoraInicio(), dto.getHoraFin())) {
-                throw new IllegalArgumentException("No hay disponibilidad para el nuevo horario");
-            }
-        }
-
-        existente.setFechaReserva(dto.getFechaReserva());
-        existente.setHoraInicio(dto.getHoraInicio());
-        existente.setHoraFin(dto.getHoraFin());
-        existente.setEstadoReserva(dto.getEstadoReserva());
-        //existente.setMontoTotal(dto.getMontoTotal());
-        existente.setObservaciones(dto.getObservaciones());
-        existente.setCliente(clienteRepository.findById(dto.getClienteId())
-                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado con ID: " + dto.getClienteId())));
-
-        return convertToDTO(reservaRepository.save(existente));
-    }
-
-    //obtener por id
-    @Override
-    @Transactional(readOnly = true)
-    public ReservaDTO obtenerPorId(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + id));
-        return convertToDTO(reserva);
-    }
-
-    //eliminar reserva
-    @Override
-    @Transactional
-    public void eliminar(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + id));
-        if (reserva.estaActiva()) {
-            throw new IllegalArgumentException("No se puede eliminar una reserva activa");
-        }
-        reservaRepository.deleteById(id);
-    }
-
     // ======================
     // BÚSQUEDAS
     // ======================
@@ -286,50 +290,6 @@ public class ReservaServiceImpl implements IReservaService {
                 .collect(Collectors.toList());
     }
 
-    /*@Override
-    @Transactional
-    public ReservaDTO actualizarEstadoPagoReserva(Long idReserva) {
-        // 1️⃣ Obtener reserva
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-
-        // 2️⃣ Obtener monto total desde 'Incluye'
-        Incluye incluye = incluyeRepository.findByReservaIdReserva(idReserva)
-                .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado para reserva: " + idReserva));
-
-        Double montoTotal = incluye.getMontoTotal();
-
-        // 3️⃣ Calcular total pagado (solo pagos CONFIRMADOS)
-        Double totalPagado = pagoRepository.sumMontoConfirmadoPorReserva(idReserva);
-        if (totalPagado == null) totalPagado = 0.0;
-
-        // 4️⃣ Calcular saldo y estado de pago
-        double saldoPendiente = montoTotal - totalPagado;
-        boolean pagadaCompleta = Math.abs(saldoPendiente) <= 0.01;
-
-        // 5️⃣ Actualizar la entidad Reserva con los nuevos valores
-        reserva.setTotalPagado(totalPagado);
-        reserva.setSaldoPendiente(saldoPendiente);
-        reserva.setPagadaCompleta(pagadaCompleta);
-        
-        // Guardar los cambios en la entidad
-        reserva = reservaRepository.save(reserva);
-
-        // 6️⃣ Mapear a DTO
-        ReservaDTO reservaDTO = ReservaDTO.builder()
-                .idReserva(reserva.getIdReserva())
-                .totalPagado(reserva.getTotalPagado())
-                .saldoPendiente(reserva.getSaldoPendiente())
-                .pagadaCompleta(reserva.getPagadaCompleta())
-                .build();
-
-        // 7️⃣ Generar QR si corresponde 
-        if (pagadaCompleta && !qrRepository.existsByReservaIdReserva(idReserva)) {
-            generarQrParaReserva(reservaDTO);
-        }
-
-        return reservaDTO;
-    }*/
 
 
     /*private void generarQrParaReserva(Reserva reserva) {
@@ -416,7 +376,7 @@ public class ReservaServiceImpl implements IReservaService {
         }
 
         // >>> Cargar PAGOS <<<
-        /*try {
+        try {
             List<Pago> pagos = pagoRepository.findByReservaIdReserva(reserva.getIdReserva());
             dto.setPagos(pagos.stream()
                 .map(this::convertPagoToDTO)
@@ -427,7 +387,7 @@ public class ReservaServiceImpl implements IReservaService {
         }
 
         // >>> Cargar QRs <<<
-        try {
+        /*try {
             List<Qr> qrs = qrRepository.findByReservaIdReserva(reserva.getIdReserva());
             dto.setQrs(qrs.stream()
                 .map(this::convertQrToDTO)
@@ -506,6 +466,19 @@ public class ReservaServiceImpl implements IReservaService {
                 .descripcion(d.getDescripcion())
                 .estado(d.getEstado())
                 .build();
+    }
+
+    private PagoDTO convertPagoToDTO(Pago pago) {
+        return PagoDTO.builder()
+            .idPago(pago.getIdPago())
+            .monto(pago.getMonto())
+            .fecha(pago.getFecha())
+            .tipoPago(pago.getTipoPago())
+            .metodoPago(pago.getMetodoPago())
+            .estado(pago.getEstado())
+            .codigoTransaccion(pago.getCodigoTransaccion())
+            .descripcion(pago.getDescripcion())
+            .build();
     }
 
 

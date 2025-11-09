@@ -27,4 +27,12 @@ public class Cliente extends Persona {
     // revisar sara
     @OneToMany(mappedBy = "cliente", /*cascade = CascadeType.ALL,*/ orphanRemoval = false,fetch = FetchType.LAZY)
     private List<Cancelacion> cancelacion;
+
+    //aqui agregue por que por que asi trabajaron y no podri ahcer nad ano pensba rehacer asi que segui el flujo
+    // Relación con Cliente
+
+    @OneToMany(mappedBy = "cliente", orphanRemoval = false , fetch = FetchType.LAZY)
+    private List<Pago> pagos;
+
+
 }

@@ -2,9 +2,11 @@ package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.PagoDTO;
 import com.espaciosdeportivos.dto.ReservaDTO;
+import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.Incluye;
 import com.espaciosdeportivos.model.Pago;
 import com.espaciosdeportivos.model.Reserva;
+import com.espaciosdeportivos.repository.ClienteRepository;
 import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.PagoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
@@ -34,6 +36,7 @@ public class PagoServiceImpl implements IPagoService {
     private final PagoValidator pagoValidator;
     private final IncluyeRepository incluyeRepository;
     private final IReservaService reservaService;
+    private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional
@@ -64,7 +67,6 @@ public class PagoServiceImpl implements IPagoService {
         Pago pago = mapToEntity(dto);
 
         //Pago pago = convertToEntity(dto);
-        
         // Establecer estado por defecto
         if (pago.getEstado() == null) {
             pago.setEstado(Pago.EstadoPago.PENDIENTE.name());
@@ -80,7 +82,6 @@ public class PagoServiceImpl implements IPagoService {
         
         Pago pagoExistente = pagoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + id));
-
         // Validar transición de estado
         pagoValidator.validarTransicionEstado(pagoExistente.getEstado(), dto.getEstado());
 
@@ -121,6 +122,14 @@ public class PagoServiceImpl implements IPagoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<PagoDTO> listarTodos() {
+        return pagoRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void eliminar(Long id) {
         Pago pago = pagoRepository.findById(id)
@@ -134,13 +143,7 @@ public class PagoServiceImpl implements IPagoService {
         pagoRepository.deleteById(id);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<PagoDTO> listarTodos() {
-        return pagoRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
+
 
     // BÚSQUEDAS BÁSICAS
     @Override
@@ -254,6 +257,7 @@ public class PagoServiceImpl implements IPagoService {
         return pagoConfirmado;
     }
 
+
     @Override
     @Transactional
     public PagoDTO anularPago(Long idPago, String razon) {
@@ -343,7 +347,8 @@ public class PagoServiceImpl implements IPagoService {
 
     private PagoDTO mapToDTO(Pago pago) {
 
-    
+        Cliente cliente=pago.getCliente();
+        
         return PagoDTO.builder()
                 .idPago(pago.getIdPago())
                 .monto(pago.getMonto())
@@ -354,6 +359,7 @@ public class PagoServiceImpl implements IPagoService {
                 .codigoTransaccion(pago.getCodigoTransaccion())
                 .descripcion(pago.getDescripcion())
                 .idReserva(pago.getReserva() != null ? pago.getReserva().getIdReserva() : null)
+                .clienteId(cliente != null ? cliente.getId() : null)
                 .build();
     }
 
@@ -361,6 +367,9 @@ public class PagoServiceImpl implements IPagoService {
         
         Reserva reserva = reservaRepository.findById(dto.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
+
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+            .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado con ID: " + dto.getClienteId()));
 
         return Pago.builder()
                 .monto(dto.getMonto())
@@ -371,6 +380,7 @@ public class PagoServiceImpl implements IPagoService {
                 .codigoTransaccion(dto.getCodigoTransaccion())
                 .descripcion(dto.getDescripcion())
                 .reserva(reserva)
+                .cliente(cliente)
                 .build();
     }
 }

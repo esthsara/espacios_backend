@@ -56,6 +56,10 @@ public class Pago {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_reserva", nullable = false)
     private Reserva reserva;
+//relacioncliente
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)
+    private Cliente cliente;
 
     // Enums para validación
     public enum EstadoPago {
