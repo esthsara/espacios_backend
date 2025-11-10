@@ -11,6 +11,8 @@ public class WebConfig implements WebMvcConfigurer {
         // Servir archivos desde la carpeta uploads
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:uploads/");
+        registry.addResourceHandler("/img/**")
+                .addResourceLocations("classpath:/static/img/");
     }
     
     /*@Override

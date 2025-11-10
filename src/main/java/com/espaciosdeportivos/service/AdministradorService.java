@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.service;
 
 import com.espaciosdeportivos.dto.AdministradorDTO;
+import com.espaciosdeportivos.dto.ClienteDTO;
 //import com.espaciosdeportivos.model.Administrador;
 import com.espaciosdeportivos.dto.UsuarioControlDTO;
 
@@ -38,8 +39,15 @@ public interface AdministradorService {
     // Buscar por nombre y apellidos (nombre, aPaterno, aMaterno)
     List<AdministradorDTO> buscarPorNombreApellidos(String nombre, String aPaterno, String aMaterno);
 
-    // Obtener usuarios de control asignados a las canchas del administrador
+    // Obtener usuarios de control asignados a las canchas del administrador k
     List<UsuarioControlDTO> obtenerUsuariosControlPorAdministrador(Long idAdmin);
+
+    // Obtener clientes que han reservado canchas del administrador k
+    List<ClienteDTO> obtenerClientesPorAdministrador(Long idAdmin);
+
+    // Crear un usuario de control y asignarlo a las canchas del administrador k
+    UsuarioControlDTO crearUsuarioControlParaAdministrador(Long idAdmin, UsuarioControlDTO dto);
+
 
 
 }

@@ -62,23 +62,28 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/img/**").permitAll() // 
+
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 // Rutas exclusivas para SUPERUSUARIO
                 .requestMatchers("/api/super/**").hasRole("SUPERUSUARIO")
-                .requestMatchers("/api/cancha/**").hasRole("SUPERUSUARIO")   
+                .requestMatchers("/api/cancha/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")   
 
 
                 // Rutas para SUPERUSUARIO y ADMINISTRADOR
                 .requestMatchers("/api/admin/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("/api/administradores/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("/api/areasdeportivas/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
-
+                .requestMatchers("api/disciplina/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 //RUTAS para ADMINISTRADOR
                 .requestMatchers("/api/cancha/area/**").hasRole("ADMINISTRADOR") // Solo admins pueden ver canchas por área                .requestMatchers("/api/supervisa/**").hasAnyRole("ADMINISTRADOR") //k
                 .requestMatchers("/api/supervisa/**").hasRole("ADMINISTRADOR") //solo administrador puede supervisar sus canchas y usuarios
-                
+                .requestMatchers("/api/reservas/**").hasAnyRole("CLIENTE", "ADMINISTRADOR") //admins pueden ver reservas de sus canchas
+                .requestMatchers("/api/usuario_control/**").hasRole("ADMINISTRADOR") //solo admins pueden gestionar sus usuarios de control
+
                 // Rutas que incluyen clientes
                 .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR", "CLIENTE")
 

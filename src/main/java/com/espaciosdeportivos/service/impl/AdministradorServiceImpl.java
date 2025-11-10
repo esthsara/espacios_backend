@@ -1,15 +1,19 @@
 package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AdministradorDTO;
+import com.espaciosdeportivos.dto.ClienteDTO;
 import com.espaciosdeportivos.dto.UsuarioControlDTO;
 import com.espaciosdeportivos.model.Administrador;
+import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.UsuarioControl;
 import com.espaciosdeportivos.repository.AdministradorRepository;
+import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.repository.SupervisaRepository;
+import com.espaciosdeportivos.repository.UsuarioControlRepository;
 import com.espaciosdeportivos.service.AdministradorService;
 
 import lombok.RequiredArgsConstructor;
-
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,21 +22,29 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//Comentario aqui agregue transacional nose si afecte pero creoq eu deberia estar
 @Service
 @Transactional
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
     private final SupervisaRepository supervisaRepository;
+    private final ReservaRepository reservaRepository;
+    private final UsuarioControlRepository usuarioControlRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public AdministradorServiceImpl(
         AdministradorRepository administradorRepository,
-        SupervisaRepository supervisaRepository
+        SupervisaRepository supervisaRepository,
+        ReservaRepository reservaRepository,
+        UsuarioControlRepository usuarioControlRepository,
+        ModelMapper modelMapper
     ) {
         this.administradorRepository = administradorRepository;
         this.supervisaRepository = supervisaRepository;
+        this.reservaRepository = reservaRepository;
+        this.usuarioControlRepository = usuarioControlRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -132,7 +144,6 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .collect(Collectors.toList());
     }
 
-    //  Nuevo método: obtener usuarios de control por administrador
     @Override
     @Transactional(readOnly = true)
     public List<UsuarioControlDTO> obtenerUsuariosControlPorAdministrador(Long idAdmin) {
@@ -140,6 +151,42 @@ public class AdministradorServiceImpl implements AdministradorService {
         return usuarios.stream()
                 .map(this::mapToUsuarioControlDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> obtenerClientesPorAdministrador(Long idAdmin) {
+        List<Cliente> clientes = reservaRepository.findClientesByAdministrador(idAdmin);
+        return clientes.stream()
+                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    //admin crea un usuario de control y lo asigna a sus canchas
+    @Override
+    @Transactional
+    public UsuarioControlDTO crearUsuarioControlParaAdministrador(Long idAdmin, UsuarioControlDTO dto) {
+        Administrador admin = administradorRepository.findById(idAdmin)
+            .orElseThrow(() -> new RuntimeException("Administrador no encontrado con ID: " + idAdmin));
+
+        UsuarioControl usuarioControl = UsuarioControl.builder()
+            .nombre(dto.getNombre())
+            .apellidoPaterno(dto.getAPaterno())
+            .apellidoMaterno(dto.getAMaterno())
+            .fechaNacimiento(dto.getFechaNacimiento())
+            .telefono(dto.getTelefono())
+            .email(dto.getEmail())
+            .urlImagen(dto.getUrlImagen())
+            .estado(dto.getEstado())
+            .direccion(dto.getDireccion())
+            .estadoOperativo(dto.getEstadoOperativo())
+            .horaInicioTurno(dto.getHoraInicioTurno())
+            .horaFinTurno(dto.getHoraFinTurno())
+            .build();
+
+        usuarioControlRepository.save(usuarioControl);
+
+        return mapToUsuarioControlDTO(usuarioControl);
     }
 
     // --- Métodos privados de mapeo ---
@@ -175,22 +222,21 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .build();
     }
 
-  private UsuarioControlDTO mapToUsuarioControlDTO(UsuarioControl u) {
-    return UsuarioControlDTO.builder()
-            .id(u.getId())
-            .nombre(u.getNombre())
-            .aPaterno(u.getApellidoPaterno())
-            .aMaterno(u.getApellidoMaterno())
-            .fechaNacimiento(u.getFechaNacimiento())
-            .telefono(u.getTelefono())
-            .email(u.getEmail())
-            .urlImagen(u.getUrlImagen())
-            .estado(u.getEstado())
-            .estadoOperativo(u.getEstadoOperativo())
-            .horaInicioTurno(u.getHoraInicioTurno())
-            .horaFinTurno(u.getHoraFinTurno())
-            .direccion(u.getDireccion())
-            .build();
-}
-
+    private UsuarioControlDTO mapToUsuarioControlDTO(UsuarioControl u) {
+        return UsuarioControlDTO.builder()
+                .id(u.getId())
+                .nombre(u.getNombre())
+                .aPaterno(u.getApellidoPaterno())
+                .aMaterno(u.getApellidoMaterno())
+                .fechaNacimiento(u.getFechaNacimiento())
+                .telefono(u.getTelefono())
+                .email(u.getEmail())
+                .urlImagen(u.getUrlImagen())
+                .estado(u.getEstado())
+                .estadoOperativo(u.getEstadoOperativo())
+                .horaInicioTurno(u.getHoraInicioTurno())
+                .horaFinTurno(u.getHoraFinTurno())
+                .direccion(u.getDireccion())
+                .build();
+    }
 }
