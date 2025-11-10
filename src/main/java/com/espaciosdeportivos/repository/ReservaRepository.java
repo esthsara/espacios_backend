@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.repository;
 
 import com.espaciosdeportivos.model.Cancha;
+import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -88,5 +89,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
               @Param("idCancha") Long idCancha,
               @Param("fecha") LocalDate fecha
        );*/
+
+       // Obtener todos los clientes que han hecho reservas
+       // en canchas de áreas deportivas de un administrador específico K
+       @Query("""
+              SELECT DISTINCT r.cliente
+              FROM Reserva r
+              JOIN Incluye i ON i.reserva.id = r.id
+              JOIN Cancha c ON c.id = i.cancha.id
+              JOIN AreaDeportiva a ON a.id = c.areaDeportiva.id
+              WHERE a.administrador.id = :idAdmin
+              """)
+              List<Cliente> findClientesByAdministrador(@Param("idAdmin") Long idAdmin);
 
 }
