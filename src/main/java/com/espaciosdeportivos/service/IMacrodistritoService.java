@@ -8,11 +8,12 @@ import com.espaciosdeportivos.model.Macrodistrito;
 import jakarta.validation.Valid;
 
 public interface IMacrodistritoService {
+
+        //Listar todos los macroditritos incluido los inactivos
+    List<MacrodistritoDTO> ListarTodos();
+
     //Listar todos los macrodistritos activos
     List<MacrodistritoDTO> obtenerTodosLosMacrodistritos();
-
-    //Listar todos los macroditritos
-    List<MacrodistritoDTO> ListarTodos();
 
     //obtner macrodistrito por id
     MacrodistritoDTO obtenerMacrodistritoPorId(Long idMacrodistrito);
@@ -26,7 +27,7 @@ public interface IMacrodistritoService {
     //eliminar macrodistrito fisicamente
     void eliminarMacrodistritoFisicamente(Long idMacrodistrito);
 
-    //eliminar macrodistrito (eliminacion logica)
+    //eliminar macrodistrito (eliminacion logica) es decir desactivar
     MacrodistritoDTO eliminarMacrodistrito(Long idMacrodistrito, Boolean nuevoEstado);
 
     //buscar macrodistrito por nombre

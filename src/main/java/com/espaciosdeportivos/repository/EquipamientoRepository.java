@@ -21,4 +21,7 @@ public interface EquipamientoRepository extends JpaRepository<Equipamiento, Long
 
     // (Opcional) por estado textual
     //List<Equipamiento> findByEstadoAndEstadoTrue(Boolean estado);
+
+    //List<Equipamiento> findByCanchaIdCancha(Long idCancha);
+    
 }

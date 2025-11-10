@@ -3,6 +3,8 @@ package com.espaciosdeportivos.validation;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
 import org.springframework.stereotype.Component;
+import com.espaciosdeportivos.validation.AreaDeportivaValidator.BusinessException;
+
 
 import java.time.LocalTime;
 

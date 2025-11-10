@@ -4,6 +4,7 @@ import com.espaciosdeportivos.dto.ComentarioDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 @Component
@@ -23,11 +24,11 @@ public class ComentarioValidator {
         }
     }
 
-    public void validarFecha(LocalDate fecha) {
-        if (fecha == null || fecha.isAfter(LocalDate.now())) {
+    /*public void validarFecha(LocalDate fecha) {
+        if (fecha == null || fecha.isAfter(LocalDateTime.now())) {
             throw new BusinessException("Fecha no válida. No puede ser futura ni nula.");
         }
-    }
+    }*/
 
     public void validarEstado(Boolean estado) {
         if (estado == null) {
@@ -38,7 +39,7 @@ public class ComentarioValidator {
     public void validarComentario(ComentarioDTO comentarioDTO) {
         validarContenido(comentarioDTO.getContenido());
         validarCalificacion(comentarioDTO.getCalificacion());
-        validarFecha(comentarioDTO.getFecha());
+        //validarFecha(comentarioDTO.getFecha());
         validarEstado(comentarioDTO.getEstado());
     }
 

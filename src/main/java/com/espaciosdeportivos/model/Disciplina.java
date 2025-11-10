@@ -28,7 +28,7 @@ public class Disciplina {
     private String descripcion;
 
     @Column(name = "estado")
-    private Boolean estado = true; // Valor por defecto a 'true'
+    private Boolean estado; // Valor por defecto a 'true'
 
     @CreationTimestamp
     @Column(name = "fecha_creacion")
@@ -39,10 +39,11 @@ public class Disciplina {
     private LocalDateTime fechaActualizacion;
 
     // Relaciones con Cancha (a través de la tabla intermedia se_practica)
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<sepractica> canchas;
 
-    // Relación con Reserva (a través de la tabla intermedia incluye)
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<incluye> reservas;
+    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Sepractica> canchas;
+
+    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Incluye> incluidos;
+
 }

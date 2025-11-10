@@ -1,5 +1,7 @@
 package com.espaciosdeportivos.repository;
 
+import com.espaciosdeportivos.model.Cancha;
+import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,8 +29,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     List<Reserva> findByFechaReservaBetweenAndEstadoReserva(LocalDate inicio, LocalDate fin, String estadoReserva);
     
     // Búsquedas por Código
-    Optional<Reserva> findByCodigoReserva(String codigoReserva);
-    boolean existsByCodigoReserva(String codigoReserva);
+    //Optional<Reserva> findByCodigoReserva(String codigoReserva);
+    //boolean existsByCodigoReserva(String codigoReserva);
     
     // Consultas de disponibilidad
     @Query("SELECT r FROM Reserva r WHERE r.fechaReserva = :fecha AND " +
@@ -47,9 +49,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
            "r.estadoReserva = 'CONFIRMADA' ORDER BY r.horaInicio")
     List<Reserva> findReservasConfirmadasDelDia(@Param("fecha") LocalDate fecha);
 
-    @Query("SELECT SUM(r.montoTotal) FROM Reserva r WHERE r.fechaReserva BETWEEN :inicio AND :fin " +
+    /*@Query("SELECT SUM(r.montoTotal) FROM Reserva r WHERE r.fechaReserva BETWEEN :inicio AND :fin " +
            "AND r.estadoReserva = 'COMPLETADA'")
-    Double calcularIngresosEnRango(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+    Double calcularIngresosEnRango(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);*/
 
     // Reservas activas del cliente (futuras o en curso hoy)
     @Query("SELECT r FROM Reserva r WHERE r.cliente.id = :clienteId " +
@@ -66,4 +68,38 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     // Validaciones
     boolean existsByClienteIdAndFechaReserva(Long clienteId, LocalDate fechaReserva);
     long countByFechaReserva(LocalDate fechaReserva);
+
+    //List<Reserva> findReservaByCancha(Long idCancha);
+
+    @Query("SELECT r FROM Reserva r WHERE r.fechaReserva = :fecha AND r.idReserva IN " +
+       "(SELECT i.reserva.idReserva FROM Incluye i WHERE i.cancha.idCancha = :idCancha)")
+    List<Reserva> findByCanchaAndFecha(@Param("idCancha") Long idCancha, @Param("fecha") LocalDate fecha);
+
+      /* @Query("""
+              SELECT r
+              FROM Reserva r
+              WHERE r.fechaReserva = :fecha
+              AND r.idReserva IN (
+              SELECT i.reserva.idReserva
+              FROM Incluye i
+              WHERE i.cancha.idCancha = :idCancha
+              )
+              """)
+       List<Reserva> findByCanchaAndFechaReserva(
+              @Param("idCancha") Long idCancha,
+              @Param("fecha") LocalDate fecha
+       );*/
+
+       // Obtener todos los clientes que han hecho reservas
+       // en canchas de áreas deportivas de un administrador específico K
+       @Query("""
+              SELECT DISTINCT r.cliente
+              FROM Reserva r
+              JOIN Incluye i ON i.reserva.id = r.id
+              JOIN Cancha c ON c.id = i.cancha.id
+              JOIN AreaDeportiva a ON a.id = c.areaDeportiva.id
+              WHERE a.administrador.id = :idAdmin
+              """)
+              List<Cliente> findClientesByAdministrador(@Param("idAdmin") Long idAdmin);
+
 }

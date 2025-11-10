@@ -46,6 +46,8 @@ public interface ImagenRepository extends JpaRepository<Imagen, Long> {
     // Buscar imágenes creadas después de una fecha
     List<Imagen> findByFechaCreacionAfterAndEstadoTrue(LocalDateTime fecha);
     
+    //listar imagenes
+    
     // Buscar por múltiples tipos MIME
     @Query("SELECT i FROM Imagen i WHERE i.tipoMime IN :tiposMime AND i.estado = true")
     List<Imagen> findByTiposMime(@Param("tiposMime") List<String> tiposMime);

@@ -1,19 +1,19 @@
 package com.espaciosdeportivos.service;
 
-import com.espaciosdeportivos.dto.sepracticaDTO;
+import com.espaciosdeportivos.dto.SepracticaDTO;
 import java.util.List;
 
 public interface IsepracticaService {
     
-    sepracticaDTO asociarDisciplinaACancha(sepracticaDTO dto);
+    SepracticaDTO asociarDisciplinaACancha(SepracticaDTO dto);
 
-    sepracticaDTO obtenerDisciplinaDeCancha(Long idCancha, Long idDisciplina);
+    SepracticaDTO obtenerDisciplinaDeCancha(Long idCancha, Long idDisciplina);
 
-    List<sepracticaDTO> obtenerDisciplinasPorCancha(Long idCancha);
+    List<SepracticaDTO> obtenerDisciplinasPorCancha(Long idCancha);
 
     void desasociarDisciplinaDeCancha(Long idCancha, Long idDisciplina);
 
-    List<sepracticaDTO> listarPorIdCancha(Long idCancha);
+    List<SepracticaDTO> listarPorIdCancha(Long idCancha);
     
-    List<sepracticaDTO> listarPorIdDisciplina(Long idDisciplina);
+    List<SepracticaDTO> listarPorIdDisciplina(Long idDisciplina);
 }

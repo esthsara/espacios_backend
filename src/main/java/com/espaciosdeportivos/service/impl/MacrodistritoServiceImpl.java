@@ -6,27 +6,22 @@ import com.espaciosdeportivos.repository.MacrodistritoRepository;
 import com.espaciosdeportivos.service.IMacrodistritoService;
 import com.espaciosdeportivos.validation.MacrodistritoValidator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class MacrodistritoServiceImpl implements IMacrodistritoService {
 
     private final MacrodistritoRepository macrodistritoRepository;
     private final MacrodistritoValidator macrodistritoValidator;
 
-    @Autowired
-    public MacrodistritoServiceImpl(
-            MacrodistritoRepository macrodistritoRepository,
-            MacrodistritoValidator macrodistritoValidator
-    ) {
-        this.macrodistritoRepository = macrodistritoRepository;
-        this.macrodistritoValidator = macrodistritoValidator;
-    }
     @Override
     @Transactional(readOnly = true)
     public List<MacrodistritoDTO> obtenerTodosLosMacrodistritos() {

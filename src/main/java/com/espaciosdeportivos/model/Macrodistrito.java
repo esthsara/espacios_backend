@@ -2,7 +2,7 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
-//import java.util.List;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,7 +26,10 @@ public class Macrodistrito {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    /*@OneToMany(mappedBy = "macrodistrito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Zona> zona;*/
+    //Si guardo, actualizas o eliminas un Macrodistrito esas operaciones se propagan automáticamente a susZona
+    //si elimino un macroitrito se eliminan sus zonas asociadas
+
+    @OneToMany(mappedBy = "macrodistrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Zona> zona;
     
 }

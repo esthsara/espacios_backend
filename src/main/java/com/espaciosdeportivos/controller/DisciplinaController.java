@@ -1,7 +1,10 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.DisciplinaDTO;
+import com.espaciosdeportivos.dto.EquipamientoDTO;
 import com.espaciosdeportivos.service.IDisciplinaService;
+
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +18,20 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/disciplinas")
+@RequestMapping("/api/disciplina")
 @RequiredArgsConstructor
 public class DisciplinaController {
     
     private final IDisciplinaService disciplinaService;
-    
+    //json 
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DisciplinaDTO> crear(@RequestBody DisciplinaDTO disciplinaDTO) {
+        DisciplinaDTO nueva = disciplinaService.crearDisciplina(disciplinaDTO);
+        return ResponseEntity.ok(nueva);
+    }
+    //como un formulario html
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DisciplinaDTO> crearDisciplina(
+    public ResponseEntity<DisciplinaDTO> createDisciplina(
             @Valid @ModelAttribute DisciplinaDTO disciplinaDTO) {
         log.info("POST /api/disciplinas - Creando disciplina: {}", disciplinaDTO.getNombre());
         
@@ -34,6 +43,7 @@ public class DisciplinaController {
             return ResponseEntity.badRequest().build();
         }
     }
+
     
     @GetMapping("/{idDisciplina}")
     public ResponseEntity<DisciplinaDTO> obtenerDisciplina(@PathVariable Long idDisciplina) {
@@ -49,20 +59,41 @@ public class DisciplinaController {
     }
     
     @GetMapping
-    public ResponseEntity<List<DisciplinaDTO>> obtenerTodasLasDisciplinas() {
-        log.info("GET /api/disciplinas");
+    public ResponseEntity<List<DisciplinaDTO>> ListarTodos() {
+        log.info("GET /api/disciplina");
         
         try {
-            List<DisciplinaDTO> response = disciplinaService.obtenerTodasLasDisciplinas();
+            List<DisciplinaDTO> response = disciplinaService.listarTodas();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error obteniendo disciplinas: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
+    @GetMapping("/activos")
+    public ResponseEntity<List<DisciplinaDTO>> obtenerTodasLasDisciplinas() {
+        log.info("GET /api/disciplina");
+        
+        try {
+            List<DisciplinaDTO> response = disciplinaService.obtenerTodasLasDisciplinas();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error obteniendo disciplinas activas: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DisciplinaDTO> updateDiciplina(
+            @PathVariable Long id,
+            @RequestBody DisciplinaDTO disciplinaDTO) {
+        DisciplinaDTO actualizada = disciplinaService.actualizarDisciplina(id, disciplinaDTO);
+        return ResponseEntity.ok(actualizada);
+    }
+
     
     @PutMapping(value = "/{idDisciplina}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DisciplinaDTO> actualizarDisciplina(
+    public ResponseEntity<DisciplinaDTO> actualizar(
             @PathVariable Long idDisciplina,
             @Valid @ModelAttribute DisciplinaDTO disciplinaDTO) {
         log.info("PUT /api/disciplinas/{}", idDisciplina);
@@ -77,7 +108,7 @@ public class DisciplinaController {
     }
     
     @PutMapping("/{idDisciplina}/eliminar-logico")
-    public ResponseEntity<Void> eliminarLogico(@PathVariable Long idDisciplina) {
+    public ResponseEntity<Void> deleteDiciplina(@PathVariable Long idDisciplina) {
         log.info("PUT /api/disciplinas/{}/eliminar-logico", idDisciplina);
         
         try {
@@ -87,6 +118,15 @@ public class DisciplinaController {
             log.error("Error eliminando lógicamente disciplina: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
+    }
+    //eliminacion con el patch 
+    @PatchMapping("/{id}/estado")
+    @Transactional
+    public ResponseEntity<DisciplinaDTO> eliminar(@PathVariable Long id, @RequestParam Boolean nuevoEstado) {
+        log.info("[DISCIPLINA] Inicio cambiar estado equipamiento: {}", id);
+        DisciplinaDTO actualizada = disciplinaService.eliminar(id, nuevoEstado);
+        log.info("[DISCIPLINA] Inicio cambiar estado equipamiento: {}", id);
+        return ResponseEntity.ok(actualizada);
     }
     
     @DeleteMapping("/{idDisciplina}")
@@ -177,12 +217,12 @@ public class DisciplinaController {
         return ResponseEntity.ok(disponible);
     }
 
-    @GetMapping("/{idDisciplina}/puede-eliminarse")
+    /*@GetMapping("/{idDisciplina}/puede-eliminarse")
     public ResponseEntity<Boolean> puedeEliminarse(@PathVariable Long idDisciplina) {
         log.info("GET /api/disciplinas/{}/puede-eliminarse", idDisciplina);
         boolean puedeEliminarse = disciplinaService.puedeEliminarse(idDisciplina);
         return ResponseEntity.ok(puedeEliminarse);
-    }
+    }*/
 
     // ESTADÍSTICAS
     @GetMapping("/estadisticas/total-activas")

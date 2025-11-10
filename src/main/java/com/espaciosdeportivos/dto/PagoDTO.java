@@ -45,8 +45,11 @@ public class PagoDTO implements Serializable {
     @NotNull(message = "El ID de la reserva es obligatorio")
     private Long idReserva;
 
+    //objeto
+    private ClienteDTO cliente;
+
     // Campos de solo lectura (respuesta)
-    private LocalDate fechaCreacion;
+    /*private LocalDate fechaCreacion;
     private LocalDate fechaActualizacion;
     private String codigoReserva;
     private LocalDate fechaReserva;
@@ -55,5 +58,5 @@ public class PagoDTO implements Serializable {
     private String emailCliente;
     private String telefonoCliente;
     private Double montoTotalReserva;
-    private Double saldoPendiente;
+    private Double saldoPendiente;*/
 }

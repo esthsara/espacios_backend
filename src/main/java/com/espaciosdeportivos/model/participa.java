@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
            @UniqueConstraint(columnNames = {"id_invitado", "id_reserva"})
        })
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class participa {
+public class Participa {
     
     @EmbeddedId
-    private participaId id;
+    private ParticipaId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idInvitado")
@@ -65,9 +65,9 @@ public class participa {
     }
 
     // Método helper para crear la clave embebida
-    public static participa crear(Invitado invitado, Reserva reserva) {
-        participaId id = new participaId(invitado.getId(), reserva.getIdReserva());
-        return participa.builder()
+    public static Participa crear(Invitado invitado, Reserva reserva) {
+        ParticipaId id = new ParticipaId(invitado.getId(), reserva.getIdReserva());
+        return Participa.builder()
                 .id(id)
                 .invitado(invitado)
                 .reserva(reserva)

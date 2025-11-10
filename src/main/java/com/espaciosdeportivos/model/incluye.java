@@ -4,16 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "incluye")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class incluye {
+@Table(name = "incluye")
+public class Incluye {
 
     @EmbeddedId
-    private incluyeId id;
+    private IncluyeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idCancha")
@@ -29,4 +29,7 @@ public class incluye {
     @MapsId("idDisciplina")
     @JoinColumn(name = "id_disciplina", nullable = false)
     private Disciplina disciplina;
+
+    @Column(name = "monto_total", nullable = false)
+    private Double montoTotal;
 }

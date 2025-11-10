@@ -2,7 +2,11 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
+
+
+import java.time.LocalTime;
 import java.util.List;
+
 
 @Getter
 @Setter
@@ -28,11 +32,13 @@ public class AreaDeportiva {
 
     @Column(name = "telefono_area", length = 8)
     private String telefonoArea;
-
+    
+    //comentario : aqui cambie el tipo de dato de String a LocalTime
     @Column(name = "hora_inicio_area")
-    private String horaInicioArea;
+    private LocalTime horaInicioArea;
+
     @Column(name = "hora_fin_area")
-    private String horaFinArea;
+    private LocalTime horaFinArea;
 
     //@Column(name = "estado_area", nullable = false, length = 100)
     //private String estadoArea;
@@ -49,16 +55,31 @@ public class AreaDeportiva {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
+    /*
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestamp
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+     */
+    //aqui me falta lo que SON LA ELIINACION DE UNA ZONA NO DEBERIA ELIMINAR LAS AREAS DEPORTIVAS ASOCIADAS A ELLA POR ESO SE DEB REASIGNNAR (PENSARRLO BIEN)
+    //AQUI SI ELIMINO UNA ZONA QUE TIENE AREAS DEPORTIVAS ASOCIADAS NO DEJA ELIMINAR LA ZONA ENTONCES HAY QUE EVALUAR
     @ManyToOne
     @JoinColumn(name = "id_zona")
     private Zona zona;
 
-    @ManyToOne
-    @JoinColumn(name = "id_persona",nullable = false)
+    @OneToOne
+    @JoinColumn(name = "id_persona", nullable = false, unique = true)
     private Administrador administrador;
 
-    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true)
+    //COMENTARIO: AQUI AGREGE EL CASCADE Y ORPHANREMOVAL PARA QUE AL ELIMINAR UN AREA DEPORTIVA SE ELIMINEN LAS CANCHAS ASOCIADAS 
+    //LAS CANCHAS SE ELIMINAN  AL ELIMINAR UNA AREA DEPORTIVA
+    //CON LAZI SOLO HAGO CONSUÑTAS CUANDO NECESITO
+    @OneToMany(mappedBy = "areaDeportiva",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Cancha> cancha;
+
 
     
 }

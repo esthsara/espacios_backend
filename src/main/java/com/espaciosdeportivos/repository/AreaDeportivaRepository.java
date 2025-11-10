@@ -33,4 +33,7 @@ public interface AreaDeportivaRepository extends JpaRepository<AreaDeportiva, Lo
     @Query("SELECT a FROM AreaDeportiva a WHERE LOWER(a.nombreArea) LIKE LOWER(CONCAT('%', :nombre, '%')) ")
     List<AreaDeportiva> buscarPorNombre(@Param("nombre") String nombre);
 
+    Optional<AreaDeportiva> findByAdministrador_Id(Long Id);
+
+
 }

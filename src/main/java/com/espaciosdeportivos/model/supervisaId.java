@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
@@ -11,9 +12,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class supervisaId implements Serializable {
-
+public class SupervisaId implements Serializable {
+    @Column(name = "id_us_control")
     private Long idUsControl;
+
+    @Column(name = "id_cancha")
     private Long idCancha;
 
 }

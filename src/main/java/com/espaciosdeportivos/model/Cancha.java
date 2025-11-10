@@ -6,6 +6,8 @@ import java.time.LocalTime;
 //import java.util.ArrayList;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -61,14 +63,35 @@ public class Cancha {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    @ManyToOne
+    /*
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestampx
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+     */
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_areadeportiva")
     private AreaDeportiva areaDeportiva;
 
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<dispone> equipamiento;
+    //revisar por ejmplo si comparten equipamiento enonces no
 
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Dispone> equipamiento;
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comentario> comentario;
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Incluye> incluidos;
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Sepractica> sePractica;
+
+
 
 }

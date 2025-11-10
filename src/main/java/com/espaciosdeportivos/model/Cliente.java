@@ -3,7 +3,7 @@ package com.espaciosdeportivos.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
@@ -20,11 +20,11 @@ public class Cliente extends Persona {
         super.setId(id);
     }
 
-    @NotNull
-    @Column(name = "categoria", nullable = false, length = 50)
+    //@NotNull
+    @Column(name = "categoria", nullable = false, length = 100)
     private String categoria;
 
-    // k
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = false)
+    // revisar sara
+    @OneToMany(mappedBy = "cliente", /*cascade = CascadeType.ALL,*/ orphanRemoval = false,fetch = FetchType.LAZY)
     private List<Cancelacion> cancelacion;
 }

@@ -2,8 +2,12 @@ package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.service.IReservaService;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -32,6 +37,12 @@ public class ReservaController {
         ReservaDTO reserva = reservaService.obtenerPorId(id);
         return ResponseEntity.ok(reserva);
     }
+
+    /*@PostMapping("/crearReserva")
+    public ResponseEntity<ReservaDTO> crearReserva(@RequestBody ReservaDTO dto) {
+        ReservaDTO nuevaReserva = reservaService.crearReserva(dto);
+        return ResponseEntity.ok(nuevaReserva);
+    }*/
 
     @PostMapping
     public ResponseEntity<ReservaDTO> crear(@Valid @RequestBody ReservaDTO dto) {
@@ -73,14 +84,42 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @GetMapping("/codigo/{codigo}")
+    @PutMapping("/{id}/actualizar-pago")
+    public ResponseEntity<?> actualizarEstadoPago(@PathVariable Long id) {
+        try {
+            ReservaDTO reservaDTO = reservaService.actualizarEstadoPagoReserva(id);
+            return ResponseEntity.ok(reservaDTO);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el estado de pago.");
+        }
+    }
+
+
+
+    @GetMapping("/horario-disponible")
+    public ResponseEntity<List<String>> getHorasDisponibles(
+            @RequestParam Long canchaId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+
+        List<String> horasDisponibles = reservaService.obtenerHorasDisponibles(canchaId, fecha);
+
+        // Ya son strings del tipo "08:00 - 08:30"
+        return ResponseEntity.ok(horasDisponibles);
+    }
+
+    
+    
+
+    /*@GetMapping("/codigo/{codigo}")
     public ResponseEntity<ReservaDTO> obtenerPorCodigo(@PathVariable String codigo) {
         ReservaDTO reserva = reservaService.obtenerPorCodigoReserva(codigo);
         return ResponseEntity.ok(reserva);
-    }
+    }*/
 
     // OPERACIONES DE NEGOCIO
-    @PostMapping("/{id}/confirmar")
+    /*@PostMapping("/{id}/confirmar")
     public ResponseEntity<ReservaDTO> confirmarReserva(@PathVariable Long id) {
         ReservaDTO reservaConfirmada = reservaService.confirmarReserva(id);
         return ResponseEntity.ok(reservaConfirmada);
@@ -93,7 +132,7 @@ public class ReservaController {
         String motivo = request.get("motivo");
         ReservaDTO reservaCancelada = reservaService.cancelarReserva(id, motivo);
         return ResponseEntity.ok(reservaCancelada);
-    }
+    }*/
 
     @PostMapping("/{id}/en-curso")
     public ResponseEntity<ReservaDTO> marcarEnCurso(@PathVariable Long id) {
@@ -145,7 +184,7 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }*/
 
-    @GetMapping("/reporte/ingresos")
+    /*@GetMapping("/reporte/ingresos")
     public ResponseEntity<Map<String, Object>> calcularIngresos(
             @RequestParam String inicio,
             @RequestParam String fin) {
@@ -157,7 +196,7 @@ public class ReservaController {
             "ingresos", ingresos,
             "moneda", "BOB"
         ));
-    }
+    }*/
 
     // HEALTH CHECK
     @GetMapping("/health")

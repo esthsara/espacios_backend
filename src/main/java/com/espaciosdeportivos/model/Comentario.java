@@ -2,7 +2,9 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+
+//import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,16 +27,16 @@ public class Comentario {
     private Integer calificacion;
 
     @Column(name = "fecha", nullable = false)
-    private LocalDate fecha;
+    private LocalDateTime fecha;
 
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona", referencedColumnName = "id_persona")
     private Persona persona;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cancha", referencedColumnName = "id_cancha")
     private Cancha cancha;
 

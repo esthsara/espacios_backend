@@ -1,6 +1,6 @@
 package com.espaciosdeportivos.controller;
 
-import com.espaciosdeportivos.dto.participaDTO;
+import com.espaciosdeportivos.dto.ParticipaDTO;
 import com.espaciosdeportivos.service.IparticipaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,48 +14,48 @@ import java.util.Map;
 @RequestMapping("/api/participaciones")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-public class participaController {
+public class ParticipaController {
 
     private final IparticipaService participaService;
 
     @PostMapping
-    public ResponseEntity<participaDTO> crear(@Valid @RequestBody participaDTO participaDTO) {
-        participaDTO resultado = participaService.crear(participaDTO);
+    public ResponseEntity<ParticipaDTO> crear(@Valid @RequestBody ParticipaDTO participaDTO) {
+        ParticipaDTO resultado = participaService.crear(participaDTO);
         return ResponseEntity.ok(resultado);
     }
 
     @PutMapping("/reserva/{idReserva}/invitado/{idInvitado}")
-    public ResponseEntity<participaDTO> actualizar(
+    public ResponseEntity<ParticipaDTO> actualizar(
             @PathVariable Long idReserva, 
             @PathVariable Long idInvitado,
-            @Valid @RequestBody participaDTO participaDTO) {
-        participaDTO resultado = participaService.actualizar(idReserva, idInvitado, participaDTO);
+            @Valid @RequestBody ParticipaDTO participaDTO) {
+        ParticipaDTO resultado = participaService.actualizar(idReserva, idInvitado, participaDTO);
         return ResponseEntity.ok(resultado);
     }
 
     @PostMapping("/reserva/{idReserva}/invitado/{idInvitado}/confirmar")
-    public ResponseEntity<participaDTO> confirmarInvitacion(
+    public ResponseEntity<ParticipaDTO> confirmarInvitacion(
             @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
-        participaDTO resultado = participaService.confirmarInvitacion(idReserva, idInvitado);
+        ParticipaDTO resultado = participaService.confirmarInvitacion(idReserva, idInvitado);
         return ResponseEntity.ok(resultado);
     }
 
     @PostMapping("/reserva/{idReserva}/invitado/{idInvitado}/asistencia")
-    public ResponseEntity<participaDTO> registrarAsistencia(
+    public ResponseEntity<ParticipaDTO> registrarAsistencia(
             @PathVariable Long idReserva, 
             @PathVariable Long idInvitado,
             @RequestBody Map<String, Boolean> request) {
         Boolean asistio = request.get("asistio");
-        participaDTO resultado = participaService.registrarAsistencia(idReserva, idInvitado, asistio);
+        ParticipaDTO resultado = participaService.registrarAsistencia(idReserva, idInvitado, asistio);
         return ResponseEntity.ok(resultado);
     }
 
     @PostMapping("/reserva/{idReserva}/invitado/{idInvitado}/notificar")
-    public ResponseEntity<participaDTO> marcarComoNotificado(
+    public ResponseEntity<ParticipaDTO> marcarComoNotificado(
             @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
-        participaDTO resultado = participaService.marcarComoNotificado(idReserva, idInvitado);
+        ParticipaDTO resultado = participaService.marcarComoNotificado(idReserva, idInvitado);
         return ResponseEntity.ok(resultado);
     }
 
@@ -68,28 +68,28 @@ public class participaController {
     }
 
     @GetMapping("/reserva/{idReserva}")
-    public ResponseEntity<List<participaDTO>> obtenerPorReserva(@PathVariable Long idReserva) {
-        List<participaDTO> resultados = participaService.findByReservaIdReserva(idReserva);
+    public ResponseEntity<List<ParticipaDTO>> obtenerPorReserva(@PathVariable Long idReserva) {
+        List<ParticipaDTO> resultados = participaService.findByReservaIdReserva(idReserva);
         return ResponseEntity.ok(resultados);
     }
 
     @GetMapping("/reserva/{idReserva}/confirmados")
-    public ResponseEntity<List<participaDTO>> obtenerConfirmadosPorReserva(@PathVariable Long idReserva) {
-        List<participaDTO> resultados = participaService.findByReservaIdReservaAndConfirmado(idReserva, true);
+    public ResponseEntity<List<ParticipaDTO>> obtenerConfirmadosPorReserva(@PathVariable Long idReserva) {
+        List<ParticipaDTO> resultados = participaService.findByReservaIdReservaAndConfirmado(idReserva, true);
         return ResponseEntity.ok(resultados);
     }
 
     @GetMapping("/invitado/{idInvitado}")
-    public ResponseEntity<List<participaDTO>> obtenerPorInvitado(@PathVariable Long idInvitado) {
-        List<participaDTO> resultados = participaService.findByInvitadoId(idInvitado);
+    public ResponseEntity<List<ParticipaDTO>> obtenerPorInvitado(@PathVariable Long idInvitado) {
+        List<ParticipaDTO> resultados = participaService.findByInvitadoId(idInvitado);
         return ResponseEntity.ok(resultados);
     }
 
     @GetMapping("/reserva/{idReserva}/invitado/{idInvitado}")
-    public ResponseEntity<participaDTO> obtenerPorIds(
+    public ResponseEntity<ParticipaDTO> obtenerPorIds(
             @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
-        participaDTO resultado = participaService.findByIds(idReserva, idInvitado);
+        ParticipaDTO resultado = participaService.findByIds(idReserva, idInvitado);
         return ResponseEntity.ok(resultado);
     }
 
