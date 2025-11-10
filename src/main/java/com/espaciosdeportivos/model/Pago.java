@@ -61,25 +61,23 @@ public class Pago {
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)
     private Cliente cliente;
 
+
     // Enums para validación
     public enum EstadoPago {
         PENDIENTE, CONFIRMADO, ANULADO, RECHAZADO
     }
-
     public enum MetodoPago {
         EFECTIVO, TARJETA_CREDITO, TARJETA_DEBITO, TRANSFERENCIA, QR
     }
-
     public enum TipoPago {
         PARCIAL, TOTAL, ANTICIPO
     }
-
     // Métodos de negocio
     public boolean estaConfirmado() {
         return EstadoPago.CONFIRMADO.name().equals(this.estado);
     }
-
     public boolean esModificable() {
         return EstadoPago.PENDIENTE.name().equals(this.estado);
     }
+    
 }

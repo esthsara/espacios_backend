@@ -11,12 +11,21 @@ import com.espaciosdeportivos.repository.InvitadoRepository;
 import com.espaciosdeportivos.repository.UsuarioControlRepository;
 import com.espaciosdeportivos.service.IQrService;
 import com.espaciosdeportivos.validation.QrValidator;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.qrcode.QRCodeWriter;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +39,81 @@ public class QrServiceImpl implements IQrService {
     private final InvitadoRepository invitadoRepository;
     private final UsuarioControlRepository usuarioControlRepository;
     private final QrValidator qrValidator;
+
+
+    @Override
+    public QrDTO generarQrParaReserva(Long idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + idReserva));
+
+                // 1️⃣ Definir información dentro del QR
+                String nombreCliente = reserva.getCliente() != null ? reserva.getCliente().getNombre() + " " + reserva.getCliente().getApellidoPaterno() + " " + reserva.getCliente().getApellidoMaterno() : "";
+                String nombreCancha = reserva.getCancha() != null ? reserva.getCancha().getNombre() : "";
+                Double montoTotal = 0.0;
+                if (reserva.getIncluidos() != null && !reserva.getIncluidos().isEmpty() && reserva.getIncluidos().get(0) != null) {
+                        try {
+                                montoTotal = reserva.getIncluidos().get(0).getMontoTotal() != null ? reserva.getIncluidos().get(0).getMontoTotal() : 0.0;
+                        } catch (Exception ignored) {
+                                montoTotal = 0.0;
+                        }
+                }
+
+                String contenido = String.format(
+                                "Reserva #%d\nCliente: %s\nCancha: %s\nFecha: %s\nMonto Total: %.2f Bs",
+                                reserva.getIdReserva(),
+                                nombreCliente,
+                                nombreCancha,
+                                reserva.getFechaReserva(),
+                                montoTotal
+                );
+
+        try {
+            // Generar imagen QR con ZXing
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            var bitMatrix = qrCodeWriter.encode(contenido, BarcodeFormat.QR_CODE, 300, 300);
+
+            Path folder = Path.of("src/main/resources/static/qr");
+            if (!Files.exists(folder)) Files.createDirectories(folder);
+
+            String nombreArchivo = "qr_" + idReserva + "_" + UUID.randomUUID() + ".png";
+            Path rutaArchivo = folder.resolve(nombreArchivo);
+            MatrixToImageWriter.writeToPath(bitMatrix, "PNG", rutaArchivo);
+
+            // 3️⃣ Crear entidad QR
+            Qr qr = Qr.builder()
+                    .codigoQr(nombreArchivo)
+                    .urlQr("/qr/" + nombreArchivo)
+                    .fechaGeneracion(LocalDateTime.now())
+                    .fechaExpiracion(LocalDateTime.now().plusDays(7))
+                    .estado(true)
+                    .descripcion("QR para ingreso - Reserva #" + idReserva)
+                    .reserva(reserva)
+                    .invitado(reserva.getCliente()) // o un invitado específico si aplica
+                    .usuarioControl(reserva.getCliente()) // o usuarioControl real
+                    .build();
+
+            qrRepository.save(qr);
+
+            // 4️⃣ Devolver DTO
+            return QrDTO.builder()
+                    .idQr(qr.getIdQr())
+                    .codigoQr(nombreArchivo)
+                    .urlQr("/qr/" + nombreArchivo)
+                    .fechaGeneracion(qr.getFechaGeneracion())
+                    .fechaExpiracion(qr.getFechaExpiracion())
+                    .estado(qr.getEstado())
+                    .descripcion(qr.getDescripcion())
+                    .idReserva(reserva.getIdReserva())
+                    .idInvitado(qr.getInvitado().getId())
+                    .idUsuarioControl(qr.getUsuarioControl().getId())
+                    .build();
+
+        } catch (WriterException | java.io.IOException e) {
+            throw new RuntimeException("Error generando código QR: " + e.getMessage(), e);
+        }
+    }
+
+    
 
     @Override
     @Transactional(readOnly = true)

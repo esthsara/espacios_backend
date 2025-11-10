@@ -1,5 +1,6 @@
 package com.espaciosdeportivos.service.impl;
 
+import com.espaciosdeportivos.dto.ClienteDTO;
 import com.espaciosdeportivos.dto.PagoDTO;
 import com.espaciosdeportivos.dto.ReservaDTO;
 import com.espaciosdeportivos.model.Cliente;
@@ -41,12 +42,16 @@ public class PagoServiceImpl implements IPagoService {
     @Override
     @Transactional
     public PagoDTO crear(PagoDTO dto) {
+        System.out.println(">>> CREANDO PAGO CON DTO: " + dto);
         pagoValidator.validarPagoCreacion(dto);
         
         Reserva reserva = reservaRepository.findById(dto.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
+        System.out.println(">>> RESERVA ENCONTRADA: " + reserva);
+
         Incluye incluye = incluyeRepository.findByReservaIdReserva(dto.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Incluye no encontrado con id de reserva: " + dto.getIdReserva()));
+        System.out.println(">>> INCLUYE ENCONTRADO: " + incluye);
 
         Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
         Double saldoPendiente = incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
@@ -57,7 +62,7 @@ public class PagoServiceImpl implements IPagoService {
                     dto.getMonto(), saldoPendiente)
             );
         }
-
+        System.out.println(">>> SALDO PENDIENTE: " + saldoPendiente);
         // Validar código de transacción único
         if (dto.getCodigoTransaccion() != null && 
             pagoRepository.existsByCodigoTransaccion(dto.getCodigoTransaccion())) {
@@ -360,8 +365,28 @@ public class PagoServiceImpl implements IPagoService {
                 .descripcion(pago.getDescripcion())
                 .idReserva(pago.getReserva() != null ? pago.getReserva().getIdReserva() : null)
                 .clienteId(cliente != null ? cliente.getId() : null)
+                .cliente(cliente != null ? convertClienteToDTO(cliente) : null)
+                .build();
+
+    }
+
+    //mapeo pago
+    // Mapeo de Cliente como objeto anidado (estilo CanchaServiceImpl)
+    private ClienteDTO convertClienteToDTO(Cliente cliente) {
+        if (cliente == null) return null;
+        return ClienteDTO.builder()
+                .id(cliente.getId())
+                .nombre(cliente.getNombre())
+                .aPaterno(cliente.getApellidoPaterno()) 
+                .aMaterno(cliente.getApellidoMaterno())
+                .estado(cliente.getEstado())
+                .urlImagen(cliente.getUrlImagen())
+                .email(cliente.getEmail())
+                .telefono(cliente.getTelefono())
+                .categoria(cliente.getCategoria())
                 .build();
     }
+
 
     private Pago mapToEntity(PagoDTO dto) {
         
@@ -383,4 +408,6 @@ public class PagoServiceImpl implements IPagoService {
                 .cliente(cliente)
                 .build();
     }
+
+
 }

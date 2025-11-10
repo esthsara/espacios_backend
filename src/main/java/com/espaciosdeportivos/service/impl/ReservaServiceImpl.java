@@ -21,6 +21,7 @@ import com.espaciosdeportivos.model.Pago;
 import com.espaciosdeportivos.model.Qr;
 import com.espaciosdeportivos.model.Reserva;
 import com.espaciosdeportivos.model.Sepractica;
+import com.espaciosdeportivos.model.Participa;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.sepracticaRepository;
@@ -66,6 +67,7 @@ public class ReservaServiceImpl implements IReservaService {
     private final AreaDeportivaRepository areaDeportivaRepository;
     private final PagoRepository pagoRepository;
     private final QrRepository qrRepository;
+    private final com.espaciosdeportivos.repository.ParticipaRepository participaRepository;
     private final ReservaValidator reservaValidator;
     private final CancelacionRepository cancelacionRepository;
     private final IncluyeRepository incluyeRepository;
@@ -239,12 +241,98 @@ public class ReservaServiceImpl implements IReservaService {
         double saldoPendiente = montoTotal - totalPagado;
         boolean pagadaCompleta = Math.abs(saldoPendiente) <= 0.01;
 
-        reserva.setTotalPagado(totalPagado);
-        reserva.setSaldoPendiente(saldoPendiente);
-        reserva.setPagadaCompleta(pagadaCompleta);
+            reserva.setTotalPagado(totalPagado);
+            reserva.setSaldoPendiente(saldoPendiente);
+            reserva.setPagadaCompleta(pagadaCompleta);
 
-        return convertToDTO(reservaRepository.save(reserva));
-    }
+            // Guardar cambios en la reserva
+            reserva = reservaRepository.save(reserva);
+
+            // Si la reserva queda pagada en su totalidad, generar QRs para los invitados confirmados
+            if (Boolean.TRUE.equals(reserva.getPagadaCompleta())) {
+                try {
+                    generarQrParaReserva(reserva);
+                } catch (Exception e) {
+                    log.warn("Error generando QR(s) para reserva {}: {}", reserva.getIdReserva(), e.getMessage());
+                }
+            }
+
+            return convertToDTO(reserva);
+        }
+
+        // Genera QR(s) PNG y guarda registros en la tabla 'qr'.
+        private void generarQrParaReserva(Reserva reserva) throws Exception {
+            Long idReserva = reserva.getIdReserva();
+
+            // Obtener invitados confirmados; si no hay ninguno, usaremos al cliente como invitado
+            List<Participa> invitados = participaRepository.findInvitadosConfirmadosPorReserva(idReserva);
+
+            if (invitados == null || invitados.isEmpty()) {
+                // crear QR para el cliente como invitado si no hay invitados confirmados
+                generarYGuardarQr(reserva, reserva.getCliente());
+                return;
+            }
+
+            // Recoger IDs de invitados que ya tienen QR para esta reserva
+            List<Qr> existentes = qrRepository.findByReservaIdReserva(idReserva);
+            java.util.Set<Long> invitadosConQr = new java.util.HashSet<>();
+            for (Qr q : existentes) {
+                if (q.getInvitado() != null) invitadosConQr.add(q.getInvitado().getId());
+            }
+
+            for (Participa p : invitados) {
+                Long idInv = p.getInvitado().getId();
+                if (invitadosConQr.contains(idInv)) continue; // evitar duplicados
+                generarYGuardarQr(reserva, p.getInvitado());
+            }
+        }
+
+        private void generarYGuardarQr(Reserva reserva, com.espaciosdeportivos.model.Persona invitado) throws Exception {
+            // Contenido del QR: JSON con datos mínimos para validación en acceso
+            String contenido = String.format("{\"reservaId\":%d,\"invitadoId\":%d,\"clienteId\":%d,\"fechaReserva\":\"%s\",\"horaInicio\":\"%s\",\"horaFin\":\"%s\"}",
+                    reserva.getIdReserva(),
+                    invitado != null ? invitado.getId() : 0L,
+                    reserva.getCliente() != null ? reserva.getCliente().getId() : 0L,
+                    reserva.getFechaReserva() != null ? reserva.getFechaReserva().toString() : "",
+                    reserva.getHoraInicio() != null ? reserva.getHoraInicio().toString() : "",
+                    reserva.getHoraFin() != null ? reserva.getHoraFin().toString() : "");
+
+            // Generar código único y ruta de archivo
+            String codigo = "RES" + reserva.getIdReserva() + "-INV" + (invitado != null ? invitado.getId() : 0) + "-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+            String fileName = codigo + ".png";
+
+            java.nio.file.Path dir = java.nio.file.Paths.get("uploads", "img", "qr");
+            java.nio.file.Files.createDirectories(dir);
+            java.nio.file.Path filePath = dir.resolve(fileName);
+
+            // Usar ZXing para generar la imagen PNG
+            com.google.zxing.BarcodeFormat format = com.google.zxing.BarcodeFormat.QR_CODE;
+            int size = 350;
+            com.google.zxing.qrcode.decoder.ErrorCorrectionLevel ecLevel = com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.M;
+            com.google.zxing.EncodeHintType hintType = com.google.zxing.EncodeHintType.ERROR_CORRECTION;
+            java.util.Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.HashMap<>();
+            hints.put(hintType, ecLevel);
+
+            com.google.zxing.common.BitMatrix bitMatrix = new com.google.zxing.MultiFormatWriter().encode(contenido, format, size, size, hints);
+            java.awt.image.BufferedImage image = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+            javax.imageio.ImageIO.write(image, "PNG", filePath.toFile());
+
+            // Crear registro Qr
+            Qr qr = Qr.builder()
+                    .codigoQr(codigo)
+                    .urlQr("/uploads/img/qr/" + fileName)
+                    .fechaGeneracion(java.time.LocalDateTime.now())
+                    .fechaExpiracion(reserva.getFechaReserva().atTime(reserva.getHoraFin()).plusHours(6))
+                    .estado(true)
+                    .descripcion("QR automático generado al confirmarse el pago")
+                    .usuarioControl(reserva.getCliente())
+                    .invitado(invitado)
+                    .reserva(reserva)
+                    .build();
+
+            qrRepository.save(qr);
+        }
 
     // ======================
     // BÚSQUEDAS
@@ -432,6 +520,8 @@ public class ReservaServiceImpl implements IReservaService {
                 .nombre(cliente.getNombre())
                 .aPaterno(cliente.getApellidoPaterno()) // corregido
                 .aMaterno(cliente.getApellidoMaterno())
+                .estado(cliente.getEstado())
+                .urlImagen(cliente.getUrlImagen())
                 .email(cliente.getEmail())
                 .telefono(cliente.getTelefono())
                 .categoria(cliente.getCategoria())
@@ -468,7 +558,9 @@ public class ReservaServiceImpl implements IReservaService {
                 .build();
     }
 
+    // Mapeo de Cliente como objeto anidado (estilo CanchaServiceImpl)
     private PagoDTO convertPagoToDTO(Pago pago) {
+        Cliente cliente=pago.getCliente();
         return PagoDTO.builder()
             .idPago(pago.getIdPago())
             .monto(pago.getMonto())
@@ -478,6 +570,9 @@ public class ReservaServiceImpl implements IReservaService {
             .estado(pago.getEstado())
             .codigoTransaccion(pago.getCodigoTransaccion())
             .descripcion(pago.getDescripcion())
+            .idReserva(pago.getReserva().getIdReserva())
+            .clienteId(pago.getCliente().getId())
+            .cliente(cliente != null ? convertClienteToDTO(cliente) : null)  
             .build();
     }
 

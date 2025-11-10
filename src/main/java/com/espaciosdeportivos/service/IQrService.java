@@ -23,4 +23,6 @@ public interface IQrService {
 
     List<QrDTO> obtenerQrsPorReserva(Long idReserva);
 
+    QrDTO generarQrParaReserva(Long idReserva);
+
 }

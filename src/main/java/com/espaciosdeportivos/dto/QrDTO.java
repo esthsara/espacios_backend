@@ -18,6 +18,9 @@ public class QrDTO implements Serializable {
     @Size(max = 200, message = "El código QR no puede exceder los 200 caracteres")
     private String codigoQr;
 
+    
+    private String urlQr;
+
     @NotNull(message = "La fecha de generación es obligatoria")
     private LocalDateTime fechaGeneracion;
 

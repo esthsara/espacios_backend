@@ -78,11 +78,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/areasdeportivas/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("api/disciplina/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+
                 //RUTAS para ADMINISTRADOR
                 .requestMatchers("/api/cancha/area/**").hasRole("ADMINISTRADOR") // Solo admins pueden ver canchas por área                .requestMatchers("/api/supervisa/**").hasAnyRole("ADMINISTRADOR") //k
                 .requestMatchers("/api/supervisa/**").hasRole("ADMINISTRADOR") //solo administrador puede supervisar sus canchas y usuarios
-                .requestMatchers("/api/reservas/**").hasAnyRole("CLIENTE", "ADMINISTRADOR") //admins pueden ver reservas de sus canchas
+                .requestMatchers("/api/reservas/**").hasAnyRole("SUPERUSUARIO","CLIENTE", "ADMINISTRADOR") //admins pueden ver reservas de sus canchas
                 .requestMatchers("/api/usuario_control/**").hasRole("ADMINISTRADOR") //solo admins pueden gestionar sus usuarios de control
+                //
+
+                .requestMatchers("/api/reservas/**").hasAnyRole("CLIENTE", "ADMINISTRADOR")
 
                 // Rutas que incluyen clientes
                 .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR", "CLIENTE")

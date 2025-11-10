@@ -64,7 +64,7 @@ public class Reserva {
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)
     private Cliente cliente;
 
-  //elaciones afuera de la reserva aqui si es bueno usar el cascade all
+  //Relaciones afuera de la reserva aqui si es bueno usar el cascade all
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Incluye> Incluidos;  // 
 
