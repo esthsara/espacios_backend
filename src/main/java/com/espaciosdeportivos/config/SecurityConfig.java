@@ -68,8 +68,11 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 // Rutas exclusivas para SUPERUSUARIO
+                .requestMatchers("/api/**").hasRole("SUPERUSUARIO")
                 .requestMatchers("/api/super/**").hasRole("SUPERUSUARIO")
                 .requestMatchers("/api/cancha/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")   
+                .requestMatchers("/api/admin/**").hasRole("SUPERUSUARIO")
+                .requestMatchers("/api/areasdeportivas/**").hasRole("SUPERUSUARIO")
 
 
                 // Rutas para SUPERUSUARIO y ADMINISTRADOR
