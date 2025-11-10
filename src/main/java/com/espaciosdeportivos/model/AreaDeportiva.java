@@ -2,8 +2,6 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
-
-
 import java.time.LocalTime;
 import java.util.List;
 
