@@ -1,6 +1,7 @@
 package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.AuthDTO.*;
+import com.espaciosdeportivos.dto.RegistroDTO.*;
 import com.espaciosdeportivos.model.AppUser;
 import com.espaciosdeportivos.model.Persona;
 import com.espaciosdeportivos.model.Role;
@@ -9,6 +10,7 @@ import com.espaciosdeportivos.repository.AppUserRepository;
 import com.espaciosdeportivos.repository.RoleRepository;
 import com.espaciosdeportivos.repository.PersonaRepository;
 import com.espaciosdeportivos.security.JwtUtils;
+import com.espaciosdeportivos.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -48,42 +50,60 @@ public class AuthController {
     @Autowired
     private PersonaRepository personaRepo;
 
+    @Autowired
+    private RegistrationService registrationService;
+
+    @PostMapping("/registro/cliente")
+    public ResponseEntity<?> registrarCliente(@Valid @RequestBody RegistroClienteRequest request) {
+        try {
+            String resultado = registrationService.registrarCliente(request);
+            return ResponseEntity.ok(new MessageResponse(resultado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/registro/administrador")
+    public ResponseEntity<?> registrarAdministrador(@Valid @RequestBody RegistroAdministradorRequest request) {
+        try {
+            String resultado = registrationService.registrarAdministrador(request);
+            return ResponseEntity.ok(new MessageResponse(resultado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepo.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: El nombre de usuario ya está en uso."));
+        try {
+            // Redirigir al endpoint correspondiente según el rol solicitado
+            if ("ADMINISTRADOR".equalsIgnoreCase(signUpRequest.getRolSolicitado()) || 
+                "SUPERUSUARIO".equalsIgnoreCase(signUpRequest.getRolSolicitado())) {
+                
+                return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Para registro de administrador use el endpoint /registro/administrador"));
+                    
+            } else {
+                // Para cliente usar registro automático
+                RegistroClienteRequest clienteRequest = RegistroClienteRequest.builder()
+                    .username(signUpRequest.getUsername())
+                    .email(signUpRequest.getEmail())
+                    .password(signUpRequest.getPassword())
+                    .nombre(signUpRequest.getNombre())
+                    .apellidoPaterno(signUpRequest.getApellidoPaterno())
+                    .apellidoMaterno(signUpRequest.getApellidoMaterno())
+                    .telefono(signUpRequest.getTelefono())
+                    .fechaNacimiento(signUpRequest.getFechaNacimiento())
+                    .urlImagen(signUpRequest.getUrlImagen())
+                    .categoria("REGULAR")
+                    .build();
+                
+                String resultado = registrationService.registrarCliente(clienteRequest);
+                return ResponseEntity.ok(new MessageResponse(resultado));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()));
         }
-        if (userRepo.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: El email ya está en uso."));
-        }
-
-        // Crear Persona usando el patrón Builder
-        Persona persona = Persona.builder()
-            .nombre(signUpRequest.getNombre())
-            .apellidoPaterno(signUpRequest.getApellidoPaterno())
-            .apellidoMaterno(signUpRequest.getApellidoMaterno())
-            .fechaNacimiento(signUpRequest.getFechaNacimiento())
-            .telefono(signUpRequest.getTelefono())
-            .email(signUpRequest.getEmail())
-            .urlImagen(signUpRequest.getUrlImagen() != null ? signUpRequest.getUrlImagen() : "")
-            .estado(false)
-            .build();
-        
-        persona = personaRepo.save(persona);
-
-        // Crear AppUser
-        AppUser user = new AppUser();
-        user.setUsername(signUpRequest.getUsername());
-        user.setEmail(signUpRequest.getEmail());
-        user.setPassword(encoder.encode(signUpRequest.getPassword()));
-        user.setRolSolicitado(signUpRequest.getRolSolicitado() == null ? "CLIENTE" : signUpRequest.getRolSolicitado().toUpperCase());
-        user.setActivo(false);
-        user.setEstadoVerificacion("PENDIENTE");
-        user.setPersona(persona);
-        
-        userRepo.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("Solicitud registrada. Pendiente de aprobación por un administrador."));
     }
 
     @PostMapping("/login")
