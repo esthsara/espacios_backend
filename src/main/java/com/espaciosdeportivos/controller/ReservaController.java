@@ -38,11 +38,6 @@ public class ReservaController {
         return ResponseEntity.ok(reserva);
     }
 
-    /*@PostMapping("/crearReserva")
-    public ResponseEntity<ReservaDTO> crearReserva(@RequestBody ReservaDTO dto) {
-        ReservaDTO nuevaReserva = reservaService.crearReserva(dto);
-        return ResponseEntity.ok(nuevaReserva);
-    }*/
 
     @PostMapping
     public ResponseEntity<ReservaDTO> crear(@Valid @RequestBody ReservaDTO dto) {
@@ -63,6 +58,7 @@ public class ReservaController {
     }
 
     // BÚSQUEDAS
+
     @GetMapping("/cliente/{idCliente}")
     public ResponseEntity<List<ReservaDTO>> buscarPorCliente(@PathVariable Long idCliente) {
         List<ReservaDTO> reservas = reservaService.buscarPorCliente(idCliente);
@@ -84,56 +80,30 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @PutMapping("/{id}/actualizar-pago")
-    public ResponseEntity<?> actualizarEstadoPago(@PathVariable Long id) {
-        try {
-            ReservaDTO reservaDTO = reservaService.actualizarEstadoPagoReserva(id);
-            return ResponseEntity.ok(reservaDTO);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el estado de pago.");
-        }
+    @GetMapping("/activas/cliente/{idCliente}")
+    public ResponseEntity<List<ReservaDTO>> buscarReservasActivasDelCliente(@PathVariable Long idCliente) {
+        List<ReservaDTO> reservas = reservaService.buscarReservasActivasDelCliente(idCliente);
+        return ResponseEntity.ok(reservas);
     }
 
+    @GetMapping("/dia/{fecha}")
+    public ResponseEntity<List<ReservaDTO>> obtenerReservasDelDia(@PathVariable String fecha) {
+        List<ReservaDTO> reservas = reservaService.obtenerReservasDelDia(LocalDate.parse(fecha));
+        return ResponseEntity.ok(reservas);
+    }
 
-
+    //Disponibilidad de horarios
     @GetMapping("/horario-disponible")
     public ResponseEntity<List<String>> getHorasDisponibles(
             @RequestParam Long canchaId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
         List<String> horasDisponibles = reservaService.obtenerHorasDisponibles(canchaId, fecha);
-
         // Ya son strings del tipo "08:00 - 08:30"
         return ResponseEntity.ok(horasDisponibles);
-    }
+    }  
 
-    
-    
-
-    /*@GetMapping("/codigo/{codigo}")
-    public ResponseEntity<ReservaDTO> obtenerPorCodigo(@PathVariable String codigo) {
-        ReservaDTO reserva = reservaService.obtenerPorCodigoReserva(codigo);
-        return ResponseEntity.ok(reserva);
-    }*/
-
-    // OPERACIONES DE NEGOCIO
-    /*@PostMapping("/{id}/confirmar")
-    public ResponseEntity<ReservaDTO> confirmarReserva(@PathVariable Long id) {
-        ReservaDTO reservaConfirmada = reservaService.confirmarReserva(id);
-        return ResponseEntity.ok(reservaConfirmada);
-    }
-
-    @PostMapping("/{id}/cancelar")
-    public ResponseEntity<ReservaDTO> cancelarReserva(
-            @PathVariable Long id, 
-            @RequestBody Map<String, String> request) {
-        String motivo = request.get("motivo");
-        ReservaDTO reservaCancelada = reservaService.cancelarReserva(id, motivo);
-        return ResponseEntity.ok(reservaCancelada);
-    }*/
-
+    /*Estado reserva */
     @PostMapping("/{id}/en-curso")
     public ResponseEntity<ReservaDTO> marcarEnCurso(@PathVariable Long id) {
         ReservaDTO reservaEnCurso = reservaService.marcarComoEnCurso(id);
@@ -152,19 +122,6 @@ public class ReservaController {
         return ResponseEntity.ok(reservaNoShow);
     }
 
-    // VALIDACIONES Y REPORTES
-    @GetMapping("/disponibilidad")
-    public ResponseEntity<Map<String, Boolean>> validarDisponibilidad(
-            @RequestParam String fecha,
-            @RequestParam String horaInicio,
-            @RequestParam String horaFin) {
-        boolean disponible = reservaService.validarDisponibilidad(
-            LocalDate.parse(fecha), 
-            LocalTime.parse(horaInicio), 
-            LocalTime.parse(horaFin)
-        );
-        return ResponseEntity.ok(Map.of("disponible", disponible));
-    }
 
     @GetMapping("/cliente/{idCliente}/activas")
     public ResponseEntity<List<ReservaDTO>> buscarReservasActivas(@PathVariable Long idCliente) {
@@ -172,11 +129,16 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @GetMapping("/dia/{fecha}")
-    public ResponseEntity<List<ReservaDTO>> obtenerReservasDelDia(@PathVariable String fecha) {
-        List<ReservaDTO> reservas = reservaService.obtenerReservasDelDia(LocalDate.parse(fecha));
-        return ResponseEntity.ok(reservas);
-    }
+    
+    /*
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<ReservaDTO> cancelarReserva(
+            @PathVariable Long id, 
+            @RequestBody Map<String, String> request) {
+        String motivo = request.get("motivo");
+        ReservaDTO reservaCancelada = reservaService.cancelarReserva(id, motivo);
+        return ResponseEntity.ok(reservaCancelada);
+    }*/
 
     /*@GetMapping("/proximas")
     public ResponseEntity<List<ReservaDTO>> obtenerReservasProximas() {
@@ -197,10 +159,50 @@ public class ReservaController {
             "moneda", "BOB"
         ));
     }*/
-
+    // VALIDACIONES Y REPORTES
+    @GetMapping("/disponibilidad")
+    public ResponseEntity<Map<String, Boolean>> validarDisponibilidad(
+            @RequestParam String fecha,
+            @RequestParam String horaInicio,
+            @RequestParam String horaFin) {
+        boolean disponible = reservaService.validarDisponibilidad(
+            LocalDate.parse(fecha), 
+            LocalTime.parse(horaInicio), 
+            LocalTime.parse(horaFin)
+        );
+        return ResponseEntity.ok(Map.of("disponible", disponible));
+    }
     // HEALTH CHECK
+
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> healthCheck() {
         return ResponseEntity.ok(Map.of("status", "OK", "service", "Reservas"));
     }
+
+    /*este es el mas importnate que sirve para la generacion de qr y reserva */
+    @PutMapping("/{id}/actualizar-pago")
+    public ResponseEntity<?> actualizarEstadoPago(@PathVariable Long id) {
+        try {
+            ReservaDTO reservaDTO = reservaService.actualizarEstadoPagoReserva(id);
+            return ResponseEntity.ok(reservaDTO);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el estado de pago.");
+        }
+    }
+    //aqui esto creo que no va
+
+    /*@GetMapping("/codigo/{codigo}")
+    public ResponseEntity<ReservaDTO> obtenerPorCodigo(@PathVariable String codigo) {
+        ReservaDTO reserva = reservaService.obtenerPorCodigoReserva(codigo);
+        return ResponseEntity.ok(reserva);
+    }*/
+
+    // OPERACIONES DE NEGOCIO
+    /*@PostMapping("/{id}/confirmar")
+    public ResponseEntity<ReservaDTO> confirmarReserva(@PathVariable Long id) {
+        ReservaDTO reservaConfirmada = reservaService.confirmarReserva(id);
+        return ResponseEntity.ok(reservaConfirmada);
+    }*/
 }

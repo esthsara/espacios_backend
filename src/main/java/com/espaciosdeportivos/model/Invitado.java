@@ -24,9 +24,9 @@ public class Invitado extends Persona {
     @Column(name = "verificado", nullable = false)
     private Boolean verificado;
 
-    
-    @OneToMany(mappedBy = "invitado", cascade = CascadeType.ALL,orphanRemoval = true) 
-    private List<Qr> qr;
+    //aqui ya no va la rrlacion si no con persona directamente 
+    /*@OneToMany(mappedBy = "invitado", cascade = CascadeType.ALL,orphanRemoval = true) 
+    private List<Qr> qr;*/
 }
 
 

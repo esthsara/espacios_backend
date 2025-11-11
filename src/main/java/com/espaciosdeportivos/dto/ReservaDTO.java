@@ -57,7 +57,7 @@ public class ReservaDTO implements Serializable {
     private List<PagoDTO> pagos;
     private List<QrDTO> qrs;
 
-    private Integer capacidadTotal;
+    private Integer capacidadTotal; //sacar de cancha
     private Integer invitadosConfirmados;//esto mejro en incluye
     //capos de pagos
     private Double totalPagado;

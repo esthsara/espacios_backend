@@ -56,8 +56,14 @@ public class Persona {
     ///@NotNull
     @Column(name = "estado", nullable = false)
     private Boolean estado;
+
     //use Lazi por que Solo carga esta relación cuando yo la pida explícitamente en el código."
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     private List<Comentario> comentario;
+
+    //aqui agregue qr
+    @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Qr> qrs;
+
 
 }

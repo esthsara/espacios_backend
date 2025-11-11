@@ -39,8 +39,9 @@ public class QrDTO implements Serializable {
     @NotNull(message = "El ID de la reserva es obligatorio")
     private Long idReserva;
 
-    @NotNull(message = "El ID del invitado es obligatorio")
-    private Long idInvitado;
+    @NotNull(message = "El ID de la persona es obligatorio")
+    private Long idPersona; // dueño: cliente o invitado
 
-    //  Nuevos campos para visualizació
+    // Nuevos campos para visualización
+    private Boolean esCliente;
 }

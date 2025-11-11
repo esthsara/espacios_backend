@@ -44,6 +44,6 @@ public class InvitadoDTO implements Serializable {
     @NotNull(message = "El estado de verificación es obligatorio.")
     private Boolean verificado;
 
-    //objeto
-    private QrDTO qr;
+    //objeto aqui o donde deberia ir 
+    //private QrDTO qr;
 }

@@ -69,10 +69,11 @@ public class SecurityConfig {
 
                 // Rutas exclusivas para SUPERUSUARIO
                 .requestMatchers("/api/super/**").hasRole("SUPERUSUARIO")
-                .requestMatchers("/api/cancha/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")   
+                .requestMatchers("/api/cancha/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")  
 
 
                 // Rutas para SUPERUSUARIO y ADMINISTRADOR
+                .requestMatchers("/api/admin/solicitudes").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("/api/admin/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("/api/administradores/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
                 .requestMatchers("/api/areasdeportivas/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")

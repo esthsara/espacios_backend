@@ -91,7 +91,14 @@ public class ParticipaServiceImpl implements IparticipaService {
         }
 
         participacion.setConfirmado(true);
+        participa.setNotificado(true);
         participaRepository.save(participacion);
+        //llamaremos al genera qr
+        try {
+            generarQrParaReserva(reservaRepository.getReferenceById(idReserva));
+        } catch (Exception e) {
+            log.error("Error generando QR tras confirmación", e);
+        }
         return mapToDTO(participacion);
     }
 

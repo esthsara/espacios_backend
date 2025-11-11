@@ -36,17 +36,16 @@ public class Qr {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
+    @Column(name = "es_cliente", nullable = false)
+    private Boolean esCliente ;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", referencedColumnName = "id_persona", nullable = false)
     private Persona usuarioControl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_invitado", referencedColumnName = "id_persona", nullable = false)
-    private Persona invitado;
-
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)//agregue cliente
-    private Cliente cliente;*/
+    @JoinColumn(name = "id_persona", referencedColumnName = "id_persona", nullable = false)
+    private Persona persona;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_reserva", referencedColumnName = "id_reserva", nullable = false)
