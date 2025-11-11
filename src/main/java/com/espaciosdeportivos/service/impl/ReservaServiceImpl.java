@@ -251,13 +251,13 @@ public class ReservaServiceImpl implements IReservaService {
             reserva.setTotalPagado(totalPagado);
             reserva.setSaldoPendiente(saldoPendiente);
             reserva.setPagadaCompleta(pagadaCompleta);
-
             // Guardar cambios en la reserva
             reserva = reservaRepository.save(reserva);
 
             // Si la reserva queda pagada en su totalidad, generar QRs para los invitados confirmados
             if (Boolean.TRUE.equals(reserva.getPagadaCompleta())) {
                 try {
+                    confirmarReserva(idReserva); //aqui confirmo reserva
                     // Delegar la generación de QRs al servicio de QRs para mantener la lógica centralizada
                     log.info("Reserva {} pagada completamente -> generando QRs...", reserva.getIdReserva());
                     generarQrParaReserva(reserva );
@@ -367,7 +367,7 @@ public class ReservaServiceImpl implements IReservaService {
 
         Cliente cliente = reserva.getCliente();
 
-        // Crear el DTO básico
+        // Crear el DTO básico (capacidadTotal e invitadosConfirmados se cargarán desde Incluye si está disponible)
         ReservaDTO dto = ReservaDTO.builder()
             .idReserva(reserva.getIdReserva())
             .fechaCreacion(reserva.getFechaCreacion() != null ? reserva.getFechaCreacion() : LocalDateTime.now())
@@ -375,7 +375,6 @@ public class ReservaServiceImpl implements IReservaService {
             .horaInicio(reserva.getHoraInicio())
             .horaFin(reserva.getHoraFin())
             .estadoReserva(reserva.getEstadoReserva())
-            .capacidadTotal(cancha.getcaácidadtotal())
             //.montoTotal(reserva.getMontoTotal())
             .observaciones(reserva.getObservaciones())
             .clienteId(cliente != null ? cliente.getId() : null)
@@ -420,13 +419,24 @@ public class ReservaServiceImpl implements IReservaService {
         try {
             Optional<Incluye> incluidos = incluyeRepository.findByReservaIdReserva(reserva.getIdReserva());
             if (!incluidos.isEmpty()) {
-                //aqui era 0
+                // Obtener datos relacionados desde Incluye
                 Incluye incluye = incluidos.get();
                 dto.setCancha(convertCanchaToDTO(incluye.getCancha()));
                 dto.setDisciplina(convertDisciplinaToDTO(incluye.getDisciplina()));
+
+                // Capacidad total de la cancha (null-safe)
+                if (incluye.getCancha() != null) {
+                    dto.setCapacidadTotal(incluye.getCancha().getCapacidad());
+                } else {
+                    dto.setCapacidadTotal(null);
+                }
+
+                // Invitados confirmados (mantener 0 si es null)
+                Integer invitados = incluye.getInvitadosConfirmados();
+                dto.setInvitadosConfirmados(invitados != null ? invitados : 0);
             }
         } catch (Exception e) {
-            log.warn("Error cargando cancha/disciplina para reserva {}", reserva.getIdReserva(), e);
+            log.warn("Error cargando cancha/disciplina para reserva {}: {}", reserva.getIdReserva(), e);
             dto.setCancha(null);
             dto.setDisciplina(null);
         }
@@ -550,27 +560,27 @@ public class ReservaServiceImpl implements IReservaService {
     // GESTIÓN DE ESTADOS
     // ======================
 
-    /*@Override
+
     @Transactional
     public ReservaDTO confirmarReserva(Long idReserva) {
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        reservaValidator.validarConfirmacion(reserva.getEstadoReserva());
+        //reservaValidator.validarConfirmacion(reserva.getEstadoReserva());
         reserva.setEstadoReserva(Reserva.EstadoReserva.CONFIRMADA.name());
         return convertToDTO(reservaRepository.save(reserva));
-    }*/
+    }
 
-    /*@Override
+    @Override
     @Transactional
     public ReservaDTO cancelarReserva(Long idReserva, String motivo) {
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + idReserva));
-        reservaValidator.validarCancelacion(reserva.getEstadoReserva());
+        //reservaValidator.validarCancelacion(reserva.getEstadoReserva());
         reserva.setEstadoReserva(Reserva.EstadoReserva.CANCELADA.name());
         reserva.setObservaciones("CANCELADA: " + motivo + 
             (reserva.getObservaciones() != null ? ". " + reserva.getObservaciones() : ""));
         return convertToDTO(reservaRepository.save(reserva));
-    }*/
+    }
 
     @Override
     @Transactional

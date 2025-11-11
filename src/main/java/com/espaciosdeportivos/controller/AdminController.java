@@ -47,6 +47,7 @@ public class AdminController {
     @Autowired
     private AdministradorRepository adminRepo;
 
+    //    @Transactional
     @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @GetMapping("/solicitudes")
     public ResponseEntity<List<AppUser>> listarSolicitudesPendientes() {

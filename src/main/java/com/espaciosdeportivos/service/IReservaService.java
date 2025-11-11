@@ -36,7 +36,7 @@ public interface IReservaService {
     
     // Métodos de negocio
     //ReservaDTO confirmarReserva(Long idReserva);
-    //ReservaDTO cancelarReserva(Long idReserva, String motivo);
+    ReservaDTO cancelarReserva(Long idReserva, String motivo);//´por el momento se cacela de esta manera
     ReservaDTO marcarComoEnCurso(Long idReserva);
     ReservaDTO marcarComoCompletada(Long idReserva);
     ReservaDTO marcarComoNoShow(Long idReserva);

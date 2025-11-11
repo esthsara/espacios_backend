@@ -32,4 +32,8 @@ public class Incluye {
 
     @Column(name = "monto_total", nullable = false)
     private Double montoTotal;
+    
+    @Column(name = "invitados_confirmados")
+    @Builder.Default
+    private Integer invitadosConfirmados = 0;
 }

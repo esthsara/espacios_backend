@@ -123,8 +123,19 @@ public class QrServiceImpl implements IQrService {
                 } catch (JsonProcessingException e) {
                         // Si falla 
                         log.warn("QRService: no se pudo serializar payload a JSON para reserva {} persona {}: {}", idReserva, idPersona, e.getMessage());
-                        contenido = String.format("{\"reservaId\":%d, \"nombreReservador\":\"%s\", \"montoTotal\":%.2f}",
-                                        reserva.getIdReserva(), nombreCliente != null ? nombreCliente : "", montoTotal);
+                        contenido = String.format(
+                                "{\"reservaId\":%d, \"nombreReservador\":\"%s\", \"nombreParticipante\":\"%s\", " +
+                                "\"nombreCancha\":\"%s\", \"horaInicio\":\"%s\", \"horaFin\":\"%s\", " +
+                                "\"fechaReserva\":\"%s\", \"montoTotal\":%.2f}",
+                                reserva.getIdReserva(),
+                                nombreCliente != null ? nombreCliente : "",
+                                nombrePersona != null ? nombrePersona : "",
+                                nombreCancha != null ? nombreCancha : "",
+                                reserva.getHoraInicio() != null ? reserva.getHoraInicio().toString() : "",
+                                reserva.getHoraFin() != null ? reserva.getHoraFin().toString() : "",
+                                reserva.getFechaReserva() != null ? reserva.getFechaReserva().toString() : "",
+                                montoTotal
+                        );
                 }
 
                 try {

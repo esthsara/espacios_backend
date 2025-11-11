@@ -3,6 +3,7 @@ package com.espaciosdeportivos.service.impl;
 import com.espaciosdeportivos.dto.ParticipaDTO;
 import com.espaciosdeportivos.model.*;
 import com.espaciosdeportivos.repository.ParticipaRepository;
+import com.espaciosdeportivos.repository.IncluyeRepository;
 import com.espaciosdeportivos.repository.InvitadoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IparticipaService;
@@ -14,6 +15,10 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -22,6 +27,11 @@ public class ParticipaServiceImpl implements IparticipaService {
     private final ParticipaRepository participaRepository;
     private final InvitadoRepository invitadoRepository;
     private final ReservaRepository reservaRepository;
+    private final com.espaciosdeportivos.service.IQrService qrService;
+    private final IncluyeRepository incluyeRepository;
+    private static final Logger log = LoggerFactory.getLogger(Participa.class);
+
+
 
 
 
@@ -43,6 +53,18 @@ public class ParticipaServiceImpl implements IparticipaService {
         // Validar que la reserva esté en estado válido para invitar
         if (!reserva.esModificable()) {
             throw new IllegalArgumentException("No se pueden agregar invitados a una reserva completada o cancelada");
+        }
+
+        // Validar capacidad: solo se permiten (capacidad - 1) invitados (cliente ocupa 1)
+        Cancha cancha = reserva.getCancha();
+        if (cancha == null) {
+            throw new IllegalStateException("Reserva sin cancha asociada");
+        }
+        int capacidad = cancha.getCapacidad() != null ? cancha.getCapacidad() : 0;
+        int maxInvitados = Math.max(0, capacidad - 1);
+        Long invitadosRegistrados = participaRepository.countByReservaIdReserva(reserva.getIdReserva());
+        if (invitadosRegistrados != null && invitadosRegistrados >= maxInvitados) {
+            throw new IllegalArgumentException("Capacidad de invitados alcanzada para esta reserva");
         }
 
         // Crear la entidad participa (cambiando el nombre de la variable para evitar ambigüedad)
@@ -90,14 +112,40 @@ public class ParticipaServiceImpl implements IparticipaService {
             throw new IllegalArgumentException("No se puede confirmar invitación a una reserva no activa");
         }
 
+        // Antes de confirmar, validar capacidad de asistentes confirmados
+        Cancha cancha = reserva.getCancha();
+        if (cancha == null) {
+            throw new IllegalStateException("Reserva sin cancha asociada");
+        }
+        int capacidad = cancha.getCapacidad() != null ? cancha.getCapacidad() : 0;
+        int maxInvitados = Math.max(0, capacidad - 1);
+        Long invitadosConfirmados = participaRepository.countByReservaIdReservaAndConfirmado(idReserva, Boolean.TRUE);
+        if (invitadosConfirmados != null && invitadosConfirmados >= maxInvitados) {
+            throw new IllegalArgumentException("No se puede confirmar: capacidad de invitados alcanzada");
+        }
+
         participacion.setConfirmado(true);
-        participa.setNotificado(true);
+        participacion.setNotificado(true);
         participaRepository.save(participacion);
-        //llamaremos al genera qr
+
+        // Generar QR para el invitado confirmado (no bloquear la transacción si falla)
         try {
-            generarQrParaReserva(reservaRepository.getReferenceById(idReserva));
+            qrService.generarQrParaReserva(idReserva, idInvitado);
         } catch (Exception e) {
-            log.error("Error generando QR tras confirmación", e);
+            log.error("Error generando QR tras confirmación de invitado {} en reserva {}", idInvitado, idReserva, e);
+        }
+        // Actualizar contador de invitados confirmados en Incluye
+        try {
+            var optIncluye = incluyeRepository.findByReservaIdReserva(idReserva);
+            if (optIncluye.isPresent()) {
+                Incluye incluye = optIncluye.get();
+                if (incluye.getInvitadosConfirmados() == null) incluye.setInvitadosConfirmados(0);
+                incluye.setInvitadosConfirmados(incluye.getInvitadosConfirmados() + 1);
+                // guardar
+                incluyeRepository.save(incluye);
+            }
+        } catch (Exception e) {
+            log.warn("No se pudo actualizar invitadosConfirmados en Incluye para reserva {}: {}", idReserva, e.getMessage());
         }
         return mapToDTO(participacion);
     }

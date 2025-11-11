@@ -130,7 +130,7 @@ public class ReservaController {
     }
 
     
-    /*
+
     @PostMapping("/{id}/cancelar")
     public ResponseEntity<ReservaDTO> cancelarReserva(
             @PathVariable Long id, 
@@ -138,7 +138,7 @@ public class ReservaController {
         String motivo = request.get("motivo");
         ReservaDTO reservaCancelada = reservaService.cancelarReserva(id, motivo);
         return ResponseEntity.ok(reservaCancelada);
-    }*/
+    }
 
     /*@GetMapping("/proximas")
     public ResponseEntity<List<ReservaDTO>> obtenerReservasProximas() {

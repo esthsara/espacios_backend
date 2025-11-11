@@ -34,4 +34,8 @@ public interface ParticipaRepository extends JpaRepository<Participa, ParticipaI
     
     @Query("SELECT COUNT(p) FROM Participa p WHERE p.reserva.idReserva = :idReserva AND p.asistio = true")
     Long countAsistentesPorReserva(@Param("idReserva") Long idReserva);
+//añadi
+    @Query("SELECT p FROM Participa p WHERE p.reserva.idReserva = :idReserva AND p.confirmado = true")
+    List<Participa> findByReservaIdReservaAndConfirmadoTrue(@Param("idReserva") Long idReserva);
+
 }
