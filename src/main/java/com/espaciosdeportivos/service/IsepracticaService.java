@@ -4,7 +4,7 @@ import com.espaciosdeportivos.dto.sepracticaDTO;
 import java.util.List;
 
 public interface IsepracticaService {
-
+    
     sepracticaDTO asociarDisciplinaACancha(sepracticaDTO dto);
 
     sepracticaDTO obtenerDisciplinaDeCancha(Long idCancha, Long idDisciplina);
@@ -14,6 +14,6 @@ public interface IsepracticaService {
     void desasociarDisciplinaDeCancha(Long idCancha, Long idDisciplina);
 
     List<sepracticaDTO> listarPorIdCancha(Long idCancha);
-
+    
     List<sepracticaDTO> listarPorIdDisciplina(Long idDisciplina);
 }

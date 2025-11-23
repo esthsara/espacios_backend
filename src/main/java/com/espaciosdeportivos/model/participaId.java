@@ -22,13 +22,11 @@ public class participaId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         participaId that = (participaId) o;
-        return Objects.equals(idInvitado, that.idInvitado) &&
-                Objects.equals(idReserva, that.idReserva);
+        return Objects.equals(idInvitado, that.idInvitado) && 
+               Objects.equals(idReserva, that.idReserva);
     }
 
     @Override

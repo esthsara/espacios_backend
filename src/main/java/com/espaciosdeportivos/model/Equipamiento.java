@@ -17,27 +17,25 @@ public class Equipamiento {
     @Column(name = "id_equipamiento", nullable = false)
     private Long idEquipamiento;
 
-    @Column(name = "nombre_equipamiento", nullable = false)
+    @Column(name ="nombre_equipamiento" ,nullable = false)
     private String nombreEquipamiento;
 
-    @Column(name = "tipo_equipamiento", nullable = false)
+    @Column(name ="tipo_equipamiento" ,nullable = false)
     private String tipoEquipamiento;
 
-    @Column(name = "descripcion", length = 400)
+    @Column(name ="descripcion" , length = 400)
     private String descripcion;
 
-    /*
-     * @Column(name ="estado_equipamiento" ,nullable = false)
-     * private String estado;
-     */
+    /*@Column(name ="estado_equipamiento" ,nullable = false)
+    private String estado;*/
 
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    @Column(name = "url_imagen", length = 800)
+    @Column(name ="url_imagen" , length = 800)
     private String urlImagen;
 
-    @OneToMany(mappedBy = "equipamiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "equipamiento")
     private List<dispone> cancha;
 
 }

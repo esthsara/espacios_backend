@@ -15,9 +15,6 @@ import com.espaciosdeportivos.service.IComentarioService;
 import com.espaciosdeportivos.validation.ComentarioValidator;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +22,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +36,6 @@ public class ComentarioServiceImpl implements IComentarioService {
     private final ClienteRepository clienteRepository;
     private final InvitadoRepository invitadoRepository;
     private final UsuarioControlRepository usuarioControlRepository;
- 
 
     @Override
     @Transactional(readOnly = true)
@@ -92,9 +87,8 @@ public class ComentarioServiceImpl implements IComentarioService {
         existente.setEstado(dto.getEstado());
         existente.setPersona(persona);
         existente.setCancha(cancha);
-        Comentario actualizado = comentarioRepository.save(existente);
-        
-        return convertToDTO(actualizado);
+
+        return convertToDTO(comentarioRepository.save(existente));
     }
 
     @Override

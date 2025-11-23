@@ -52,8 +52,4 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
     // Consulta para saldo pendiente
     @Query("SELECT COALESCE(SUM(p.monto), 0) FROM Pago p WHERE p.reserva.idReserva = :idReserva AND p.estado = 'CONFIRMADO'")
     Double sumMontoConfirmadoPorReserva(@Param("idReserva") Long idReserva);
-
-    @Query("SELECT p FROM Pago p JOIN FETCH p.reserva JOIN FETCH p.cliente WHERE p.idPago = :id")
-    Optional<Pago> findByIdWithReservaAndCliente(@Param("id") Long id);
-
 }

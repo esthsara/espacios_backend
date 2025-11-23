@@ -29,19 +29,8 @@ public interface QrRepository extends JpaRepository<Qr, Long> {
     List<Qr> findByUsuarioControl_Id(Long idUsuarioControl);
 
     // Busca QRs por ID de invitado (referencia a Persona)
-    //List<Qr> findByInvitado_Id(Long idInvitado);
+    List<Qr> findByInvitado_Id(Long idInvitado);
 
     // Alternativa duplicada (puedes eliminar si no se usa)
     List<Qr> findByReservaIdReserva(Long idReserva);
-    
-    // Comprueba si existe un QR para una reserva y una persona concreta
-    boolean existsByReserva_IdReservaAndPersona_Id(Long idReserva, Long personaId);
-
-    //AGREGACIONES NUEVAS
-    Optional<Qr> findByCodigoQrAndEstadoTrue(String codigoQr);
-
-    List<Qr> findByPersona_IdAndEstadoTrue(Long idPersona);
-
-    List<Qr> findByReserva_IdReservaAndEstadoTrue(Long idReserva);
-
 }

@@ -1,14 +1,14 @@
 package com.espaciosdeportivos.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTANTE
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.time.Duration;
 
 @Entity
 @Table(name = "reserva")
@@ -40,75 +40,50 @@ public class Reserva {
     @Column(name = "estado_reserva", nullable = false, length = 50)
     private String estadoReserva;
 
+    @Column(name = "monto_total", nullable = false)
+    private Double montoTotal;
+
     @Column(name = "observaciones", length = 500)
     private String observaciones;
 
     @Column(name = "duracion_minutos")
     private Integer duracionMinutos;
 
-    @Column(name = "total_pagado")
-    private Double totalPagado;
+    @Column(name = "codigo_reserva", unique = true)
+    private String codigoReserva;
 
-    @Column(name = "saldo_pendiente")
-    private Double saldoPendiente;
+    // Auditoría
+    @UpdateTimestamp
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
 
-    @Column(name = "pagada_completa")
-    private Boolean pagadaCompleta;
-
-    // RELACIÓNES
-
+    // RELACIÓN CON CLIENTE - OPCIÓN A
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona", nullable = false)
-    // Nota: Aquí NO ponemos JsonIgnore porque queremos saber de quién es la reserva
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // Nota: Aquí NO ponemos JsonIgnore porque queremos saber qué cancha incluye
-    private List<incluye> Incluidos;
-
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- Recomendado ignorar pagos al listar reservas masivamente
+    // Relaciones
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
     private List<Pago> pagos;
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- Recomendado ignorar QRs
-    private List<Qr> qr;
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    private List<Qr> qr; 
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- Recomendado ignorar invitados
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    private List<incluye> canchasIncluidas;
+
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
     private List<participa> invitados;
 
-    @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- Recomendado ignorar cancelación
+    @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL)
     private Cancelacion cancelacion;
 
-    // ... resto de tus métodos (puedeReprogramar, etc) siguen igual ...
+    // Enums para estados
     public enum EstadoReserva {
         PENDIENTE, CONFIRMADA, EN_CURSO, COMPLETADA, CANCELADA, NO_SHOW
     }
 
-    public boolean puedeReprogramar() {
-        LocalDateTime inicioReserva = fechaReserva.atTime(horaInicio);
-        return Duration.between(LocalDateTime.now(), inicioReserva).toHours() >= 8;
-    }
-
-    public boolean puedeCancelar() {
-        LocalDateTime inicioReserva = fechaReserva.atTime(horaInicio);
-        return Duration.between(LocalDateTime.now(), inicioReserva).toHours() >= 12;
-    }
-
-    public boolean estaConfirmada() {
-        return EstadoReserva.CONFIRMADA.name().equals(estadoReserva);
-    }
-
-    public boolean estaCancelada() {
-        return EstadoReserva.CANCELADA.name().equals(estadoReserva);
-    }
-
-    public Cancha getCancha() {
-        return Incluidos != null && !Incluidos.isEmpty() ? Incluidos.get(0).getCancha() : null;
-    }
-
+    // Método para calcular duración
     @PrePersist
     @PreUpdate
     public void calcularDuracion() {
@@ -117,18 +92,19 @@ public class Reserva {
         }
     }
 
+    // Métodos de negocio
     public boolean estaActiva() {
-        return estadoReserva.equals(EstadoReserva.CONFIRMADA.name())
-                || estadoReserva.equals(EstadoReserva.EN_CURSO.name());
+        return estadoReserva.equals(EstadoReserva.CONFIRMADA.name()) || 
+               estadoReserva.equals(EstadoReserva.EN_CURSO.name());
     }
 
     public boolean esModificable() {
-        return estadoReserva.equals(EstadoReserva.PENDIENTE.name())
-                || estadoReserva.equals(EstadoReserva.CONFIRMADA.name());
+        return estadoReserva.equals(EstadoReserva.PENDIENTE.name()) || 
+               estadoReserva.equals(EstadoReserva.CONFIRMADA.name());
     }
 
     public boolean puedeCancelarse() {
-        return !estadoReserva.equals(EstadoReserva.CANCELADA.name())
-                && !estadoReserva.equals(EstadoReserva.COMPLETADA.name());
+        return !estadoReserva.equals(EstadoReserva.CANCELADA.name()) && 
+               !estadoReserva.equals(EstadoReserva.COMPLETADA.name());
     }
 }
