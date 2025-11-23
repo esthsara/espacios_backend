@@ -10,9 +10,9 @@ import lombok.*;
 @Builder
 @ToString
 @Entity
-@Table(name = "dispone") 
+@Table(name = "dispone")
 public class dispone {
-    
+
     @EmbeddedId
     private disponeId id;
 
@@ -26,6 +26,6 @@ public class dispone {
     @JoinColumn(name = "id_equipamiento", referencedColumnName = "id_equipamiento", insertable = false, updatable = false)
     private Equipamiento equipamiento;
 
-    @Column(name = "cantidad",nullable = false)
+    @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 }

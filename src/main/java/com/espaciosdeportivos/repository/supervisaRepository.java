@@ -29,13 +29,12 @@ public interface supervisaRepository extends JpaRepository<supervisa, supervisaI
     // Eliminar la relación
     void deleteById_IdUsControlAndId_IdCancha(Long idUsuarioControl, Long idCancha);
 
-    // Obtener todos los usuarios de control 
+    // Obtener todos los usuarios de control
     // que pertenezcan a canchas de áreas deportivas de un administrador específico
     @Query("SELECT DISTINCT s.usuarioControl FROM supervisa s " +
-       "JOIN s.cancha c " +
-       "JOIN c.areaDeportiva a " +
-       "WHERE a.administrador.id = :idAdmin")
+            "JOIN s.cancha c " +
+            "JOIN c.areaDeportiva a " +
+            "WHERE a.administrador.id = :idAdmin")
     List<UsuarioControl> findUsuariosControlByAdministradorId(@Param("idAdmin") Long idAdmin);
-
 
 }

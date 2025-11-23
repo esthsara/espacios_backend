@@ -12,15 +12,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"invitado", "reserva"}) // Evita recursividad en toString
+@ToString(exclude = { "invitado", "reserva" }) // Evita recursividad en toString
 @Entity
-@Table(name = "participa", 
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = {"id_invitado", "id_reserva"})
-       })
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Table(name = "participa", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "id_invitado", "id_reserva" })
+})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class participa {
-    
+
     @EmbeddedId
     private participaId id;
 

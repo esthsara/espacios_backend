@@ -2,7 +2,9 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
+import java.time.LocalTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- Importar esto
 
 @Getter
 @Setter
@@ -30,15 +32,10 @@ public class AreaDeportiva {
     private String telefonoArea;
 
     @Column(name = "hora_inicio_area")
-    private String horaInicioArea;
+    private LocalTime horaInicioArea;
+
     @Column(name = "hora_fin_area")
-    private String horaFinArea;
-
-    //@Column(name = "estado_area", nullable = false, length = 100)
-    //private String estadoArea;
-
-    @Column(name = "url_imagen", length = 800)
-    private String urlImagen;
+    private LocalTime horaFinArea;
 
     @Column(name = "latitud")
     private Double latitud;
@@ -49,16 +46,6 @@ public class AreaDeportiva {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    /*
-    @CreationTimestamp
-    @Column(name = "fecha_creacion")
-    private LocalDateTime fechaCreacion;
-
-    @UpdateTimestamp
-    @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
-     */
-
     @ManyToOne
     @JoinColumn(name = "id_zona")
     private Zona zona;
@@ -67,9 +54,10 @@ public class AreaDeportiva {
     @JoinColumn(name = "id_persona", nullable = false, unique = true)
     private Administrador administrador;
 
-
-    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true)
+    // --- AQUÍ ESTABA EL PROBLEMA ---
+    // Al agregar @JsonIgnore, evitamos que intente serializar las canchas
+    // al crear o listar el área, rompiendo el bucle infinito.
+    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- ¡ESTA LÍNEA ES LA SOLUCIÓN!
     private List<Cancha> cancha;
-
-    
 }

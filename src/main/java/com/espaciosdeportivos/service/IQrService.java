@@ -21,6 +21,13 @@ public interface IQrService {
 
     void eliminarQrFisicamente(Long id);
 
+    //List<QrDTO> obtenerQrsPorReserva(Long idReserva);
+
+    QrDTO generarQrParaReserva(Long idReserva,Long idPersona);
+
+    //agregue
+    QrDTO obtenerQrPorCodigo(String codigoqr);
+    List<QrDTO> obtenerQrsPorPersona(Long idReserva);
     List<QrDTO> obtenerQrsPorReserva(Long idReserva);
 
 }

@@ -3,6 +3,7 @@ package com.espaciosdeportivos.service.impl;
 import com.espaciosdeportivos.dto.participaDTO;
 import com.espaciosdeportivos.model.*;
 import com.espaciosdeportivos.repository.participaRepository;
+import com.espaciosdeportivos.repository.incluyeRepository;
 import com.espaciosdeportivos.repository.InvitadoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IparticipaService;
@@ -14,6 +15,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -22,19 +26,22 @@ public class participaServiceImpl implements IparticipaService {
     private final participaRepository participaRepository;
     private final InvitadoRepository invitadoRepository;
     private final ReservaRepository reservaRepository;
+    private final com.espaciosdeportivos.service.IQrService qrService;
+    private final incluyeRepository incluyeRepository;
+    private static final Logger log = LoggerFactory.getLogger(participa.class);
 
     @Override
     @Transactional
     public participaDTO crear(participaDTO participaDTO) {
         // Validar que no exista ya la invitación
         if (participaRepository.existsByInvitadoIdAndReservaIdReserva(
-            participaDTO.getIdInvitado(), participaDTO.getIdReserva())) {
+                participaDTO.getIdInvitado(), participaDTO.getIdReserva())) {
             throw new IllegalArgumentException("El invitado ya está invitado a esta reserva");
         }
 
         Reserva reserva = reservaRepository.findById(participaDTO.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada"));
-        
+
         Invitado invitado = invitadoRepository.findById(participaDTO.getIdInvitado())
                 .orElseThrow(() -> new EntityNotFoundException("Invitado no encontrado"));
 
@@ -43,9 +50,23 @@ public class participaServiceImpl implements IparticipaService {
             throw new IllegalArgumentException("No se pueden agregar invitados a una reserva completada o cancelada");
         }
 
-        // Crear la entidad participa (cambiando el nombre de la variable para evitar ambigüedad)
+        // Validar capacidad: solo se permiten (capacidad - 1) invitados (cliente ocupa
+        // 1)
+        Cancha cancha = reserva.getCancha();
+        if (cancha == null) {
+            throw new IllegalStateException("Reserva sin cancha asociada");
+        }
+        int capacidad = cancha.getCapacidad() != null ? cancha.getCapacidad() : 0;
+        int maxInvitados = Math.max(0, capacidad - 1);
+        Long invitadosRegistrados = participaRepository.countByReservaIdReserva(reserva.getIdReserva());
+        if (invitadosRegistrados != null && invitadosRegistrados >= maxInvitados) {
+            throw new IllegalArgumentException("Capacidad de invitados alcanzada para esta reserva");
+        }
+
+        // Crear la entidad participa (cambiando el nombre de la variable para evitar
+        // ambigüedad)
         participa nuevaParticipacion = participa.crear(invitado, reserva);
-        
+
         // Setear campos opcionales del DTO
         if (participaDTO.getObservaciones() != null) {
             nuevaParticipacion.setObservaciones(participaDTO.getObservaciones());
@@ -59,7 +80,7 @@ public class participaServiceImpl implements IparticipaService {
     @Transactional
     public participaDTO actualizar(Long idReserva, Long idInvitado, participaDTO participaDTO) {
         participa participacionExistente = obtenerParticipa(idReserva, idInvitado);
-        
+
         // Actualizar solo los campos permitidos
         if (participaDTO.getAsistio() != null) {
             participacionExistente.setAsistio(participaDTO.getAsistio());
@@ -82,14 +103,49 @@ public class participaServiceImpl implements IparticipaService {
     @Transactional
     public participaDTO confirmarInvitacion(Long idReserva, Long idInvitado) {
         participa participacion = obtenerParticipa(idReserva, idInvitado);
-        
+
         Reserva reserva = participacion.getReserva();
         if (!reserva.estaActiva()) {
             throw new IllegalArgumentException("No se puede confirmar invitación a una reserva no activa");
         }
 
+        // Antes de confirmar, validar capacidad de asistentes confirmados
+        Cancha cancha = reserva.getCancha();
+        if (cancha == null) {
+            throw new IllegalStateException("Reserva sin cancha asociada");
+        }
+        int capacidad = cancha.getCapacidad() != null ? cancha.getCapacidad() : 0;
+        int maxInvitados = Math.max(0, capacidad - 1);
+        Long invitadosConfirmados = participaRepository.countByReservaIdReservaAndConfirmado(idReserva, Boolean.TRUE);
+        if (invitadosConfirmados != null && invitadosConfirmados >= maxInvitados) {
+            throw new IllegalArgumentException("No se puede confirmar: capacidad de invitados alcanzada");
+        }
+
         participacion.setConfirmado(true);
+        participacion.setNotificado(true);
         participaRepository.save(participacion);
+
+        // Generar QR para el invitado confirmado (no bloquear la transacción si falla)
+        try {
+            qrService.generarQrParaReserva(idReserva, idInvitado);
+        } catch (Exception e) {
+            log.error("Error generando QR tras confirmación de invitado {} en reserva {}", idInvitado, idReserva, e);
+        }
+        // Actualizar contador de invitados confirmados en Incluye
+        try {
+            var optIncluye = incluyeRepository.findByReservaIdReserva(idReserva);
+            if (optIncluye.isPresent()) {
+                incluye incluye = optIncluye.get();
+                if (incluye.getInvitadosConfirmados() == null)
+                    incluye.setInvitadosConfirmados(0);
+                incluye.setInvitadosConfirmados(incluye.getInvitadosConfirmados() + 1);
+                // guardar
+                incluyeRepository.save(incluye);
+            }
+        } catch (Exception e) {
+            log.warn("No se pudo actualizar invitadosConfirmados en Incluye para reserva {}: {}", idReserva,
+                    e.getMessage());
+        }
         return mapToDTO(participacion);
     }
 
@@ -188,7 +244,7 @@ public class participaServiceImpl implements IparticipaService {
         participaId id = new participaId(idInvitado, idReserva);
         return participaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                    "Invitación no encontrada para reserva: " + idReserva + " e invitado: " + idInvitado));
+                        "Invitación no encontrada para reserva: " + idReserva + " e invitado: " + idInvitado));
     }
 
     private participaDTO mapToDTO(participa p) {
@@ -198,19 +254,10 @@ public class participaServiceImpl implements IparticipaService {
         return participaDTO.builder()
                 .idInvitado(invitado.getId())
                 .idReserva(reserva.getIdReserva())
-                .nombreInvitado(invitado.getNombre() + " " + 
-                               (invitado.getApellidoPaterno() != null ? invitado.getApellidoPaterno() + " " : "") + 
-                               invitado.getApellidoMaterno())
-                .emailInvitado(invitado.getEmail())
-                .telefonoInvitado(invitado.getTelefono())
-                .verificadoInvitado(invitado.getVerificado())
-                .fechaInvitacion(p.getFechaInvitacion())
                 .asistio(p.getAsistio())
                 .confirmado(p.getConfirmado())
                 .notificado(p.getNotificado())
                 .observaciones(p.getObservaciones())
-                .codigoReserva(reserva.getCodigoReserva())
-                .estadoReserva(reserva.getEstadoReserva())
                 .build();
     }
 }

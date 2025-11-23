@@ -2,6 +2,7 @@ package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.repository.AppUserRepository;
 import com.espaciosdeportivos.repository.RoleRepository;
+import com.espaciosdeportivos.model.Administrador;
 import com.espaciosdeportivos.model.AppUser;
 import com.espaciosdeportivos.model.Persona;
 import com.espaciosdeportivos.model.Role;
@@ -47,6 +48,7 @@ public class AdminController {
     @Autowired
     private AdministradorRepository adminRepo;
 
+    //    @Transactional
     @PreAuthorize("hasAnyRole('SUPERUSUARIO','ADMINISTRADOR')")
     @GetMapping("/solicitudes")
     public ResponseEntity<List<AppUser>> listarSolicitudesPendientes() {
@@ -135,29 +137,31 @@ public class AdminController {
     }
 
     private void crearClienteSeguro(Persona persona) {
-        try {
-            // Verificar si ya existe
-            boolean existe = clienteRepo.existsById(persona.getId());
-            if (!existe) {
-                // Usar Native Query para evitar problemas de mapeo de herencia
-                clienteRepo.crearClienteSiNoExiste(persona.getId(), "REGULAR");
-                logger.info("Cliente creado exitosamente para persona ID: {}", persona.getId());
-            } else {
-                logger.info("Cliente ya existe para persona ID: {}", persona.getId());
-            }
-        } catch (Exception e) {
-            logger.error("Error al crear cliente para persona ID {}: {}", persona.getId(), e.getMessage());
-            // NO relanzar la excepción - continuar con la aprobación
-        }
+
+        logger.info("Cliente ya fue creado automáticamente en el registro para persona ID: {}", persona.getId());
     }
 
     private void crearAdministradorSeguro(Persona persona) {
         try {
-            // Verificar si ya existe
+            // Verificar si ya existe como Administrador
             boolean existe = adminRepo.existsById(persona.getId());
             if (!existe) {
-                // Usar Native Query para evitar problemas de mapeo de herencia
-                adminRepo.crearAdministradorSiNoExiste(persona.getId(), "Administrador General", "Por asignar");
+                // Convertir la Persona existente a Administrador
+                // Esto funciona porque Administrador extiende de Persona
+                Administrador admin = new Administrador();
+                admin.setId(persona.getId()); // Mismo ID de persona
+                admin.setNombre(persona.getNombre());
+                admin.setApellidoPaterno(persona.getApellidoPaterno());
+                admin.setApellidoMaterno(persona.getApellidoMaterno());
+                admin.setFechaNacimiento(persona.getFechaNacimiento());
+                admin.setTelefono(persona.getTelefono());
+                admin.setEmail(persona.getEmail());
+                admin.setUrlImagen(persona.getUrlImagen());
+                admin.setEstado(true);
+                admin.setCargo("Administrador General");
+                admin.setDireccion("Por asignar");
+                
+                adminRepo.save(admin);
                 logger.info("Administrador creado exitosamente para persona ID: {}", persona.getId());
             } else {
                 logger.info("Administrador ya existe para persona ID: {}", persona.getId());

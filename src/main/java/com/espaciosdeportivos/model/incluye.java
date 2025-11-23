@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "incluye")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "incluye")
 public class incluye {
 
     @EmbeddedId
@@ -29,4 +29,11 @@ public class incluye {
     @MapsId("idDisciplina")
     @JoinColumn(name = "id_disciplina", nullable = false)
     private Disciplina disciplina;
+
+    @Column(name = "monto_total", nullable = false)
+    private Double montoTotal;
+
+    @Column(name = "invitados_confirmados")
+    @Builder.Default
+    private Integer invitadosConfirmados = 0;
 }

@@ -44,7 +44,7 @@ public class AdministradorDTO implements Serializable {
     @Size(max = 150, message = "El email no puede exceder los 150 caracteres.")
     private String email;
 
-    @NotBlank(message = "La URL de la imagen es obligatoria.")
+    //@NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
 
     //@NotBlank(message = "El estado es obligatorio.")
@@ -57,5 +57,6 @@ public class AdministradorDTO implements Serializable {
     @NotBlank(message = "La dirección es obligatoria.")
     @Size(max = 255, message = "La dirección no puede exceder los 255 caracteres.")
     private String direccion;
+    //comentario: segun yo el notblanck solo se usa en string
 }
 

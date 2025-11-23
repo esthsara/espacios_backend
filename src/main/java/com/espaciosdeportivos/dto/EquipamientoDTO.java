@@ -4,6 +4,7 @@ import lombok.*;
 import jakarta.validation.constraints.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +22,10 @@ public class EquipamientoDTO implements Serializable {
     @Size(max = 400, message = "La descripción no puede tener más de 400 caracteres")
     private String descripcion;
 
+
     private String urlImagen;
 
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
+
 }

@@ -102,7 +102,7 @@ public class CanchaController {
 
     @GetMapping("/{id}/lock")
     public ResponseEntity<Cancha> obtenerCanchaConBloqueo(@PathVariable Long id) {
-       Cancha cancha =canchaService.obtenerCanchaConBloqueo(id);
+        Cancha cancha = canchaService.obtenerCanchaConBloqueo(id);
         return ResponseEntity.ok(cancha);
     }
 
@@ -114,12 +114,11 @@ public class CanchaController {
             @RequestParam(required = false) Integer capacidad,
             @RequestParam(required = false) String tamano,
             @RequestParam(required = false) String iluminacion,
-            @RequestParam(required = false) String cubierta
-    ) {
-        System.out.println("horaInicio: " + horaInicio);
-        System.out.println("horaFin: " + horaFin);
-        System.out.println("costo: " + costo);
-        List<CanchaDTO> resultados = canchaService.BuscarConFiltros(horaInicio, horaFin, costo, capacidad, tamano, iluminacion, cubierta);
+            @RequestParam(required = false) String cubierta) {
+        // BORRA LOS SYSTEM.OUT Y PON ESTO:
+        logger.info("[CANCHA] Buscando con filtros - HoraInicio: {}, Costo: {}", horaInicio, costo);
+        List<CanchaDTO> resultados = canchaService.BuscarConFiltros(horaInicio, horaFin, costo, capacidad, tamano,
+                iluminacion, cubierta);
         return ResponseEntity.ok(resultados);
     }
 
@@ -129,13 +128,16 @@ public class CanchaController {
         return ResponseEntity.ok(equipamientos);
     }
 
-    @GetMapping("/{id}/reservas")
-    public ResponseEntity<List<ReservaDTO>> obtenerReservasPorCancha(@PathVariable Long id) {
-        List<ReservaDTO> reservas = canchaService.obtenerReservaPorCancha(id);
-        return ResponseEntity.ok(reservas);
-    }
+    /*
+     * @GetMapping("/{id}/reservas")
+     * public ResponseEntity<List<ReservaDTO>>
+     * obtenerReservasPorCancha(@PathVariable Long id) {
+     * List<ReservaDTO> reservas = canchaService.obtenerReservaPorCancha(id);
+     * return ResponseEntity.ok(reservas);
+     * }
+     */
 
-    //gestion imagenes
+    // gestion imagenes
 
     @PostMapping(value = "/{id}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
@@ -146,7 +148,8 @@ public class CanchaController {
         CanchaDTO response = canchaService.agregarImagenes(id, archivosImagenes);
         return ResponseEntity.ok(response);
     }
-    //aqui seran nuevas ediciones
+
+    // aqui seran nuevas ediciones
     @DeleteMapping("/{id}/imagenes/{idImagenRelacion}")
     @Transactional
     public ResponseEntity<CanchaDTO> eliminarImagen(
@@ -167,20 +170,22 @@ public class CanchaController {
         return ResponseEntity.ok(response);
     }
 
+    /*
+     * // Baja lógica (estadobool = false)
+     * 
+     * @PutMapping("/{id}/eliminar")
+     * 
+     * @Transactional
+     * public ResponseEntity<CanchaDTO> eliminarCancha(@PathVariable Long id) {
+     * logger.info("[CANCHA] Inicio eliminarCancha (baja lógica): {}", id);
+     * CanchaDTO eliminado = canchaService.eliminarCancha(id);
+     * logger.info("[CANCHA] Fin eliminarCancha (baja lógica): {}", id);
+     * return ResponseEntity.ok(eliminado);
+     * }
+     */
 
-    /*// Baja lógica (estadobool = false)
-    @PutMapping("/{id}/eliminar")
-    @Transactional
-    public ResponseEntity<CanchaDTO> eliminarCancha(@PathVariable Long id) {
-        logger.info("[CANCHA] Inicio eliminarCancha (baja lógica): {}", id);
-        CanchaDTO eliminado = canchaService.eliminarCancha(id);
-        logger.info("[CANCHA] Fin eliminarCancha (baja lógica): {}", id);
-        return ResponseEntity.ok(eliminado);
-    } */
- 
-
-    //@PreAuthorize("hasRole('ROL_ADMIN')")
-    //admin k obtener canchas por área deportiva
+    // @PreAuthorize("hasRole('ROL_ADMIN')")
+    // admin k obtener canchas por área deportiva
     @GetMapping("/area/{idArea}")
     public ResponseEntity<List<CanchaDTO>> obtenerCanchasPorArea(@PathVariable Long idArea) {
         logger.info("[CANCHA] Inicio obtenerCanchasPorArea: {}", idArea);

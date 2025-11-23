@@ -11,13 +11,17 @@ public class WebConfig implements WebMvcConfigurer {
         // Servir archivos desde la carpeta uploads
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:uploads/");
+        registry.addResourceHandler("/img/**")
+                .addResourceLocations("file:uploads/img/");
     }
-    
-    /*@Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("*");
-    }*/
+
+    /*
+     * @Override
+     * public void addCorsMappings(CorsRegistry registry) {
+     * registry.addMapping("/**")
+     * .allowedOrigins("*")
+     * .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+     * .allowedHeaders("*");
+     * }
+     */
 }

@@ -17,102 +17,108 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class supervisaServiceImpl implements IsupervisaService {
 
-    private final supervisaRepository supervisaRepository;
-    private final UsuarioControlRepository usuarioControlRepository;
-    private final CanchaRepository canchaRepository;
+        private final supervisaRepository supervisaRepository;
+        private final UsuarioControlRepository usuarioControlRepository;
+        private final CanchaRepository canchaRepository;
 
-    @Override
-    @Transactional
-    public void asignarCanchaASupervisor(Long idUsuarioControl, Long idCancha) {
-        UsuarioControl usuario = usuarioControlRepository.findById(idUsuarioControl)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario de control no encontrado con ID: " + idUsuarioControl));
+        @Override
+        @Transactional
+        public void asignarCanchaASupervisor(Long idUsuarioControl, Long idCancha) {
+                UsuarioControl usuario = usuarioControlRepository.findById(idUsuarioControl)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Usuario de control no encontrado con ID: " + idUsuarioControl));
 
-        Cancha cancha = canchaRepository.findById(idCancha)
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + idCancha));
+                Cancha cancha = canchaRepository.findById(idCancha)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Cancha no encontrada con ID: " + idCancha));
 
-        supervisaId id = new supervisaId(idUsuarioControl, idCancha);
+                supervisaId id = new supervisaId(idUsuarioControl, idCancha);
 
-        if (supervisaRepository.existsById(id)) {
-            return; // Ya existe la relación, no se duplica
+                if (supervisaRepository.existsById(id)) {
+                        return; // Ya existe la relación, no se duplica
+                }
+
+                supervisa nueva = supervisa.builder()
+                                .id(id)
+                                .usuarioControl(usuario)
+                                .cancha(cancha)
+                                .build();
+
+                supervisaRepository.save(nueva);
         }
 
-        supervisa nueva = supervisa.builder()
-                .id(id)
-                .usuarioControl(usuario)
-                .cancha(cancha)
-                .build();
+        @Override
+        @Transactional
+        public void quitarCanchaDeSupervisor(Long idUsuarioControl, Long idCancha) {
+                if (!supervisaRepository.existsById_IdUsControlAndId_IdCancha(idUsuarioControl, idCancha)) {
+                        throw new EntityNotFoundException(
+                                        "Relación no encontrada para eliminar: Usuario ID " + idUsuarioControl
+                                                        + " y Cancha ID " + idCancha);
+                }
 
-        supervisaRepository.save(nueva);
-    }
-
-    @Override
-    @Transactional
-    public void quitarCanchaDeSupervisor(Long idUsuarioControl, Long idCancha) {
-        if (!supervisaRepository.existsById_IdUsControlAndId_IdCancha(idUsuarioControl, idCancha)) {
-            throw new EntityNotFoundException("Relación no encontrada para eliminar: Usuario ID " + idUsuarioControl + " y Cancha ID " + idCancha);
+                supervisaRepository.deleteById_IdUsControlAndId_IdCancha(idUsuarioControl, idCancha);
         }
 
-        supervisaRepository.deleteById_IdUsControlAndId_IdCancha(idUsuarioControl, idCancha);
-    }
+        @Override
+        @Transactional(readOnly = true)
+        public List<CanchaDTO> obtenerCanchasSupervisadasPorUsuario(Long idUsuarioControl) {
+                usuarioControlRepository.findById(idUsuarioControl)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Usuario de control no encontrado con ID: " + idUsuarioControl));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<CanchaDTO> obtenerCanchasSupervisadasPorUsuario(Long idUsuarioControl) {
-        usuarioControlRepository.findById(idUsuarioControl)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario de control no encontrado con ID: " + idUsuarioControl));
+                return supervisaRepository.findById_IdUsControl(idUsuarioControl).stream()
+                                .map(s -> convertToCanchaDTO(s.getCancha()))
+                                .collect(Collectors.toList());
+        }
 
-        return supervisaRepository.findById_IdUsControl(idUsuarioControl).stream()
-                .map(s -> convertToCanchaDTO(s.getCancha()))
-                .collect(Collectors.toList());
-    }
+        @Override
+        @Transactional(readOnly = true)
+        public List<UsuarioControlDTO> obtenerSupervisoresDeCancha(Long idCancha) {
+                canchaRepository.findById(idCancha)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Cancha no encontrada con ID: " + idCancha));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<UsuarioControlDTO> obtenerSupervisoresDeCancha(Long idCancha) {
-        canchaRepository.findById(idCancha)
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + idCancha));
+                return supervisaRepository.findById_IdCancha(idCancha).stream()
+                                .map(s -> convertToUsuarioDTO(s.getUsuarioControl()))
+                                .collect(Collectors.toList());
+        }
 
-        return supervisaRepository.findById_IdCancha(idCancha).stream()
-                .map(s -> convertToUsuarioDTO(s.getUsuarioControl()))
-                .collect(Collectors.toList());
-    }
+        // 🔄 Conversión completa a DTOs
 
-    // 🔄 Conversión completa a DTOs
+        private CanchaDTO convertToCanchaDTO(Cancha cancha) {
+                return CanchaDTO.builder()
+                                .idCancha(cancha.getIdCancha())
+                                .nombre(cancha.getNombre())
+                                .costoHora(cancha.getCostoHora())
+                                .capacidad(cancha.getCapacidad())
+                                .estado(cancha.getEstado())
+                                .mantenimiento(cancha.getMantenimiento())
+                                .horaInicio(cancha.getHoraInicio())
+                                .horaFin(cancha.getHoraFin())
+                                .tipoSuperficie(cancha.getTipoSuperficie())
+                                .tamano(cancha.getTamano())
+                                .iluminacion(cancha.getIluminacion())
+                                .cubierta(cancha.getCubierta())
+                                .urlImagen(cancha.getUrlImagen())
+                                .idAreadeportiva(cancha.getAreaDeportiva().getIdAreaDeportiva())
+                                .build();
+        }
 
-    private CanchaDTO convertToCanchaDTO(Cancha cancha) {
-        return CanchaDTO.builder()
-                .idCancha(cancha.getIdCancha())
-                .nombre(cancha.getNombre())
-                .costoHora(cancha.getCostoHora())
-                .capacidad(cancha.getCapacidad())
-                .estado(cancha.getEstado())
-                .mantenimiento(cancha.getMantenimiento())
-                .horaInicio(cancha.getHoraInicio())
-                .horaFin(cancha.getHoraFin())
-                .tipoSuperficie(cancha.getTipoSuperficie())
-                .tamano(cancha.getTamano())
-                .iluminacion(cancha.getIluminacion())
-                .cubierta(cancha.getCubierta())
-                .urlImagen(cancha.getUrlImagen())
-                .idAreadeportiva(cancha.getAreaDeportiva().getIdAreaDeportiva())
-                .build();
-    }
-
-    private UsuarioControlDTO convertToUsuarioDTO(UsuarioControl usuario) {
-        return UsuarioControlDTO.builder()
-                .id(usuario.getId())
-                .nombre(usuario.getNombre())
-                .aPaterno(usuario.getApellidoPaterno())
-                .aMaterno(usuario.getApellidoMaterno())
-                .fechaNacimiento(usuario.getFechaNacimiento())
-                .telefono(usuario.getTelefono())
-                .email(usuario.getEmail())
-                .urlImagen(usuario.getUrlImagen())
-                .estado(usuario.getEstado())
-                .estadoOperativo(usuario.getEstadoOperativo())
-                .horaInicioTurno(usuario.getHoraInicioTurno())
-                .horaFinTurno(usuario.getHoraFinTurno())
-                .direccion(usuario.getDireccion())
-                .build();
-    }
+        private UsuarioControlDTO convertToUsuarioDTO(UsuarioControl usuario) {
+                return UsuarioControlDTO.builder()
+                                .id(usuario.getId())
+                                .nombre(usuario.getNombre())
+                                .aPaterno(usuario.getApellidoPaterno())
+                                .aMaterno(usuario.getApellidoMaterno())
+                                .fechaNacimiento(usuario.getFechaNacimiento())
+                                .telefono(usuario.getTelefono())
+                                .email(usuario.getEmail())
+                                .urlImagen(usuario.getUrlImagen())
+                                .estado(usuario.getEstado())
+                                .estadoOperativo(usuario.getEstadoOperativo())
+                                .horaInicioTurno(usuario.getHoraInicioTurno())
+                                .horaFinTurno(usuario.getHoraFinTurno())
+                                .direccion(usuario.getDireccion())
+                                .build();
+        }
 }

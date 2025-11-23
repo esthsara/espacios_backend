@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+
 //OK//
 @Entity
 @Table(name = "disciplina")
@@ -39,10 +40,11 @@ public class Disciplina {
     private LocalDateTime fechaActualizacion;
 
     // Relaciones con Cancha (a través de la tabla intermedia se_practica)
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<sepractica> canchas;
 
-    // Relación con Reserva (a través de la tabla intermedia incluye)
-    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<incluye> reservas;
+    @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<incluye> incluidos;
+
 }

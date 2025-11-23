@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,10 +22,17 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        // Le dice a Spring Security: "Ignora todo lo que venga de /img/**"
+        return (web) -> web.ignoring().requestMatchers("/img/**");
+    }
 
     @Autowired
     private JwtAuthenticationEntryPoint unauthorizedHandler;
@@ -34,7 +42,6 @@ public class SecurityConfig {
 
     @Autowired
     private JwtUtils jwtUtils;
-    
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -56,35 +63,57 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedHandler))
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Rutas exclusivas para SUPERUSUARIO
-                .requestMatchers("/api/super/**").hasRole("SUPERUSUARIO")
-                .requestMatchers("/api/cancha/**").hasRole("SUPERUSUARIO")   
+                .authorizeHttpRequests(auth -> auth
+                        // ----------------------------------------------------------------
+                        // 1. RUTAS PÚBLICAS (Acceso libre)
+                        // ----------------------------------------------------------------
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/img/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
+                        // ----------------------------------------------------------------
+                        // 2. CONFIGURACIÓN GEOGRÁFICA (Superusuario + Administrador)
+                        // ----------------------------------------------------------------
+                        // CRÍTICO: Esto permite cargar los combos en "Mi Área"
+                        .requestMatchers("/api/zona/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/macrodistrito/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
 
-                // Rutas para SUPERUSUARIO y ADMINISTRADOR
-                .requestMatchers("/api/admin/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
-                .requestMatchers("/api/administradores/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
-                .requestMatchers("/api/areasdeportivas/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        // ----------------------------------------------------------------
+                        // 3. RUTAS EXCLUSIVAS SUPERUSUARIO
+                        // ----------------------------------------------------------------
+                        .requestMatchers("/api/super/**").hasRole("SUPERUSUARIO")
 
-                //RUTAS para ADMINISTRADOR
-                .requestMatchers("/api/cancha/area/**").hasRole("ADMINISTRADOR") // Solo admins pueden ver canchas por área                .requestMatchers("/api/supervisa/**").hasAnyRole("ADMINISTRADOR") //k
-                .requestMatchers("/api/supervisa/**").hasRole("ADMINISTRADOR") //solo administrador puede supervisar sus canchas y usuarios
-                
-                // Rutas que incluyen clientes
-                .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR", "CLIENTE")
+                        // ----------------------------------------------------------------
+                        // 4. RUTAS ADMINISTRATIVAS (Superusuario + Administrador)
+                        // ----------------------------------------------------------------
+                        // Gestión de Áreas Deportivas (CRÍTICO para crear mi área)
+                        .requestMatchers("/api/areasdeportivas/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
 
-                // Por defecto, autenticado
-                .anyRequest().authenticated()
-            );
+                        // Gestión general
+                        .requestMatchers("/api/admin/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/administradores/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/cancha/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/participaciones/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/disciplina/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/usuario_control/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+                        .requestMatchers("/api/supervisa/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR")
+
+                        // ----------------------------------------------------------------
+                        // 5. RUTAS OPERATIVAS (Clientes + Admins + Superusuario)
+                        // ----------------------------------------------------------------
+                        .requestMatchers("/api/reservas/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR", "CLIENTE")
+                        .requestMatchers("/api/clientes/**").hasAnyRole("SUPERUSUARIO", "ADMINISTRADOR", "CLIENTE")
+
+                        // ----------------------------------------------------------------
+                        // 6. RESTO DE RUTAS (Cualquier usuario autenticado)
+                        // ----------------------------------------------------------------
+                        .anyRequest().authenticated());
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -96,15 +125,14 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:*", "http://127.0.0.1:*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "Accept",
-            "Origin",
-            "X-Requested-With",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"));
+        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

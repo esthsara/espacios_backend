@@ -22,8 +22,8 @@ public class disponeServiceImpl implements IdisponeService {
 
     @Autowired
     public disponeServiceImpl(disponeRepository disponeRepository,
-                              CanchaRepository canchaRepository,
-                              EquipamientoRepository equipamientoRepository) {
+            CanchaRepository canchaRepository,
+            EquipamientoRepository equipamientoRepository) {
         this.disponeRepository = disponeRepository;
         this.canchaRepository = canchaRepository;
         this.equipamientoRepository = equipamientoRepository;
@@ -41,19 +41,18 @@ public class disponeServiceImpl implements IdisponeService {
                 .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + dto.getIdCancha()));
 
         Equipamiento equipamiento = equipamientoRepository.findById(dto.getIdEquipamiento())
-                .orElseThrow(() -> new EntityNotFoundException("Equipamiento no encontrado con ID: " + dto.getIdEquipamiento()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Equipamiento no encontrado con ID: " + dto.getIdEquipamiento()));
 
         disponeId id = new disponeId(dto.getIdCancha(), dto.getIdEquipamiento());
 
         // Crea o actualiza
-        dispone entity = disponeRepository.findById(id).orElseGet(() ->
-                dispone.builder()
-                        .id(id)
-                        .cancha(cancha)
-                        .equipamiento(equipamiento)
-                        .cantidad(dto.getCantidad())
-                        .build()
-        );
+        dispone entity = disponeRepository.findById(id).orElseGet(() -> dispone.builder()
+                .id(id)
+                .cancha(cancha)
+                .equipamiento(equipamiento)
+                .cantidad(dto.getCantidad())
+                .build());
         entity.setCantidad(dto.getCantidad());
 
         dispone saved = disponeRepository.save(entity);
@@ -67,12 +66,10 @@ public class disponeServiceImpl implements IdisponeService {
 
         // Si quieres asegurar relaciones precargadas aún sin transacción activa, usa:
         // dispone association = disponeRepository.findWithGraphById(id)
-        //        .orElseThrow(...)
-
+        // .orElseThrow(...)
         dispone association = disponeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Relación no encontrada: Cancha ID " + idCancha + " y Equipamiento ID " + idEquipamiento
-                ));
+                        "Relación no encontrada: Cancha ID " + idCancha + " y Equipamiento ID " + idEquipamiento));
         return convertToDTO(association);
     }
 
@@ -93,12 +90,11 @@ public class disponeServiceImpl implements IdisponeService {
     public void desasociarEquipamientoDeCancha(Long idCancha, Long idEquipamiento) {
         if (!disponeRepository.existsById_IdCanchaAndId_IdEquipamiento(idCancha, idEquipamiento)) {
             throw new EntityNotFoundException(
-                "Relación no encontrada para eliminar: Cancha ID " + idCancha + " y Equipamiento ID " + idEquipamiento
-            );
+                    "Relación no encontrada para eliminar: Cancha ID " + idCancha + " y Equipamiento ID "
+                            + idEquipamiento);
         }
         disponeRepository.deleteById_IdCanchaAndId_IdEquipamiento(idCancha, idEquipamiento);
     }
-
 
     private disponeDTO convertToDTO(dispone entity) {
         return disponeDTO.builder()

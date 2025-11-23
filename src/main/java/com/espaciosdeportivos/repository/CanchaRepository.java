@@ -50,4 +50,12 @@ public interface CanchaRepository extends JpaRepository<Cancha, Long> {
    //ADMIN - Obtener canchas por área deportiva
     List<Cancha> findByAreaDeportiva_IdAreaDeportiva(Long idArea);
 
+
+    @Query("SELECT COUNT(c) > 0 FROM Cancha c " +
+        "WHERE c.idCancha = :idCancha " +
+        "AND c.areaDeportiva.idAreaDeportiva = :idArea")
+    boolean existeCanchaEnArea(
+        @Param("idCancha") Long idCancha,
+        @Param("idAreaDeportiva") Long idArea
+    );
 }

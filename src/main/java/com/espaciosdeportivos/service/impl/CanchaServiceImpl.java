@@ -3,20 +3,18 @@ package com.espaciosdeportivos.service.impl;
 import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.DisciplinaDTO;
 import com.espaciosdeportivos.dto.EquipamientoDTO;
-import com.espaciosdeportivos.dto.ReservaDTO;
-import com.espaciosdeportivos.dto.AreaDeportivaDTO; // objeto front K
-import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
-import com.espaciosdeportivos.dto.disponeDTO;
+import com.espaciosdeportivos.dto.AreaDeportivaDTO;
+import com.espaciosdeportivos.dto.ZonaDTO;
+import com.espaciosdeportivos.dto.ImagenDTO;
 
 import com.espaciosdeportivos.model.Cancha;
-import com.espaciosdeportivos.model.Cliente;
+import com.espaciosdeportivos.model.Disciplina;
 import com.espaciosdeportivos.model.Equipamiento;
-import com.espaciosdeportivos.model.Reserva;
+import com.espaciosdeportivos.model.sepractica;
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.dispone;
-import com.espaciosdeportivos.model.incluye;
-//import com.espaciosdeportivos.model.sepractica;
+
 import com.espaciosdeportivos.repository.CanchaRepository;
 import com.espaciosdeportivos.repository.AreaDeportivaRepository;
 import com.espaciosdeportivos.repository.EquipamientoRepository;
@@ -25,28 +23,25 @@ import com.espaciosdeportivos.repository.incluyeRepository;
 import com.espaciosdeportivos.repository.sepracticaRepository;
 
 import com.espaciosdeportivos.service.ICanchaService;
+import com.espaciosdeportivos.service.ImagenService;
 import com.espaciosdeportivos.validation.CanchaValidator;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-//import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
-import com.espaciosdeportivos.dto.ImagenDTO;
-import com.espaciosdeportivos.service.ImagenService;
-import org.springframework.web.multipart.MultipartFile;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class CanchaServiceImpl implements ICanchaService {
 
     private final CanchaRepository canchaRepository;
@@ -55,32 +50,11 @@ public class CanchaServiceImpl implements ICanchaService {
     private final EquipamientoRepository equipamientoRepository;
     private final disponeRepository disponeRepository;
     private final incluyeRepository incluyeRepository;
-    //private final sepracticaRepository sepracticaRepository;
+    private final sepracticaRepository sepracticaRepository;
     private final ImagenService imagenService;
 
-    private static final String ENTIDAD_TIPO = "CANCHA";
-
-    @Autowired
-    public CanchaServiceImpl(
-        CanchaRepository canchaRepository, 
-        AreaDeportivaRepository areaDeportivaRepository, 
-        CanchaValidator canchaValidator,
-        disponeRepository disponeRepository,
-        EquipamientoRepository equipamientoRepository,
-        incluyeRepository incluyeRepository,
-        //sepracticaRepository sepracticaRepository
-        ImagenService imagenService
-        
-    ) {
-        this.canchaRepository = canchaRepository;
-        this.areaDeportivaRepository = areaDeportivaRepository;
-        this.canchaValidator = canchaValidator;
-        this.equipamientoRepository = equipamientoRepository;
-        this.disponeRepository = disponeRepository;
-        this.incluyeRepository = incluyeRepository;
-        this.imagenService = imagenService;
-        //this.sepracticaRepository = sepracticaRepository;
-    }
+    private static final String ENTIDAD_TIPO_CANCHA = "CANCHA";
+    private static final String ENTIDAD_TIPO_AREA = "AREADEPORTIVA";
 
     @Override
     @Transactional(readOnly = true)
@@ -133,7 +107,8 @@ public class CanchaServiceImpl implements ICanchaService {
         canchaValidator.validarCancha(dto);
 
         AreaDeportiva area = areaDeportivaRepository.findById(dto.getIdAreadeportiva())
-                .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + dto.getIdAreadeportiva()));
+                .orElseThrow(
+                        () -> new RuntimeException("Área deportiva no encontrada con ID: " + dto.getIdAreadeportiva()));
 
         existente.setNombre(dto.getNombre());
         existente.setCostoHora(dto.getCostoHora());
@@ -157,12 +132,12 @@ public class CanchaServiceImpl implements ICanchaService {
     @Transactional
     public void eliminarCanchaFisicamente(Long id) {
         Cancha existente = canchaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
-
+                .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
         canchaRepository.delete(existente);
     }
 
     @Override
+    @Transactional
     public CanchaDTO eliminarCancha(Long id, Boolean nuevoEstado) {
         Cancha existente = canchaRepository.findByIdCanchaAndEstadoTrue(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
@@ -176,7 +151,7 @@ public class CanchaServiceImpl implements ICanchaService {
         Cancha cancha = canchaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada con ID: " + id));
         try {
-            Thread.sleep(15000); 
+            Thread.sleep(15000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -195,7 +170,7 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional(readOnly = true)
     public List<CanchaDTO> BuscarConFiltros(LocalTime horaInicio, LocalTime horaFin, Double costo, Integer capacidad,
-                                            String tamano, String iluminacion, String cubierta) {
+            String tamano, String iluminacion, String cubierta) {
         return canchaRepository.buscarFiltros(horaInicio, horaFin, costo, capacidad, tamano, iluminacion, cubierta)
                 .stream()
                 .map(this::convertToDTO)
@@ -206,7 +181,6 @@ public class CanchaServiceImpl implements ICanchaService {
     @Transactional(readOnly = true)
     public List<EquipamientoDTO> obtenerEquipamientoPorCancha(Long canchaId) {
         List<dispone> lista = disponeRepository.findByCanchaIdCancha(canchaId);
-
         return lista.stream()
                 .map(d -> convertEquipamientoToDTO(d.getEquipamiento()))
                 .collect(Collectors.toList());
@@ -214,17 +188,16 @@ public class CanchaServiceImpl implements ICanchaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReservaDTO> obtenerReservaPorCancha(Long canchaId) {
-        List<incluye> lista = incluyeRepository.findByCanchaIdCancha(canchaId);
-
+    public List<DisciplinaDTO> obtenerDiciplinasPorCancha(Long canchaId) {
+        List<sepractica> lista = sepracticaRepository.obtenerPorCancha(canchaId);
         return lista.stream()
-                .map(i -> convertReservaResumenToDTO(i.getReserva()))
+                .map(d -> convertDiciplinaToDTO(d.getDisciplina()))
                 .collect(Collectors.toList());
     }
 
     // ==========================================================
-// 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
-// ==========================================================
+    // 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
+    // ==========================================================
 
     @Override
     @Transactional
@@ -234,7 +207,7 @@ public class CanchaServiceImpl implements ICanchaService {
         Cancha cancha = canchaRepository.findByIdCanchaAndEstadoTrue(idCancha)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada o inactiva"));
 
-        imagenService.guardarImagenesParaEntidad(archivosImagenes, ENTIDAD_TIPO, idCancha);
+        imagenService.guardarImagenesParaEntidad(archivosImagenes, ENTIDAD_TIPO_CANCHA, idCancha);
         log.info("Imágenes agregadas exitosamente a la cancha {}", idCancha);
 
         return obtenerCanchaPorId(idCancha);
@@ -257,60 +230,30 @@ public class CanchaServiceImpl implements ICanchaService {
     @Override
     @Transactional
     public CanchaDTO reordenarImagenes(Long idCancha, List<Long> idsImagenesOrden) {
-        log.info("🔃 Reordenando {} imágenes de la cancha {}", idsImagenesOrden.size(), idCancha);
+        log.info(" Reordenando {} imágenes de la cancha {}", idsImagenesOrden.size(), idCancha);
 
         canchaRepository.findByIdCanchaAndEstadoTrue(idCancha)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada o inactiva"));
 
-        imagenService.reordenarImagenes(ENTIDAD_TIPO, idCancha, idsImagenesOrden);
+        imagenService.reordenarImagenes(ENTIDAD_TIPO_CANCHA, idCancha, idsImagenesOrden);
         log.info("Imágenes reordenadas con éxito");
 
         return obtenerCanchaPorId(idCancha);
     }
 
-
-    /*@Override
-    @Transactional(readOnly = true)
-    public List<DisciplinaDTO> ObtenerDiciplinaPorCancha(Long canchaId){
-        List<sepractica> lista = sepracticaRepository.findByDiciplinaIdCancha(canchaId);
-        return lista.stream()
-                    .map(d -> convertDiciplinaToDTO(d.getDisciplina()))
-                    .collect(Collectors.toList());
-    }*/
-
-    //---diciplina--
-    //
-
-    //---reserva-------
-    private ReservaDTO convertReservaResumenToDTO(Reserva reserva) {
-        Cliente cliente = reserva.getCliente();
-
-        return ReservaDTO.builder()
-                .idReserva(reserva.getIdReserva())
-                .fechaReserva(reserva.getFechaReserva())
-                .horaInicio(reserva.getHoraInicio())
-                .horaFin(reserva.getHoraFin())
-                .nombreCliente(cliente != null 
-                    ? cliente.getNombre() + " " + cliente.getApellidoPaterno() 
-                    : "Sin nombre")
-                .build();
-    }
-   
-    //--equipamiento -----------
-    private EquipamientoDTO convertEquipamientoToDTO(Equipamiento e) {
-
-        return EquipamientoDTO.builder()
-                .idEquipamiento(e.getIdEquipamiento())
-                .nombreEquipamiento(e.getNombreEquipamiento())
-                .estado(e.getEstado())
-                .descripcion(e.getDescripcion())
-                .tipoEquipamiento(e.getTipoEquipamiento())
-                .build();
+    @Override
+    public List<CanchaDTO> obtenerCanchasPorArea(Long idArea) {
+        List<Cancha> canchas = canchaRepository.findByAreaDeportiva_IdAreaDeportiva(idArea);
+        return canchas.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    // --------- mapping ----------
+    // --------- MAPEO ----------
     private CanchaDTO convertToDTO(Cancha c) {
-        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
+        if (c == null)
+            return null;
+        AreaDeportiva area = c.getAreaDeportiva();
 
         CanchaDTO dto = CanchaDTO.builder()
                 .idCancha(c.getIdCancha())
@@ -326,46 +269,66 @@ public class CanchaServiceImpl implements ICanchaService {
                 .iluminacion(c.getIluminacion())
                 .cubierta(c.getCubierta())
                 .urlImagen(c.getUrlImagen())
-                .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
+                .idAreadeportiva(c.getAreaDeportiva() != null ? c.getAreaDeportiva().getIdAreaDeportiva() : null)
                 .areaDeportiva(area != null ? convertAreaToDTO(area) : null)
                 .build();
 
+        // Cargar disciplinas
         try {
-            List<ImagenDTO> imagenes = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO, c.getIdCancha());
+            List<sepractica> sePracticas = sepracticaRepository.findByCanchaIdCancha(c.getIdCancha());
+            List<DisciplinaDTO> disciplinas = sePracticas.stream()
+                    .map(sp -> convertDiciplinaToDTO(sp.getDisciplina()))
+                    .toList();
+            dto.setDisciplinas(disciplinas);
+        } catch (Exception e) {
+            dto.setDisciplinas(List.of());
+        }
+
+        // Cargar equipamientos
+        try {
+            List<dispone> disponeList = disponeRepository.findByCanchaIdCancha(c.getIdCancha());
+            List<EquipamientoDTO> equipamientos = disponeList.stream()
+                    .map(d -> convertEquipamientoToDTO(d.getEquipamiento()))
+                    .toList();
+            dto.setEquipamientos(equipamientos);
+        } catch (Exception e) {
+            dto.setEquipamientos(List.of());
+        }
+
+        // Cargar imágenes
+        try {
+            List<ImagenDTO> imagenes = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO_CANCHA, c.getIdCancha());
             dto.setImagenes(imagenes);
         } catch (Exception e) {
-            log.warn("Error cargando imágenes para cancha {}: {}", c.getIdCancha(), e.getMessage());
             dto.setImagenes(List.of());
         }
 
         return dto;
     }
 
-    /*private CanchaDTO convertToDTO(Cancha c) {
-        AreaDeportiva area = c.getAreaDeportiva(); // objeto front K
-
-        return CanchaDTO.builder()
-                .idCancha(c.getIdCancha())
-                .nombre(c.getNombre())
-                .costoHora(c.getCostoHora())
-                .capacidad(c.getCapacidad())
-                .estado(c.getEstado())
-                .mantenimiento(c.getMantenimiento())
-                .horaInicio(c.getHoraInicio())
-                .horaFin(c.getHoraFin())
-                .tipoSuperficie(c.getTipoSuperficie())
-                .tamano(c.getTamano())
-                .iluminacion(c.getIluminacion())
-                .cubierta(c.getCubierta())
-                .urlImagen(c.getUrlImagen())
-                .idAreadeportiva(area != null ? area.getIdAreaDeportiva() : null)
-                .areaDeportiva(area != null ? convertAreaToDTO(area) : null) // objeto front K
+    private DisciplinaDTO convertDiciplinaToDTO(Disciplina d) {
+        return DisciplinaDTO.builder()
+                .idDisciplina(d.getIdDisciplina())
+                .nombre(d.getNombre())
+                .descripcion(d.getDescripcion())
+                .estado(d.getEstado())
                 .build();
-    }*/
+    }
+
+    private EquipamientoDTO convertEquipamientoToDTO(Equipamiento e) {
+        return EquipamientoDTO.builder()
+                .idEquipamiento(e.getIdEquipamiento())
+                .nombreEquipamiento(e.getNombreEquipamiento())
+                .estado(e.getEstado())
+                .descripcion(e.getDescripcion())
+                .tipoEquipamiento(e.getTipoEquipamiento())
+                .build();
+    }
 
     private Cancha convertToEntity(CanchaDTO d) {
         AreaDeportiva area = areaDeportivaRepository.findById(d.getIdAreadeportiva())
-                .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + d.getIdAreadeportiva()));
+                .orElseThrow(
+                        () -> new RuntimeException("Área deportiva no encontrada con ID: " + d.getIdAreadeportiva()));
         return Cancha.builder()
                 .idCancha(d.getIdCancha())
                 .nombre(d.getNombre())
@@ -384,51 +347,46 @@ public class CanchaServiceImpl implements ICanchaService {
                 .build();
     }
 
-    // objeto front K
+    // --------------------------------------------------------------------
+    // CORRECCIÓN AQUÍ: Mapeo de Área SIN usar urlImagen
+    // --------------------------------------------------------------------
     private AreaDeportivaDTO convertAreaToDTO(AreaDeportiva a) {
+        // Buscamos las imágenes del área para llenar el DTO correctamente
+        List<ImagenDTO> imagenesArea = List.of();
+        try {
+            imagenesArea = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO_AREA, a.getIdAreaDeportiva());
+        } catch (Exception e) {
+            log.warn("No se pudieron cargar las imágenes para el área embebida en cancha", e);
+        }
+
         return AreaDeportivaDTO.builder()
                 .idAreadeportiva(a.getIdAreaDeportiva())
                 .nombreArea(a.getNombreArea())
                 .descripcionArea(a.getDescripcionArea())
                 .emailArea(a.getEmailArea())
                 .telefonoArea(a.getTelefonoArea())
-                .horaInicioArea(parseTime(a.getHoraInicioArea()))
-                .horaFinArea(parseTime(a.getHoraFinArea()))
-                .urlImagen(a.getUrlImagen())
+                .horaInicioArea(a.getHoraInicioArea())
+                .horaFinArea(a.getHoraFinArea())
+                // .urlImagen(a.getUrlImagen()) // ELIMINADO CORRECTAMENTE
+                .imagenes(imagenesArea) // Asignamos la lista de imágenes
                 .latitud(a.getLatitud())
                 .longitud(a.getLongitud())
                 .estado(a.getEstado())
                 .idZona(a.getZona() != null ? a.getZona().getIdZona() : null)
-                .zona(a.getZona() != null ? convertZonaToDTO(a.getZona()) : null) // objeto front K
+                .zona(a.getZona() != null ? convertZonaToDTO(a.getZona()) : null)
                 .id(a.getAdministrador() != null ? a.getAdministrador().getId() : null)
                 .build();
     }
 
-    // objeto front K
     private ZonaDTO convertZonaToDTO(Zona z) {
-        if (z == null) return null;
+        if (z == null)
+            return null;
         return ZonaDTO.builder()
-                .idZona(z.getIdZona()) // objeto front K
-                .nombre(z.getNombre()) // objeto front K
-                .descripcion(z.getDescripcion()) // objeto front K
-                .estado(z.getEstado()) // objeto front K
-                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
+                .idZona(z.getIdZona())
+                .nombre(z.getNombre())
+                .descripcion(z.getDescripcion())
+                .estado(z.getEstado())
+                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null)
                 .build();
     }
-
-    private LocalTime parseTime(String t) {
-        return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
-    }
-
-    @Override
-    public List<CanchaDTO> obtenerCanchasPorArea(Long idArea) {
-        List<Cancha> canchas = canchaRepository.findByAreaDeportiva_IdAreaDeportiva(idArea);
-        return canchas.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-    }
-
-
-
-
 }

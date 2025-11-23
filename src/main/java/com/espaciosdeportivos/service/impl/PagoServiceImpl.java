@@ -1,112 +1,82 @@
 package com.espaciosdeportivos.service.impl;
 
+import com.espaciosdeportivos.dto.ClienteDTO;
 import com.espaciosdeportivos.dto.PagoDTO;
+import com.espaciosdeportivos.dto.ReservaDTO;
+import com.espaciosdeportivos.model.Cliente;
+import com.espaciosdeportivos.model.incluye;
 import com.espaciosdeportivos.model.Pago;
 import com.espaciosdeportivos.model.Reserva;
+import com.espaciosdeportivos.repository.ClienteRepository;
+import com.espaciosdeportivos.repository.incluyeRepository;
 import com.espaciosdeportivos.repository.PagoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IPagoService;
+import com.espaciosdeportivos.service.IReservaService;
 import com.espaciosdeportivos.validation.PagoValidator;
 import com.espaciosdeportivos.validation.PagoValidator.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class PagoServiceImpl implements IPagoService {
 
-    @Autowired
-    private PagoRepository pagoRepository;
-
-    @Autowired
-    private ReservaRepository reservaRepository;
-
-    @Autowired
-    private PagoValidator pagoValidator;
-
-    private PagoDTO mapToDTO(Pago pago) {
-        Reserva reserva = pago.getReserva();
-        
-        // Calcular saldo pendiente
-        Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
-        Double saldoPendiente = reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
-        
-        return PagoDTO.builder()
-                .idPago(pago.getIdPago())
-                .monto(pago.getMonto())
-                .fecha(pago.getFecha())
-                .tipoPago(pago.getTipoPago())
-                .metodoPago(pago.getMetodoPago())
-                .estado(pago.getEstado())
-                .codigoTransaccion(pago.getCodigoTransaccion())
-                .descripcion(pago.getDescripcion())
-                .idReserva(reserva.getIdReserva())
-                .fechaCreacion(pago.getFechaCreacion() != null ? pago.getFechaCreacion().toLocalDate() : null)
-                .fechaActualizacion(pago.getFechaActualizacion() != null ? pago.getFechaActualizacion().toLocalDate() : null)
-                .codigoReserva(reserva.getCodigoReserva())
-                .fechaReserva(reserva.getFechaReserva())
-                .idCliente(reserva.getCliente().getId())
-                .nombreCliente(reserva.getCliente().getNombre() + " " + reserva.getCliente().getApellidoPaterno())
-                .emailCliente(reserva.getCliente().getEmail())
-                .telefonoCliente(reserva.getCliente().getTelefono())
-                .montoTotalReserva(reserva.getMontoTotal())
-                .saldoPendiente(saldoPendiente)
-                .build();
-    }
-
-    private Pago mapToEntity(PagoDTO dto) {
-        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
-
-        return Pago.builder()
-                .monto(dto.getMonto())
-                .fecha(dto.getFecha())
-                .tipoPago(dto.getTipoPago())
-                .metodoPago(dto.getMetodoPago())
-                .estado(dto.getEstado())
-                .codigoTransaccion(dto.getCodigoTransaccion())
-                .descripcion(dto.getDescripcion())
-                .reserva(reserva)
-                .build();
-    }
+    private final PagoRepository pagoRepository;
+    private final ReservaRepository reservaRepository;
+    private final PagoValidator pagoValidator;
+    private final incluyeRepository incluyeRepository;
+    private final IReservaService reservaService;
+    private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional
     public PagoDTO crear(PagoDTO dto) {
+        System.out.println(">>> CREANDO PAGO CON DTO: " + dto);
         pagoValidator.validarPagoCreacion(dto);
-        
+
         Reserva reserva = reservaRepository.findById(dto.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
+        System.out.println(">>> RESERVA ENCONTRADA: " + reserva);
 
-        // Validar que el monto no exceda el saldo pendiente
+        incluye incluye = incluyeRepository.findByReservaIdReserva(dto.getIdReserva())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Incluye no encontrado con id de reserva: " + dto.getIdReserva()));
+        System.out.println(">>> INCLUYE ENCONTRADO: " + incluye);
+
         Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(reserva.getIdReserva());
-        Double saldoPendiente = reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
-        
+        Double saldoPendiente = incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
+
         if (dto.getMonto() > saldoPendiente) {
             throw new IllegalArgumentException(
-                String.format("El monto del pago (%.2f) excede el saldo pendiente (%.2f)", 
-                    dto.getMonto(), saldoPendiente)
-            );
+                    String.format("El monto del pago (%.2f) excede el saldo pendiente (%.2f)",
+                            dto.getMonto(), saldoPendiente));
         }
-
+        System.out.println(">>> SALDO PENDIENTE: " + saldoPendiente);
         // Validar código de transacción único
-        if (dto.getCodigoTransaccion() != null && 
-            pagoRepository.existsByCodigoTransaccion(dto.getCodigoTransaccion())) {
+        if (dto.getCodigoTransaccion() != null &&
+                pagoRepository.existsByCodigoTransaccion(dto.getCodigoTransaccion())) {
             throw new IllegalArgumentException("El código de transacción ya existe");
         }
 
         Pago pago = mapToEntity(dto);
-        
+
+        // Pago pago = convertToEntity(dto);
         // Establecer estado por defecto
         if (pago.getEstado() == null) {
             pago.setEstado(Pago.EstadoPago.PENDIENTE.name());
         }
-        
+
         return mapToDTO(pagoRepository.save(pago));
     }
 
@@ -114,10 +84,9 @@ public class PagoServiceImpl implements IPagoService {
     @Transactional
     public PagoDTO actualizar(Long id, PagoDTO dto) {
         pagoValidator.validarPagoActualizacion(dto);
-        
+
         Pago pagoExistente = pagoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + id));
-
         // Validar transición de estado
         pagoValidator.validarTransicionEstado(pagoExistente.getEstado(), dto.getEstado());
 
@@ -130,9 +99,9 @@ public class PagoServiceImpl implements IPagoService {
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
 
         // Validar código de transacción único si se cambia
-        if (dto.getCodigoTransaccion() != null && 
-            !dto.getCodigoTransaccion().equals(pagoExistente.getCodigoTransaccion()) &&
-            pagoRepository.existsByCodigoTransaccion(dto.getCodigoTransaccion())) {
+        if (dto.getCodigoTransaccion() != null &&
+                !dto.getCodigoTransaccion().equals(pagoExistente.getCodigoTransaccion()) &&
+                pagoRepository.existsByCodigoTransaccion(dto.getCodigoTransaccion())) {
             throw new IllegalArgumentException("El código de transacción ya existe");
         }
 
@@ -158,25 +127,25 @@ public class PagoServiceImpl implements IPagoService {
     }
 
     @Override
-    @Transactional
-    public void eliminar(Long id) {
-        Pago pago = pagoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + id));
-        
-        // Validar que solo se puedan eliminar pagos pendientes
-        if (!pago.getEstado().equals(Pago.EstadoPago.PENDIENTE.name())) {
-            throw new IllegalArgumentException("Solo se pueden eliminar pagos en estado PENDIENTE");
-        }
-        
-        pagoRepository.deleteById(id);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<PagoDTO> listarTodos() {
         return pagoRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void eliminar(Long id) {
+        Pago pago = pagoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + id));
+
+        // Validar que solo se puedan eliminar pagos pendientes
+        if (!pago.getEstado().equals(Pago.EstadoPago.PENDIENTE.name())) {
+            throw new IllegalArgumentException("Solo se pueden eliminar pagos en estado PENDIENTE");
+        }
+
+        pagoRepository.deleteById(id);
     }
 
     // BÚSQUEDAS BÁSICAS
@@ -266,36 +235,48 @@ public class PagoServiceImpl implements IPagoService {
     @Transactional
     public PagoDTO confirmarPago(Long idPago, String codigoTransaccion) {
         pagoValidator.validarConfirmacionPago(codigoTransaccion);
-        
+
         Pago pago = pagoRepository.findById(idPago)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + idPago));
-        
+
         if (!Pago.EstadoPago.PENDIENTE.name().equals(pago.getEstado())) {
             throw new BusinessException("Solo se pueden confirmar pagos en estado PENDIENTE");
         }
-        
+
         pago.setEstado(Pago.EstadoPago.CONFIRMADO.name());
         pago.setCodigoTransaccion(codigoTransaccion);
-        
-        return mapToDTO(pagoRepository.save(pago));
+
+        Pago pagoGuardado = pagoRepository.save(pago);
+        PagoDTO pagoConfirmado = mapToDTO(pagoGuardado);
+
+        // Actualizar montos/estado de la reserva asociada
+        try {
+            reservaService.actualizarEstadoPagoReserva(pagoGuardado.getReserva().getIdReserva());
+        } catch (Exception e) {
+            // No interrumpir la confirmación por un fallo secundario en la actualización de
+            // reserva
+            System.err.println("Warning: fallo al actualizar estado de reserva tras confirmar pago: " + e.getMessage());
+        }
+
+        return pagoConfirmado;
     }
 
     @Override
     @Transactional
     public PagoDTO anularPago(Long idPago, String razon) {
         pagoValidator.validarAnulacionPago(razon);
-        
+
         Pago pago = pagoRepository.findById(idPago)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + idPago));
-        
+
         if (!Pago.EstadoPago.PENDIENTE.name().equals(pago.getEstado())) {
             throw new BusinessException("Solo se pueden anular pagos en estado PENDIENTE");
         }
-        
+
         pago.setEstado(Pago.EstadoPago.ANULADO.name());
-        pago.setDescripcion("ANULADO: " + razon + ". " + 
-                           (pago.getDescripcion() != null ? pago.getDescripcion() : ""));
-        
+        pago.setDescripcion("ANULADO: " + razon + ". " +
+                (pago.getDescripcion() != null ? pago.getDescripcion() : ""));
+
         return mapToDTO(pagoRepository.save(pago));
     }
 
@@ -304,15 +285,15 @@ public class PagoServiceImpl implements IPagoService {
     public PagoDTO rechazarPago(Long idPago, String razon) {
         Pago pago = pagoRepository.findById(idPago)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado con id: " + idPago));
-        
+
         if (!Pago.EstadoPago.PENDIENTE.name().equals(pago.getEstado())) {
             throw new BusinessException("Solo se pueden rechazar pagos en estado PENDIENTE");
         }
-        
+
         pago.setEstado(Pago.EstadoPago.RECHAZADO.name());
-        pago.setDescripcion("RECHAZADO: " + razon + ". " + 
-                           (pago.getDescripcion() != null ? pago.getDescripcion() : ""));
-        
+        pago.setDescripcion("RECHAZADO: " + razon + ". " +
+                (pago.getDescripcion() != null ? pago.getDescripcion() : ""));
+
         return mapToDTO(pagoRepository.save(pago));
     }
 
@@ -342,18 +323,23 @@ public class PagoServiceImpl implements IPagoService {
     @Override
     @Transactional(readOnly = true)
     public Double obtenerSaldoPendienteReserva(Long idReserva) {
+
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + idReserva));
-        
+        incluye incluye = incluyeRepository.findByReservaIdReserva(idReserva)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Incluye no encontrado con id de reserva: " + idReserva));
+
         Double montoPagado = pagoRepository.sumMontoConfirmadoPorReserva(idReserva);
-        return reserva.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
+        return incluye.getMontoTotal() - (montoPagado != null ? montoPagado : 0.0);
     }
 
     // VALIDACIONES
     @Override
     @Transactional(readOnly = true)
     public boolean validarCodigoTransaccionUnico(String codigoTransaccion) {
-        if (codigoTransaccion == null) return true;
+        if (codigoTransaccion == null)
+            return true;
         return !pagoRepository.existsByCodigoTransaccion(codigoTransaccion);
     }
 
@@ -362,4 +348,65 @@ public class PagoServiceImpl implements IPagoService {
     public boolean existePagoConMismoMontoYReserva(Double monto, Long idReserva) {
         return pagoRepository.existsByMontoAndReservaIdReserva(monto, idReserva);
     }
+    // mapeo
+
+    private PagoDTO mapToDTO(Pago pago) {
+
+        Cliente cliente = pago.getCliente();
+
+        return PagoDTO.builder()
+                .idPago(pago.getIdPago())
+                .monto(pago.getMonto())
+                .fecha(pago.getFecha())
+                .tipoPago(pago.getTipoPago())
+                .metodoPago(pago.getMetodoPago())
+                .estado(pago.getEstado())
+                .codigoTransaccion(pago.getCodigoTransaccion())
+                .descripcion(pago.getDescripcion())
+                .idReserva(pago.getReserva() != null ? pago.getReserva().getIdReserva() : null)
+                .clienteId(cliente != null ? cliente.getId() : null)
+                .cliente(cliente != null ? convertClienteToDTO(cliente) : null)
+                .build();
+
+    }
+
+    // mapeo pago
+    // Mapeo de Cliente como objeto anidado (estilo CanchaServiceImpl)
+    private ClienteDTO convertClienteToDTO(Cliente cliente) {
+        if (cliente == null)
+            return null;
+        return ClienteDTO.builder()
+                .id(cliente.getId())
+                .nombre(cliente.getNombre())
+                .aPaterno(cliente.getApellidoPaterno())
+                .aMaterno(cliente.getApellidoMaterno())
+                .estado(cliente.getEstado())
+                .urlImagen(cliente.getUrlImagen())
+                .email(cliente.getEmail())
+                .telefono(cliente.getTelefono())
+                .categoria(cliente.getCategoria())
+                .build();
+    }
+
+    private Pago mapToEntity(PagoDTO dto) {
+
+        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
+                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con id: " + dto.getIdReserva()));
+
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado con ID: " + dto.getClienteId()));
+
+        return Pago.builder()
+                .monto(dto.getMonto())
+                .fecha(dto.getFecha())
+                .tipoPago(dto.getTipoPago())
+                .metodoPago(dto.getMetodoPago())
+                .estado(dto.getEstado())
+                .codigoTransaccion(dto.getCodigoTransaccion())
+                .descripcion(dto.getDescripcion())
+                .reserva(reserva)
+                .cliente(cliente)
+                .build();
+    }
+
 }
