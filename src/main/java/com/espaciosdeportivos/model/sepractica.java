@@ -10,10 +10,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Sepractica {
+public class sepractica {
 
     @EmbeddedId
-    private SepracticaId id;
+    private sepracticaId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idCancha")

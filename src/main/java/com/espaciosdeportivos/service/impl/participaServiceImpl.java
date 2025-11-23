@@ -1,9 +1,9 @@
 package com.espaciosdeportivos.service.impl;
 
-import com.espaciosdeportivos.dto.ParticipaDTO;
+import com.espaciosdeportivos.dto.participaDTO;
 import com.espaciosdeportivos.model.*;
-import com.espaciosdeportivos.repository.ParticipaRepository;
-import com.espaciosdeportivos.repository.IncluyeRepository;
+import com.espaciosdeportivos.repository.participaRepository;
+import com.espaciosdeportivos.repository.incluyeRepository;
 import com.espaciosdeportivos.repository.InvitadoRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
 import com.espaciosdeportivos.service.IparticipaService;
@@ -18,35 +18,30 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ParticipaServiceImpl implements IparticipaService {
+public class participaServiceImpl implements IparticipaService {
 
-    private final ParticipaRepository participaRepository;
+    private final participaRepository participaRepository;
     private final InvitadoRepository invitadoRepository;
     private final ReservaRepository reservaRepository;
     private final com.espaciosdeportivos.service.IQrService qrService;
-    private final IncluyeRepository incluyeRepository;
-    private static final Logger log = LoggerFactory.getLogger(Participa.class);
-
-
-
-
+    private final incluyeRepository incluyeRepository;
+    private static final Logger log = LoggerFactory.getLogger(participa.class);
 
     @Override
     @Transactional
-    public ParticipaDTO crear(ParticipaDTO participaDTO) {
+    public participaDTO crear(participaDTO participaDTO) {
         // Validar que no exista ya la invitación
         if (participaRepository.existsByInvitadoIdAndReservaIdReserva(
-            participaDTO.getIdInvitado(), participaDTO.getIdReserva())) {
+                participaDTO.getIdInvitado(), participaDTO.getIdReserva())) {
             throw new IllegalArgumentException("El invitado ya está invitado a esta reserva");
         }
 
         Reserva reserva = reservaRepository.findById(participaDTO.getIdReserva())
                 .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada"));
-        
+
         Invitado invitado = invitadoRepository.findById(participaDTO.getIdInvitado())
                 .orElseThrow(() -> new EntityNotFoundException("Invitado no encontrado"));
 
@@ -55,7 +50,8 @@ public class ParticipaServiceImpl implements IparticipaService {
             throw new IllegalArgumentException("No se pueden agregar invitados a una reserva completada o cancelada");
         }
 
-        // Validar capacidad: solo se permiten (capacidad - 1) invitados (cliente ocupa 1)
+        // Validar capacidad: solo se permiten (capacidad - 1) invitados (cliente ocupa
+        // 1)
         Cancha cancha = reserva.getCancha();
         if (cancha == null) {
             throw new IllegalStateException("Reserva sin cancha asociada");
@@ -67,9 +63,10 @@ public class ParticipaServiceImpl implements IparticipaService {
             throw new IllegalArgumentException("Capacidad de invitados alcanzada para esta reserva");
         }
 
-        // Crear la entidad participa (cambiando el nombre de la variable para evitar ambigüedad)
-        Participa nuevaParticipacion = Participa.crear(invitado, reserva);
-        
+        // Crear la entidad participa (cambiando el nombre de la variable para evitar
+        // ambigüedad)
+        participa nuevaParticipacion = participa.crear(invitado, reserva);
+
         // Setear campos opcionales del DTO
         if (participaDTO.getObservaciones() != null) {
             nuevaParticipacion.setObservaciones(participaDTO.getObservaciones());
@@ -81,9 +78,9 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional
-    public ParticipaDTO actualizar(Long idReserva, Long idInvitado, ParticipaDTO participaDTO) {
-        Participa participacionExistente = obtenerParticipa(idReserva, idInvitado);
-        
+    public participaDTO actualizar(Long idReserva, Long idInvitado, participaDTO participaDTO) {
+        participa participacionExistente = obtenerParticipa(idReserva, idInvitado);
+
         // Actualizar solo los campos permitidos
         if (participaDTO.getAsistio() != null) {
             participacionExistente.setAsistio(participaDTO.getAsistio());
@@ -104,9 +101,9 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional
-    public ParticipaDTO confirmarInvitacion(Long idReserva, Long idInvitado) {
-        Participa participacion = obtenerParticipa(idReserva, idInvitado);
-        
+    public participaDTO confirmarInvitacion(Long idReserva, Long idInvitado) {
+        participa participacion = obtenerParticipa(idReserva, idInvitado);
+
         Reserva reserva = participacion.getReserva();
         if (!reserva.estaActiva()) {
             throw new IllegalArgumentException("No se puede confirmar invitación a una reserva no activa");
@@ -138,22 +135,24 @@ public class ParticipaServiceImpl implements IparticipaService {
         try {
             var optIncluye = incluyeRepository.findByReservaIdReserva(idReserva);
             if (optIncluye.isPresent()) {
-                Incluye incluye = optIncluye.get();
-                if (incluye.getInvitadosConfirmados() == null) incluye.setInvitadosConfirmados(0);
+                incluye incluye = optIncluye.get();
+                if (incluye.getInvitadosConfirmados() == null)
+                    incluye.setInvitadosConfirmados(0);
                 incluye.setInvitadosConfirmados(incluye.getInvitadosConfirmados() + 1);
                 // guardar
                 incluyeRepository.save(incluye);
             }
         } catch (Exception e) {
-            log.warn("No se pudo actualizar invitadosConfirmados en Incluye para reserva {}: {}", idReserva, e.getMessage());
+            log.warn("No se pudo actualizar invitadosConfirmados en Incluye para reserva {}: {}", idReserva,
+                    e.getMessage());
         }
         return mapToDTO(participacion);
     }
 
     @Override
     @Transactional
-    public ParticipaDTO registrarAsistencia(Long idReserva, Long idInvitado, Boolean asistio) {
-        Participa participacion = obtenerParticipa(idReserva, idInvitado);
+    public participaDTO registrarAsistencia(Long idReserva, Long idInvitado, Boolean asistio) {
+        participa participacion = obtenerParticipa(idReserva, idInvitado);
         participacion.setAsistio(asistio);
         participaRepository.save(participacion);
         return mapToDTO(participacion);
@@ -161,8 +160,8 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional
-    public ParticipaDTO marcarComoNotificado(Long idReserva, Long idInvitado) {
-        Participa participacion = obtenerParticipa(idReserva, idInvitado);
+    public participaDTO marcarComoNotificado(Long idReserva, Long idInvitado) {
+        participa participacion = obtenerParticipa(idReserva, idInvitado);
         participacion.setNotificado(true);
         participaRepository.save(participacion);
         return mapToDTO(participacion);
@@ -171,14 +170,14 @@ public class ParticipaServiceImpl implements IparticipaService {
     @Override
     @Transactional
     public void eliminar(Long idReserva, Long idInvitado) {
-        Participa participacion = obtenerParticipa(idReserva, idInvitado);
+        participa participacion = obtenerParticipa(idReserva, idInvitado);
         participaRepository.delete(participacion);
     }
 
     // Métodos de consulta (readOnly = true)
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipaDTO> findByReservaIdReserva(Long idReserva) {
+    public List<participaDTO> findByReservaIdReserva(Long idReserva) {
         return participaRepository.findByReservaIdReserva(idReserva).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -186,7 +185,7 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipaDTO> findByReservaIdReservaAndConfirmado(Long idReserva, Boolean confirmado) {
+    public List<participaDTO> findByReservaIdReservaAndConfirmado(Long idReserva, Boolean confirmado) {
         return participaRepository.findByReservaIdReservaAndConfirmado(idReserva, confirmado).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -194,7 +193,7 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipaDTO> findByInvitadoId(Long idInvitado) {
+    public List<participaDTO> findByInvitadoId(Long idInvitado) {
         return participaRepository.findByInvitadoId(idInvitado).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -202,7 +201,7 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipaDTO> findInvitadosConfirmadosPorReserva(Long idReserva) {
+    public List<participaDTO> findInvitadosConfirmadosPorReserva(Long idReserva) {
         return participaRepository.findInvitadosConfirmadosPorReserva(idReserva).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -210,7 +209,7 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipaDTO> findReservasActivasPorInvitado(Long idInvitado) {
+    public List<participaDTO> findReservasActivasPorInvitado(Long idInvitado) {
         return participaRepository.findReservasActivasPorInvitado(idInvitado).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -218,8 +217,8 @@ public class ParticipaServiceImpl implements IparticipaService {
 
     @Override
     @Transactional(readOnly = true)
-    public ParticipaDTO findByIds(Long idReserva, Long idInvitado) {
-        Participa participacion = obtenerParticipa(idReserva, idInvitado);
+    public participaDTO findByIds(Long idReserva, Long idInvitado) {
+        participa participacion = obtenerParticipa(idReserva, idInvitado);
         return mapToDTO(participacion);
     }
 
@@ -241,18 +240,18 @@ public class ParticipaServiceImpl implements IparticipaService {
         return participaRepository.countByReservaIdReservaAndAsistio(idReserva, asistio);
     }
 
-    private Participa obtenerParticipa(Long idReserva, Long idInvitado) {
-        ParticipaId id = new ParticipaId(idInvitado, idReserva);
+    private participa obtenerParticipa(Long idReserva, Long idInvitado) {
+        participaId id = new participaId(idInvitado, idReserva);
         return participaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                    "Invitación no encontrada para reserva: " + idReserva + " e invitado: " + idInvitado));
+                        "Invitación no encontrada para reserva: " + idReserva + " e invitado: " + idInvitado));
     }
 
-    private ParticipaDTO mapToDTO(Participa p) {
+    private participaDTO mapToDTO(participa p) {
         Invitado invitado = p.getInvitado();
         Reserva reserva = p.getReserva();
 
-        return ParticipaDTO.builder()
+        return participaDTO.builder()
                 .idInvitado(invitado.getId())
                 .idReserva(reserva.getIdReserva())
                 .asistio(p.getAsistio())

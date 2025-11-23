@@ -19,154 +19,162 @@ import java.util.stream.Collectors;
 @Transactional
 public class IncluyeServiceImpl implements IIncluyeService {
 
-    private final IncluyeRepository incluyeRepository;
-    private final ReservaRepository reservaRepository;
-    private final CanchaRepository canchaRepository;
-    private final DisciplinaRepository disciplinaRepository;
+        private final incluyeRepository incluyeRepository;
+        private final ReservaRepository reservaRepository;
+        private final CanchaRepository canchaRepository;
+        private final DisciplinaRepository disciplinaRepository;
 
-    @Override
-    public IncluyeDTO asociarCanchaDisciplinaAReserva(IncluyeDTO dto) {
-        // Validar existencia de las entidades relacionadas
-        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + dto.getIdReserva()));
+        @Override
+        public IncluyeDTO asociarCanchaDisciplinaAReserva(IncluyeDTO dto) {
+                // Validar existencia de las entidades relacionadas
+                Reserva reserva = reservaRepository.findById(dto.getIdReserva())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Reserva no encontrada con ID: " + dto.getIdReserva()));
 
-        Cancha cancha = canchaRepository.findById(dto.getIdCancha())
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + dto.getIdCancha()));
+                Cancha cancha = canchaRepository.findById(dto.getIdCancha())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Cancha no encontrada con ID: " + dto.getIdCancha()));
 
-        Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
-                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
+                Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
 
-        // Crear ID compuesto
-        IncluyeId id = new IncluyeId(dto.getIdCancha(), dto.getIdReserva(), dto.getIdDisciplina());
+                // Crear ID compuesto
+                incluyeId id = new incluyeId(dto.getIdCancha(), dto.getIdReserva(), dto.getIdDisciplina());
 
-        // Verificar si ya existe (opcional, según reglas de negocio)
-        if (incluyeRepository.existsById(id)) {
-            throw new IllegalStateException("La asociación ya existe");
+                // Verificar si ya existe (opcional, según reglas de negocio)
+                if (incluyeRepository.existsById(id)) {
+                        throw new IllegalStateException("La asociación ya existe");
+                }
+
+                // Calcular monto total
+                // double horas = java.time.Duration.between(reserva.getHoraInicio(),
+                // reserva.getHoraFin()).toHours();
+                double minutos = java.time.Duration.between(reserva.getHoraInicio(), reserva.getHoraFin()).toMinutes();
+                double horas = minutos / 60.0;
+                double montoTotal = cancha.getCostoHora() * horas;
+
+                // Crear y guardar
+                incluye inc = incluye.builder()
+                                .id(id)
+                                .reserva(reserva)
+                                .cancha(cancha)
+                                .disciplina(disciplina)
+                                .montoTotal(montoTotal)
+                                .build();
+
+                inc = incluyeRepository.save(inc);
+                return convertToDTO(inc);
+
         }
 
-        // Calcular monto total
-        //double horas = java.time.Duration.between(reserva.getHoraInicio(), reserva.getHoraFin()).toHours();
-        double minutos = java.time.Duration.between(reserva.getHoraInicio(), reserva.getHoraFin()).toMinutes();
-        double horas = minutos / 60.0;
-        double montoTotal = cancha.getCostoHora() * horas;
-
-        // Crear y guardar
-        //Incluye incluye = convertToEntity(dto);
-        Incluye incluye = Incluye.builder()
-                .id(id)
-                .reserva(reserva)
-                .cancha(cancha)
-                .disciplina(disciplina)
-                .montoTotal(montoTotal)
-                .build();
-
-        incluye = incluyeRepository.save(incluye);
-        return convertToDTO(incluye);
-    }
-
-    @Override
-    public Double obtenerMontoTotal(Long idReserva, Long idCancha, Long idDisciplina) {
-        IncluyeId id = new IncluyeId(idCancha, idReserva, idDisciplina);
-        Incluye incluye = incluyeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Asociación no encontrada"));
-        return incluye.getMontoTotal();
-    }
-
-    @Override
-    public Double calcularMonto(Long idCancha, Long idDisciplina, LocalTime horaInicio, LocalTime horaFin) {
-        // Buscar la cancha
-        Cancha cancha = canchaRepository.findById(idCancha)
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + idCancha));
-
-        // Validar disciplina (aunque no afecta el costo, para consistencia)
-        disciplinaRepository.findById(idDisciplina)
-                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + idDisciplina));
-
-        // Calcular diferencia en minutos
-        long minutos = java.time.Duration.between(horaInicio, horaFin).toMinutes();
-
-        if (minutos <= 0) {
-                throw new IllegalArgumentException("La hora de fin debe ser posterior a la de inicio");
+        @Override
+        public Double obtenerMontoTotal(Long idReserva, Long idCancha, Long idDisciplina) {
+                incluyeId id = new incluyeId(idCancha, idReserva, idDisciplina);
+                incluye incluye = incluyeRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException("Asociación no encontrada"));
+                return incluye.getMontoTotal();
         }
 
-        // Calcular monto proporcional
-        double horas = minutos / 60.0;
-        double montoTotal = cancha.getCostoHora() * horas;
+        @Override
+        public Double calcularMonto(Long idCancha, Long idDisciplina, LocalTime horaInicio, LocalTime horaFin) {
+                // Buscar la cancha
+                Cancha cancha = canchaRepository.findById(idCancha)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Cancha no encontrada con ID: " + idCancha));
 
-        return Math.round(montoTotal * 100.0) / 100.0; // redondeo a 2 decimales
-}
+                // Validar disciplina (aunque no afecta el costo, para consistencia)
+                disciplinaRepository.findById(idDisciplina)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Disciplina no encontrada con ID: " + idDisciplina));
 
+                // Calcular diferencia en minutos
+                long minutos = java.time.Duration.between(horaInicio, horaFin).toMinutes();
 
+                if (minutos <= 0) {
+                        throw new IllegalArgumentException("La hora de fin debe ser posterior a la de inicio");
+                }
 
-    @Override
-    public IncluyeDTO obtenerPorReservaCanchaDisciplina(Long idReserva, Long idCancha, Long idDisciplina) {
-        IncluyeId id = new IncluyeId(idCancha, idReserva, idDisciplina);
-        Incluye incluye = incluyeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Asociación no encontrada"));
-        return convertToDTO(incluye);
-    }
+                // Calcular monto proporcional
+                double horas = minutos / 60.0;
+                double montoTotal = cancha.getCostoHora() * horas;
 
-    @Override
-    public void desasociarCanchaDisciplinaDeReserva(Long idReserva, Long idCancha, Long idDisciplina) {
-        IncluyeId id = new IncluyeId(idCancha, idReserva, idDisciplina);
-        if (!incluyeRepository.existsById(id)) {
-            throw new EntityNotFoundException("Asociación no encontrada");
+                return Math.round(montoTotal * 100.0) / 100.0; // redondeo a 2 decimales
         }
-        incluyeRepository.deleteById(id);
-    }
 
-    @Override
-    public List<IncluyeDTO> obtenerPorReserva(Long idReserva) {
-        return incluyeRepository.findByIdReserva(idReserva) 
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
+        @Override
+        public IncluyeDTO obtenerPorReservaCanchaDisciplina(Long idReserva, Long idCancha, Long idDisciplina) {
+                incluyeId id = new incluyeId(idCancha, idReserva, idDisciplina);
+                incluye incluye = incluyeRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException("Asociación no encontrada"));
+                return convertToDTO(incluye);
+        }
 
-    @Override
-    public List<IncluyeDTO> obtenerPorCancha(Long idCancha) {
-        return incluyeRepository.findByCanchaIdCancha(idCancha)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
+        @Override
+        public void desasociarCanchaDisciplinaDeReserva(Long idReserva, Long idCancha, Long idDisciplina) {
+                incluyeId id = new incluyeId(idCancha, idReserva, idDisciplina);
+                if (!incluyeRepository.existsById(id)) {
+                        throw new EntityNotFoundException("Asociación no encontrada");
+                }
+                incluyeRepository.deleteById(id);
+        }
 
-    @Override
-    public List<IncluyeDTO> obtenerPorDisciplina(Long idDisciplina) {
-        return incluyeRepository.findByIdDisciplina(idDisciplina)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
+        @Override
+        public List<IncluyeDTO> obtenerPorReserva(Long idReserva) {
+                return incluyeRepository.findByIdReserva(idReserva)
+                                .stream()
+                                .map(this::convertToDTO)
+                                .collect(Collectors.toList());
+        }
 
-    private IncluyeDTO convertToDTO(Incluye incluye) {
-        return IncluyeDTO.builder()
-                .idReserva(incluye.getReserva().getIdReserva())
-                .idCancha(incluye.getCancha().getIdCancha())
-                .idDisciplina(incluye.getDisciplina().getIdDisciplina())
-                .montoTotal(incluye.getMontoTotal())
-                .build();
-    }
-    // Dentro de IncluyeServiceImpl.java
+        @Override
+        public List<IncluyeDTO> obtenerPorCancha(Long idCancha) {
+                return incluyeRepository.findByCanchaIdCancha(idCancha)
+                                .stream()
+                                .map(this::convertToDTO)
+                                .collect(Collectors.toList());
+        }
 
-    private Incluye convertToEntity(IncluyeDTO dto) {
-        if (dto == null) return null;
-        
-        Reserva reserva = reservaRepository.findById(dto.getIdReserva())
-                .orElseThrow(() -> new EntityNotFoundException("Reserva no encontrada con ID: " + dto.getIdReserva()));
+        @Override
+        public List<IncluyeDTO> obtenerPorDisciplina(Long idDisciplina) {
+                return incluyeRepository.findByIdDisciplina(idDisciplina)
+                                .stream()
+                                .map(this::convertToDTO)
+                                .collect(Collectors.toList());
+        }
 
-        Cancha cancha = canchaRepository.findById(dto.getIdCancha())
-                .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + dto.getIdCancha()));
+        private IncluyeDTO convertToDTO(incluye incluye) {
+                return IncluyeDTO.builder()
+                                .idReserva(incluye.getReserva().getIdReserva())
+                                .idCancha(incluye.getCancha().getIdCancha())
+                                .idDisciplina(incluye.getDisciplina().getIdDisciplina())
+                                .montoTotal(incluye.getMontoTotal())
+                                .build();
+        }
+        // Dentro de IncluyeServiceImpl.java
 
-        Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
-                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
+        private incluye convertToEntity(IncluyeDTO dto) {
+                if (dto == null)
+                        return null;
 
-        // 3. **CONSTRUIR LA ENTIDAD** (Sintaxis corregida)
-        return Incluye.builder()
-                .reserva(reserva) // Asignar la entidad Reserva
-                .cancha(cancha)   // Asignar la entidad Cancha
-                .disciplina(disciplina) // Asignar la entidad Disciplina
-                .montoTotal(dto.getMontoTotal()) // Asignar el monto
-                .build();
-    }
+                Reserva reserva = reservaRepository.findById(dto.getIdReserva())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Reserva no encontrada con ID: " + dto.getIdReserva()));
+
+                Cancha cancha = canchaRepository.findById(dto.getIdCancha())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Cancha no encontrada con ID: " + dto.getIdCancha()));
+
+                Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
+
+                // 3. **CONSTRUIR LA ENTIDAD** (Sintaxis corregida)
+                return incluye.builder()
+                                .reserva(reserva) // Asignar la entidad Reserva
+                                .cancha(cancha) // Asignar la entidad Cancha
+                                .disciplina(disciplina) // Asignar la entidad Disciplina
+                                .montoTotal(dto.getMontoTotal()) // Asignar el monto
+                                .build();
+        }
 }

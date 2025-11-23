@@ -2,23 +2,21 @@ package com.espaciosdeportivos.service;
 
 import java.util.List;
 
-import com.espaciosdeportivos.dto.DisponeDTO;
+import com.espaciosdeportivos.dto.disponeDTO;
 //import com.espaciosdeportivos.model.disponeId;
 //import com.espaciosdeportivos.model.dispone;
 
-
 public interface IdisponeService {
-    
-    DisponeDTO asociarEquipamientoACancha(DisponeDTO dto);
 
-    DisponeDTO obtenerEquipamientoDeCancha(Long idCancha , Long idEquipamiento);
+    disponeDTO asociarEquipamientoACancha(disponeDTO dto);
 
-    List<DisponeDTO> obtenerEquipamientosPorCancha(Long idCancha);
+    disponeDTO obtenerEquipamientoDeCancha(Long idCancha, Long idEquipamiento);
 
-    void desasociarEquipamientoDeCancha(Long idCancha ,Long idEquipamiento);
+    List<disponeDTO> obtenerEquipamientosPorCancha(Long idCancha);
 
-    List<DisponeDTO> listarPorIdCancha(Long idCancha);
-    
-    List<DisponeDTO> listarPorIdEquipamiento(Long idEquipamiento); 
+    void desasociarEquipamientoDeCancha(Long idCancha, Long idEquipamiento);
+
+    List<disponeDTO> listarPorIdCancha(Long idCancha);
+
+    List<disponeDTO> listarPorIdEquipamiento(Long idEquipamiento);
 }
-

@@ -1,9 +1,9 @@
 package com.espaciosdeportivos.model;
 
-
 import lombok.*;
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTAR ESTO
 
 @Getter
 @Setter
@@ -20,7 +20,7 @@ public class Zona {
 
     @Column(name = "nombre_zona", nullable = false, length = 200)
     private String nombre;
-    
+
     @Column(name = "descripcion", length = 600)
     private String descripcion;
 
@@ -31,9 +31,10 @@ public class Zona {
     @JoinColumn(name = "id_macrodistrito")
     private Macrodistrito macrodistrito;
 
-    //comentario: Nose si es correcto que al eliminar zona se eliinara el area deportiva por eso quite el cascadetypeall
-    //comentario : le puse false por que si elimino zona eliminaria tambien areadeportiva
-    @OneToMany(mappedBy = "zona", /*cascade = CascadeType.ALL ,*/orphanRemoval = false)
+    // --- AQUÍ ESTÁ LA SOLUCIÓN ---
+    // Agregamos @JsonIgnore para que al pedir una Zona,
+    // NO intente traernos todas las áreas deportivas asociadas y rompa el bucle.
+    @OneToMany(mappedBy = "zona", /* cascade = CascadeType.ALL , */ orphanRemoval = false)
+    @JsonIgnore // <--- ¡ESTA LÍNEA ES OBLIGATORIA!
     private List<AreaDeportiva> areaDeportiva;
-    
 }

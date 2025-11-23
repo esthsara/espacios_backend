@@ -12,17 +12,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"invitado", "reserva"}) // Evita recursividad en toString
+@ToString(exclude = { "invitado", "reserva" }) // Evita recursividad en toString
 @Entity
-@Table(name = "participa", 
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = {"id_invitado", "id_reserva"})
-       })
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Participa {
-    
+@Table(name = "participa", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "id_invitado", "id_reserva" })
+})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+public class participa {
+
     @EmbeddedId
-    private ParticipaId id;
+    private participaId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idInvitado")
@@ -65,9 +64,9 @@ public class Participa {
     }
 
     // Método helper para crear la clave embebida
-    public static Participa crear(Invitado invitado, Reserva reserva) {
-        ParticipaId id = new ParticipaId(invitado.getId(), reserva.getIdReserva());
-        return Participa.builder()
+    public static participa crear(Invitado invitado, Reserva reserva) {
+        participaId id = new participaId(invitado.getId(), reserva.getIdReserva());
+        return participa.builder()
                 .id(id)
                 .invitado(invitado)
                 .reserva(reserva)

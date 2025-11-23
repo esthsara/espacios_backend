@@ -12,13 +12,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import jakarta.validation.constraints.*;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 
-public class AreaDeportivaDTO implements Serializable{
+public class AreaDeportivaDTO implements Serializable {
     private Long idAreadeportiva;
 
     @NotBlank(message = "El nombre del área es obligatorio")
@@ -42,11 +41,9 @@ public class AreaDeportivaDTO implements Serializable{
     @JsonFormat(pattern = "HH:mm")
     private LocalTime horaFinArea;
 
-    //@NotBlank(message = "El estado del área es obligatorio")
-    //private String estadoArea;
+    // @NotBlank(message = "El estado del área es obligatorio")
+    // private String estadoArea;
 
-    private String urlImagen;
-    
     @DecimalMin(value = "-90.0", message = "La latitud debe estar entre -90 y 90")
     @DecimalMax(value = "90.0", message = "La latitud debe estar entre -90 y 90")
     private Double latitud;
@@ -63,24 +60,25 @@ public class AreaDeportivaDTO implements Serializable{
     private Long idZona;
 
     @NotNull(message = "El ID del administrador es obligatorio")
-    @Positive(message = "El ID del administrador debe ser un valor positivo")   
+    @Positive(message = "El ID del administrador debe ser un valor positivo")
     private Long id;
 
-    //objeto para front 
-    private ZonaDTO zona; 
-
+    // objeto para front
+    private ZonaDTO zona;
 
     // Para RESPUESTA - imágenes ya procesadas
     private List<ImagenDTO> imagenes;
-    //private LocalDateTime fechaCreacion;
-    //private LocalDateTime fechaActualizacion;
+    // private LocalDateTime fechaCreacion;
+    // private LocalDateTime fechaActualizacion;
     // Para CREACIÓN/ACTUALIZACIÓN - ignorado en JSON
     @JsonIgnore
     private transient List<MultipartFile> archivosImagenes;
+
     // Métodos de utilidad
     public boolean tieneArchivosParaProcesar() {
         return archivosImagenes != null && !archivosImagenes.isEmpty();
     }
+
     //
     public boolean esValidoParaCreacion() {
         return nombreArea != null && !nombreArea.trim().isEmpty();

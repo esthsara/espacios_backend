@@ -8,13 +8,13 @@ import jakarta.validation.constraints.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ZonaDTO implements Serializable{
+public class ZonaDTO implements Serializable {
     private Long idZona;
 
     @NotBlank(message = "El nombre de la zona es obligatorio")
     private String nombre;
-    
-    @Size(max = 600, message = "La descripción no puede tener más de 600 caracteres")   
+
+    @Size(max = 600, message = "La descripción no puede tener más de 600 caracteres")
     private String descripcion;
 
     @NotNull(message = "El estado es obligatorio")
@@ -23,6 +23,6 @@ public class ZonaDTO implements Serializable{
     @NotNull(message = "El id del macrodistrito es obligatorio")
     private Long idMacrodistrito;
 
-    //objeto
-    private MacrodistritoDTO macrodistrito;
+    // objeto
+    // private MacrodistritoDTO macrodistrito;
 }

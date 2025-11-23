@@ -10,10 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Table(name = "incluye")
-public class Incluye {
+public class incluye {
 
     @EmbeddedId
-    private IncluyeId id;
+    private incluyeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idCancha")
@@ -32,7 +32,7 @@ public class Incluye {
 
     @Column(name = "monto_total", nullable = false)
     private Double montoTotal;
-    
+
     @Column(name = "invitados_confirmados")
     @Builder.Default
     private Integer invitadosConfirmados = 0;

@@ -2,7 +2,7 @@ package com.espaciosdeportivos.controller;
 
 import com.espaciosdeportivos.dto.CanchaDTO;
 import com.espaciosdeportivos.dto.UsuarioControlDTO;
-import com.espaciosdeportivos.service.ISupervisaService;
+import com.espaciosdeportivos.service.IsupervisaService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import java.util.List;
 @RequestMapping("/api/supervisa")
 @Validated
 @RequiredArgsConstructor
-public class SupervisaController {
+public class supervisaController {
 
-    private final ISupervisaService supervisaService;
+    private final IsupervisaService supervisaService;
 
     // Asignar una cancha a un usuario de control
     @PostMapping

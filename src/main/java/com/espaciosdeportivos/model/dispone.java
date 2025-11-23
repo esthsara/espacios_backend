@@ -10,11 +10,11 @@ import lombok.*;
 @Builder
 @ToString
 @Entity
-@Table(name = "dispone") 
-public class Dispone {
-    
+@Table(name = "dispone")
+public class dispone {
+
     @EmbeddedId
-    private DisponeId id;
+    private disponeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idCancha")
@@ -26,6 +26,6 @@ public class Dispone {
     @JoinColumn(name = "id_equipamiento", referencedColumnName = "id_equipamiento", insertable = false, updatable = false)
     private Equipamiento equipamiento;
 
-    @Column(name = "cantidad",nullable = false)
+    @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 }

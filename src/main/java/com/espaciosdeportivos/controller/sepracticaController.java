@@ -1,6 +1,6 @@
 package com.espaciosdeportivos.controller;
 
-import com.espaciosdeportivos.dto.SepracticaDTO;
+import com.espaciosdeportivos.dto.sepracticaDTO;
 import com.espaciosdeportivos.service.IsepracticaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +19,16 @@ public class sepracticaController {
     private final IsepracticaService sepracticaService;
 
     @PostMapping
-    public ResponseEntity<SepracticaDTO> asociarDisciplinaACancha(@Valid @RequestBody SepracticaDTO dto) {
-        SepracticaDTO result = sepracticaService.asociarDisciplinaACancha(dto);
+    public ResponseEntity<sepracticaDTO> asociarDisciplinaACancha(@Valid @RequestBody sepracticaDTO dto) {
+        sepracticaDTO result = sepracticaService.asociarDisciplinaACancha(dto);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{idCancha}/{idDisciplina}")
-    public ResponseEntity<SepracticaDTO> obtenerDisciplinaDeCancha(
+    public ResponseEntity<sepracticaDTO> obtenerDisciplinaDeCancha(
             @PathVariable Long idCancha,
             @PathVariable Long idDisciplina) {
-        SepracticaDTO association = sepracticaService.obtenerDisciplinaDeCancha(idCancha, idDisciplina);
+        sepracticaDTO association = sepracticaService.obtenerDisciplinaDeCancha(idCancha, idDisciplina);
         return ResponseEntity.ok(association);
     }
 
@@ -41,20 +41,20 @@ public class sepracticaController {
     }
 
     @GetMapping("/{idCancha}/disciplinas")
-    public ResponseEntity<List<SepracticaDTO>> obtenerDisciplinasPorCancha(@PathVariable Long idCancha) {
-        List<SepracticaDTO> disciplinas = sepracticaService.obtenerDisciplinasPorCancha(idCancha);
+    public ResponseEntity<List<sepracticaDTO>> obtenerDisciplinasPorCancha(@PathVariable Long idCancha) {
+        List<sepracticaDTO> disciplinas = sepracticaService.obtenerDisciplinasPorCancha(idCancha);
         return ResponseEntity.ok(disciplinas);
     }
 
     @GetMapping("/por-cancha/{idCancha}")
-    public ResponseEntity<List<SepracticaDTO>> listarPorIdCancha(@PathVariable Long idCancha) {
-        List<SepracticaDTO> relaciones = sepracticaService.listarPorIdCancha(idCancha);
+    public ResponseEntity<List<sepracticaDTO>> listarPorIdCancha(@PathVariable Long idCancha) {
+        List<sepracticaDTO> relaciones = sepracticaService.listarPorIdCancha(idCancha);
         return ResponseEntity.ok(relaciones);
     }
 
     @GetMapping("/por-disciplina/{idDisciplina}")
-    public ResponseEntity<List<SepracticaDTO>> listarPorIdDisciplina(@PathVariable Long idDisciplina) {
-        List<SepracticaDTO> relaciones = sepracticaService.listarPorIdDisciplina(idDisciplina);
+    public ResponseEntity<List<sepracticaDTO>> listarPorIdDisciplina(@PathVariable Long idDisciplina) {
+        List<sepracticaDTO> relaciones = sepracticaService.listarPorIdDisciplina(idDisciplina);
         return ResponseEntity.ok(relaciones);
     }
 }

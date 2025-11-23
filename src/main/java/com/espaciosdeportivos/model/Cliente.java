@@ -1,9 +1,9 @@
 package com.espaciosdeportivos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTANTE
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-//import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
@@ -20,19 +20,14 @@ public class Cliente extends Persona {
         super.setId(id);
     }
 
-    //@NotNull
     @Column(name = "categoria", nullable = false, length = 100)
     private String categoria;
 
-    // revisar sara
-    @OneToMany(mappedBy = "cliente", /*cascade = CascadeType.ALL,*/ orphanRemoval = false,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cliente", orphanRemoval = false, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- EVITA EL BUCLE Y ERROR LAZY
     private List<Cancelacion> cancelacion;
 
-    //aqui agregue por que por que asi trabajaron y no podri ahcer nad ano pensba rehacer asi que segui el flujo
-    // Relación con Cliente
-
-    @OneToMany(mappedBy = "cliente", orphanRemoval = false , fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cliente", orphanRemoval = false, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- EVITA EL BUCLE Y ERROR LAZY
     private List<Pago> pagos;
-
-
 }
