@@ -21,9 +21,6 @@ public class Qr {
     @Column(name = "codigo_qr", nullable = false, unique = true, length = 200)
     private String codigoQr;
 
-    @Column(name = "urlQr", nullable = false, unique = true, length = 200)
-    private String urlQr; //aqui s esupone que se guarda la direccion
-
     @Column(name = "fecha_generacion", nullable = false)
     private LocalDateTime fechaGeneracion;
 
@@ -36,20 +33,15 @@ public class Qr {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    @Column(name = "es_cliente", nullable = false)
-    private Boolean esCliente ;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", referencedColumnName = "id_persona", nullable = false)
     private Persona usuarioControl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_persona", referencedColumnName = "id_persona", nullable = false)
-    private Persona persona;
+    @JoinColumn(name = "id_invitado", referencedColumnName = "id_persona", nullable = false)
+    private Persona invitado;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_reserva", referencedColumnName = "id_reserva", nullable = false)
     private Reserva reserva;
-
-    
 }

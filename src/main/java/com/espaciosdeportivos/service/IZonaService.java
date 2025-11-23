@@ -34,11 +34,4 @@ public interface IZonaService {
     // Zona con bloqueo optimista
     Zona obtenerZonaConBloqueo(Long idZona);
 
-    //obtner todas las zonas de un macrodistrito
-    //List<ZonaDTO> obtenerZonasPorMacrodistritoId(Long idMacrodistrito);
-
-    //buscar zonas por macrodistrito y nombre
-    //List<ZonaDTO> buscarZonasPorMacrodistritoYNombre(Long idMacrodistrito, String nombre);
-
-
 }

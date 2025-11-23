@@ -26,9 +26,6 @@ public class Macrodistrito {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    //Si guardo, actualizas o eliminas un Macrodistrito esas operaciones se propagan automáticamente a susZona
-    //si elimino un macroitrito se eliminan sus zonas asociadas
-
     @OneToMany(mappedBy = "macrodistrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Zona> zona;
     

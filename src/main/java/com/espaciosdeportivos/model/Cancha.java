@@ -1,9 +1,11 @@
 package com.espaciosdeportivos.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTANTE
-import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalTime;
+//import java.util.ArrayList;
+
+import jakarta.persistence.*;
 import java.util.List;
 
 @Getter
@@ -28,6 +30,9 @@ public class Cancha {
 
     @Column(name = "capacidad", nullable = false)
     private Integer capacidad;
+
+    /*@Column(name = "estado_cancha", nullable = false, length = 100)
+    private String estado;*/
 
     @Column(name = "mantenimiento", nullable = false, length = 100)
     private String mantenimiento;
@@ -56,26 +61,24 @@ public class Cancha {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestampx
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+     */
+
+    @ManyToOne
     @JoinColumn(name = "id_areadeportiva")
-    // @JsonIgnore <--- Opcional: Si quieres evitar cargar el área completa al ver
-    // la cancha
     private AreaDeportiva areaDeportiva;
 
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- NECESARIO
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<dispone> equipamiento;
 
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- NECESARIO
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comentario> comentario;
 
-    // ESTE ES EL CULPABLE DEL BUCLE INFINITO "RESERVA <-> CANCHA"
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- ¡CRÍTICO! ESTO SOLUCIONA EL CRASH
-    private List<incluye> incluidos;
-
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- NECESARIO
-    private List<sepractica> sePractica;
 }

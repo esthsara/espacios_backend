@@ -28,14 +28,14 @@ public class InvitadoDTO implements Serializable {
     @Past(message = "La fecha de nacimiento debe ser una fecha pasada.")
     private LocalDate fechaNacimiento;
 
-    @Pattern(regexp = "^[0-9]{8}$", message = "El teléfono debe tener exactamente 8 dígitos.")
+    @Pattern(regexp = "^\\+591(7|6|4|3)\\d{7}$", message = "El teléfono debe ser un número válido de Bolivia.")
     private String telefono;
 
     @Email(message = "El email debe ser válido.")
     @Size(max = 150, message = "El email no puede exceder los 150 caracteres.")
     private String email;
 
-    //@NotBlank(message = "La URL de la imagen es obligatoria.")
+    @NotBlank(message = "La URL de la imagen es obligatoria.")
     private String urlImagen;
 
     @NotNull(message = "El estado es obligatorio.")
@@ -43,7 +43,4 @@ public class InvitadoDTO implements Serializable {
 
     @NotNull(message = "El estado de verificación es obligatorio.")
     private Boolean verificado;
-
-    //objeto aqui o donde deberia ir 
-    //private QrDTO qr;
 }

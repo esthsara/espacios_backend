@@ -25,8 +25,7 @@ public interface IAreaDeportivaService {
     // actualizar área deportiva
     AreaDeportivaDTO actualizarAreaDeportiva(Long idAreaDeportiva, @Valid AreaDeportivaDTO areaDeportivaDTO);
     
-    //eliminar área fisicamente revisar si se borraria todo o solo desactivamos o se quedan solitas las canchas como perdidas 
-    //la solucion que yo veo es que las relaciones con oras entidades se desactiven ponte que si elimino aredeportiva se eliminara las canchas y las relaciones con las demas tablitas ponte que hay reserva relacinado dcon cacnha y diciplin aesto se hara de uan manera mas sencialla
+    //eliminar área fisicamente
     void eliminarAreaDeportivaFisicamente(Long idAreaDeportiva);
 
     //eliiminar área deportiva (eliminación lógica)
@@ -35,16 +34,7 @@ public interface IAreaDeportivaService {
     // buscar área deportiva por nombre
     List<AreaDeportivaDTO> buscarPorNombre(String nombre);
     
-    //Listar Areasd-deportivas por zona/
-    //List<AreaDeportivaDTO> listarPorZona(Long idZona);
-
-    //Listar areas deportivas por macrodistrito
-    //List<AreaDeportivaDTO> listarPorMacrodistrito(Long idMacrodistrito);
-
-    //sacar el promedio de calificaciones de un area deportiva sumando y promediando todas las calificaiones de sus canchas
-    //Double obtenerPromedioCalificacionesPorAreaDeportiva(Long idAreaDeportiva);
-
-    
+    // obtener área deportiva con bloqueo optimista
     AreaDeportiva obtenerAreaDeportivaConBloqueo(Long idAreaDeportiva); // para uso interno con bloqueo
 
     //MI_AREA k

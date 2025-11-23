@@ -2,7 +2,6 @@ package com.espaciosdeportivos.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,10 +34,8 @@ public class CancelacionDTO implements Serializable {
     private Boolean estado;
 
     @NotNull(message = "El ID del cliente es obligatorio")
-    @Positive(message = "El ID de la cliente debe ser un valor positivo")
     private Long idCliente;
 
     @NotNull(message = "El ID de la reserva es obligatorio")
-    @Positive(message = "El ID de la reserva debe ser un valor positivo")
     private Long idReserva;
 }

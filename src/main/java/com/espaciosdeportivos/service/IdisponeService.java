@@ -6,17 +6,19 @@ import com.espaciosdeportivos.dto.disponeDTO;
 //import com.espaciosdeportivos.model.disponeId;
 //import com.espaciosdeportivos.model.dispone;
 
-public interface IdisponeService {
 
+public interface IdisponeService {
+    
     disponeDTO asociarEquipamientoACancha(disponeDTO dto);
 
-    disponeDTO obtenerEquipamientoDeCancha(Long idCancha, Long idEquipamiento);
+    disponeDTO obtenerEquipamientoDeCancha(Long idCancha , Long idEquipamiento);
 
     List<disponeDTO> obtenerEquipamientosPorCancha(Long idCancha);
 
-    void desasociarEquipamientoDeCancha(Long idCancha, Long idEquipamiento);
+    void desasociarEquipamientoDeCancha(Long idCancha ,Long idEquipamiento);
 
     List<disponeDTO> listarPorIdCancha(Long idCancha);
-
-    List<disponeDTO> listarPorIdEquipamiento(Long idEquipamiento);
+    
+    List<disponeDTO> listarPorIdEquipamiento(Long idEquipamiento); 
 }
+

@@ -26,8 +26,6 @@ public class AppUser {
     @OneToOne
     @JoinColumn(name = "persona_id")
     private com.espaciosdeportivos.model.Persona persona;
-    //nohemy revisa bien esto y preguntale a la ia si esta bien asi
-    //dice que elimines el email de persona y solo uses el depersona y lo mismo con activo
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "app_user_roles",

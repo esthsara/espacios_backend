@@ -26,7 +26,7 @@ public class participaController {
 
     @PutMapping("/reserva/{idReserva}/invitado/{idInvitado}")
     public ResponseEntity<participaDTO> actualizar(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado,
             @Valid @RequestBody participaDTO participaDTO) {
         participaDTO resultado = participaService.actualizar(idReserva, idInvitado, participaDTO);
@@ -35,7 +35,7 @@ public class participaController {
 
     @PostMapping("/reserva/{idReserva}/invitado/{idInvitado}/confirmar")
     public ResponseEntity<participaDTO> confirmarInvitacion(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
         participaDTO resultado = participaService.confirmarInvitacion(idReserva, idInvitado);
         return ResponseEntity.ok(resultado);
@@ -43,7 +43,7 @@ public class participaController {
 
     @PostMapping("/reserva/{idReserva}/invitado/{idInvitado}/asistencia")
     public ResponseEntity<participaDTO> registrarAsistencia(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado,
             @RequestBody Map<String, Boolean> request) {
         Boolean asistio = request.get("asistio");
@@ -53,7 +53,7 @@ public class participaController {
 
     @PostMapping("/reserva/{idReserva}/invitado/{idInvitado}/notificar")
     public ResponseEntity<participaDTO> marcarComoNotificado(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
         participaDTO resultado = participaService.marcarComoNotificado(idReserva, idInvitado);
         return ResponseEntity.ok(resultado);
@@ -61,7 +61,7 @@ public class participaController {
 
     @DeleteMapping("/reserva/{idReserva}/invitado/{idInvitado}")
     public ResponseEntity<Void> eliminar(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
         participaService.eliminar(idReserva, idInvitado);
         return ResponseEntity.noContent().build();
@@ -87,7 +87,7 @@ public class participaController {
 
     @GetMapping("/reserva/{idReserva}/invitado/{idInvitado}")
     public ResponseEntity<participaDTO> obtenerPorIds(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
         participaDTO resultado = participaService.findByIds(idReserva, idInvitado);
         return ResponseEntity.ok(resultado);
@@ -95,7 +95,7 @@ public class participaController {
 
     @GetMapping("/reserva/{idReserva}/invitado/{idInvitado}/existe")
     public ResponseEntity<Map<String, Boolean>> existeInvitacion(
-            @PathVariable Long idReserva,
+            @PathVariable Long idReserva, 
             @PathVariable Long idInvitado) {
         boolean existe = participaService.existsByInvitadoIdAndReservaIdReserva(idInvitado, idReserva);
         return ResponseEntity.ok(Map.of("existe", existe));

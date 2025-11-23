@@ -18,9 +18,6 @@ public class QrDTO implements Serializable {
     @Size(max = 200, message = "El código QR no puede exceder los 200 caracteres")
     private String codigoQr;
 
-    
-    private String urlQr;
-
     @NotNull(message = "La fecha de generación es obligatoria")
     private LocalDateTime fechaGeneracion;
 
@@ -39,9 +36,8 @@ public class QrDTO implements Serializable {
     @NotNull(message = "El ID de la reserva es obligatorio")
     private Long idReserva;
 
-    @NotNull(message = "El ID de la persona es obligatorio")
-    private Long idPersona; // dueño: cliente o invitado
+    @NotNull(message = "El ID del invitado es obligatorio")
+    private Long idInvitado;
 
-    // Nuevos campos para visualización
-    private Boolean esCliente;
+    //  Nuevos campos para visualizació
 }

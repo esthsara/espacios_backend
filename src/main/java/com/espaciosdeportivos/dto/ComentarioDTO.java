@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 @Data
@@ -24,7 +24,7 @@ public class ComentarioDTO implements Serializable {
     private Integer calificacion;
 
     @NotNull(message = "La fecha del comentario es obligatoria")
-    private LocalDateTime fecha;
+    private LocalDate fecha;
 
     @NotNull(message = "El ID de la persona es obligatorio")
     private Long idPersona;
@@ -35,6 +35,6 @@ public class ComentarioDTO implements Serializable {
     @NotNull(message = "El estado del comentario es obligatorio")
     private Boolean estado;
 
-    private PersonaPublicaDTO persona; 
+    private PersonaPublicaDTO persona; // objeto para frontend
 
 }
