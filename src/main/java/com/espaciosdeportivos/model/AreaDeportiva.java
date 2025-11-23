@@ -3,6 +3,8 @@ package com.espaciosdeportivos.model;
 import lombok.*;
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- Importar esto
+//solucionado 
 
 @Getter
 @Setter
