@@ -27,19 +27,20 @@ public class sepracticaServiceImpl implements IsepracticaService {
                 .orElseThrow(() -> new EntityNotFoundException("Cancha no encontrada con ID: " + dto.getIdCancha()));
 
         Disciplina disciplina = disciplinaRepository.findById(dto.getIdDisciplina())
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina no encontrada con ID: " + dto.getIdDisciplina()));
 
         sepracticaId id = new sepracticaId(dto.getIdCancha(), dto.getIdDisciplina());
 
-        sepractica entity = sepracticaRepository.findById(id).orElseGet(() -> sepractica.builder()
-                .id(id)
-                .cancha(cancha)
-                .disciplina(disciplina)
-                .nivelDificultad(dto.getNivelDificultad())
-                .recomendaciones(dto.getRecomendaciones())
-                .build());
-
+        sepractica entity = sepracticaRepository.findById(id).orElseGet(() ->
+                sepractica.builder()
+                        .id(id)
+                        .cancha(cancha)
+                        .disciplina(disciplina)
+                        .nivelDificultad(dto.getNivelDificultad())
+                        .recomendaciones(dto.getRecomendaciones())
+                        .build()
+        );
+        
         entity.setNivelDificultad(dto.getNivelDificultad());
         entity.setRecomendaciones(dto.getRecomendaciones());
 
@@ -54,7 +55,8 @@ public class sepracticaServiceImpl implements IsepracticaService {
 
         sepractica association = sepracticaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Relación no encontrada: Cancha ID " + idCancha + " y Disciplina ID " + idDisciplina));
+                        "Relación no encontrada: Cancha ID " + idCancha + " y Disciplina ID " + idDisciplina
+                ));
         return convertToDTO(association);
     }
 
@@ -74,7 +76,8 @@ public class sepracticaServiceImpl implements IsepracticaService {
     public void desasociarDisciplinaDeCancha(Long idCancha, Long idDisciplina) {
         if (!sepracticaRepository.existsById_IdCanchaAndId_IdDisciplina(idCancha, idDisciplina)) {
             throw new EntityNotFoundException(
-                    "Relación no encontrada para eliminar: Cancha ID " + idCancha + " y Disciplina ID " + idDisciplina);
+                "Relación no encontrada para eliminar: Cancha ID " + idCancha + " y Disciplina ID " + idDisciplina
+            );
         }
         sepracticaRepository.deleteById_IdCanchaAndId_IdDisciplina(idCancha, idDisciplina);
     }

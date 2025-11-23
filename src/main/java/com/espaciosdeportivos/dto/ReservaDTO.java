@@ -6,12 +6,9 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,7 +18,7 @@ public class ReservaDTO implements Serializable {
 
     @NotNull(message = "La fecha de creación es obligatoria")
     @PastOrPresent(message = "La fecha de creación no puede ser futura")
-    private LocalDateTime fechaCreacion;
+    private LocalDate fechaCreacion;
 
     @NotNull(message = "La fecha de la reserva es obligatoria")
     @FutureOrPresent(message = "La fecha de la reserva no puede ser en el pasado")
@@ -38,28 +35,28 @@ public class ReservaDTO implements Serializable {
              message = "Estado de reserva no válido")
     private String estadoReserva;
 
-    /*@NotNull(message = "El monto total es obligatorio")
+    @NotNull(message = "El monto total es obligatorio")
     @DecimalMin(value = "0.01", message = "El monto debe ser mayor a 0")
-    private Double montoTotal;*/
+    private Double montoTotal;
 
     @Size(max = 500, message = "Las observaciones no pueden superar los 500 caracteres")
     private String observaciones;
 
     @NotNull(message = "El ID del cliente es obligatorio")
     private Long clienteId; // id_persona del cliente
-    
+
+    // Campos opcionales
     private Integer duracionMinutos;
+    private String codigoReserva;
 
-    //objetos
-    private ClienteDTO cliente;
-    private CanchaDTO cancha;
-    private DisciplinaDTO disciplina;
-    private List<PagoDTO> pagos;
-    private List<QrDTO> qrs;
-
-    private Integer capacidadTotal; //sacar de cancha
-    private Integer invitadosConfirmados;//esto mejro en incluye
-    //capos de pagos
+    // Campos de solo lectura (respuesta)
+    private String nombreCliente;
+    private String emailCliente;
+    private String telefonoCliente;
+    private String categoriaCliente;
+    private LocalDate fechaActualizacion;
+    
+    // Información de pagos
     private Double totalPagado;
     private Double saldoPendiente;
     private Boolean pagadaCompleta;

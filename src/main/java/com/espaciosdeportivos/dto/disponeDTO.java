@@ -9,8 +9,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class disponeDTO implements Serializable {
-
+public class disponeDTO implements Serializable{
     @NotNull(message = "El id_equipamiento es obligatorio")
     @Positive(message = "El id_equipamiento debe ser un valor positivo")
     private Long idEquipamiento;
@@ -23,5 +22,6 @@ public class disponeDTO implements Serializable {
     @Positive(message = "La cantidad debe ser un valor positivo")
     @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private Integer cantidad;
-
 }
+
+ 

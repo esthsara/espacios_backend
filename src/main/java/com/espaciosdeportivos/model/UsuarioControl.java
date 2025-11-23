@@ -1,7 +1,7 @@
 package com.espaciosdeportivos.model;
 
 import jakarta.persistence.*;
-//import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -22,23 +22,23 @@ public class UsuarioControl extends Persona {
         super.setId(id); //
     }
 
-    //@NotNull
-    @Column(name = "estado_operativo", nullable = false, length = 100)
+    @NotNull
+    @Column(name = "estado_operativo", nullable = false, length = 50)
     private String estadoOperativo; // "Activo", "En turno", "Fuera de servicio"
 
-    //@NotNull
+    @NotNull
     @Column(name = "hora_inicio_turno", nullable = false)
     private LocalTime horaInicioTurno;
 
-    //@NotNull
+    @NotNull
     @Column(name = "hora_fin_turno", nullable = false)
     private LocalTime horaFinTurno;
 
-    //@NotNull
+    @NotNull
     @Column(name = "direccion", nullable = false, length = 200)
     private String direccion;
 
     
-    @OneToMany(mappedBy = "usuarioControl", /*cascade = CascadeType.ALL, */orphanRemoval = true)
+    @OneToMany(mappedBy = "usuarioControl", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Qr> qr; 
 }

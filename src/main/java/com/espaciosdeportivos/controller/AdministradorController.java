@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import com.espaciosdeportivos.dto.ClienteDTO;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -87,22 +87,6 @@ public class AdministradorController {
     public List<UsuarioControlDTO> obtenerUsuariosControlDelAdministrador(@PathVariable Long id) {
         return administradorService.obtenerUsuariosControlPorAdministrador(id);
     }
-
-    //para obtener los clientes que han reservado canchas del administrador
-    @GetMapping("/{id}/clientes")
-    public List<ClienteDTO> obtenerClientesDelAdministrador(@PathVariable Long id) {
-        return administradorService.obtenerClientesPorAdministrador(id);
-    }
-
-    //crear un usuario de control desde el administrador
-    @PostMapping("/{id}/usuarios-control")
-    public UsuarioControlDTO crearUsuarioControlDesdeAdministrador(
-            @PathVariable Long id,
-            @Valid @RequestBody UsuarioControlDTO dto
-    ) {
-        return administradorService.crearUsuarioControlParaAdministrador(id, dto);
-    }
-
 
 
 }

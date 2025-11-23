@@ -1,9 +1,9 @@
 package com.espaciosdeportivos.model;
 
+
 import lombok.*;
 import jakarta.persistence.*;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTAR ESTO
 
 @Getter
 @Setter
@@ -20,7 +20,7 @@ public class Zona {
 
     @Column(name = "nombre_zona", nullable = false, length = 200)
     private String nombre;
-
+    
     @Column(name = "descripcion", length = 600)
     private String descripcion;
 
@@ -31,10 +31,7 @@ public class Zona {
     @JoinColumn(name = "id_macrodistrito")
     private Macrodistrito macrodistrito;
 
-    // --- AQUÍ ESTÁ LA SOLUCIÓN ---
-    // Agregamos @JsonIgnore para que al pedir una Zona,
-    // NO intente traernos todas las áreas deportivas asociadas y rompa el bucle.
-    @OneToMany(mappedBy = "zona", /* cascade = CascadeType.ALL , */ orphanRemoval = false)
-    @JsonIgnore // <--- ¡ESTA LÍNEA ES OBLIGATORIA!
+    @OneToMany(mappedBy = "zona", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AreaDeportiva> areaDeportiva;
+    
 }

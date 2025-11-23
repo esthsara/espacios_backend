@@ -2,7 +2,6 @@ package com.espaciosdeportivos.model;
 
 import lombok.*;
 import jakarta.persistence.*;
-import java.time.LocalTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore; // <--- Importar esto
 //solucionado 
@@ -33,10 +32,15 @@ public class AreaDeportiva {
     private String telefonoArea;
 
     @Column(name = "hora_inicio_area")
-    private LocalTime horaInicioArea;
-
+    private String horaInicioArea;
     @Column(name = "hora_fin_area")
-    private LocalTime horaFinArea;
+    private String horaFinArea;
+
+    //@Column(name = "estado_area", nullable = false, length = 100)
+    //private String estadoArea;
+
+    @Column(name = "url_imagen", length = 800)
+    private String urlImagen;
 
     @Column(name = "latitud")
     private Double latitud;
@@ -47,6 +51,16 @@ public class AreaDeportiva {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
+    /*
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestamp
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+     */
+
     @ManyToOne
     @JoinColumn(name = "id_zona")
     private Zona zona;
@@ -55,10 +69,9 @@ public class AreaDeportiva {
     @JoinColumn(name = "id_persona", nullable = false, unique = true)
     private Administrador administrador;
 
-    // --- AQUÍ ESTABA EL PROBLEMA ---
-    // Al agregar @JsonIgnore, evitamos que intente serializar las canchas
-    // al crear o listar el área, rompiendo el bucle infinito.
-    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // <--- ¡ESTA LÍNEA ES LA SOLUCIÓN!
+
+    @OneToMany(mappedBy = "areaDeportiva", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cancha> cancha;
+
+    
 }
