@@ -1,13 +1,9 @@
 package com.espaciosdeportivos.model;
 
-import lombok.*;
-
-import java.time.LocalTime;
-//import java.util.ArrayList;
-
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTANTE
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
+import lombok.*;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -32,9 +28,6 @@ public class Cancha {
 
     @Column(name = "capacidad", nullable = false)
     private Integer capacidad;
-
-    /*@Column(name = "estado_cancha", nullable = false, length = 100)
-    private String estado;*/
 
     @Column(name = "mantenimiento", nullable = false, length = 100)
     private String mantenimiento;
@@ -63,27 +56,26 @@ public class Cancha {
     @Column(name = "estado", nullable = false)
     private Boolean estado;
 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_areadeportiva")
+    // @JsonIgnore <--- Opcional: Si quieres evitar cargar el área completa al ver
+    // la cancha
     private AreaDeportiva areaDeportiva;
 
-    //revisar por ejmplo si comparten equipamiento enonces no
-
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- NECESARIO
+    private List<dispone> equipamiento;
 
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Dispone> equipamiento;
-
-    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- NECESARIO
     private List<Comentario> comentario;
 
+    // ESTE ES EL CULPABLE DEL BUCLE INFINITO "RESERVA <-> CANCHA"
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Incluye> incluidos;
+    @JsonIgnore // <--- ¡CRÍTICO! ESTO SOLUCIONA EL CRASH
+    private List<incluye> incluidos;
 
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Sepractica> sePractica;
-
-
-
+    @JsonIgnore // <--- NECESARIO
+    private List<sepractica> sePractica;
 }

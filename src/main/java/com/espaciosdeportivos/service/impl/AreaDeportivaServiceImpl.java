@@ -2,11 +2,10 @@ package com.espaciosdeportivos.service.impl;
 
 import com.espaciosdeportivos.dto.AreaDeportivaDTO;
 import com.espaciosdeportivos.dto.MacrodistritoDTO;
-//import com.espaciosdeportivos.dto.CanchaDTO;
-import com.espaciosdeportivos.dto.ZonaDTO; // objeto front K
+import com.espaciosdeportivos.dto.ZonaDTO;
+import com.espaciosdeportivos.dto.ImagenDTO; // Importante
 import com.espaciosdeportivos.model.AreaDeportiva;
 import com.espaciosdeportivos.model.Macrodistrito;
-//import com.espaciosdeportivos.model.Cancha;
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Administrador;
 
@@ -18,7 +17,6 @@ import com.espaciosdeportivos.service.IAreaDeportivaService;
 import com.espaciosdeportivos.service.ImagenService;
 import com.espaciosdeportivos.validation.AreaDeportivaValidator;
 
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,11 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -45,22 +43,6 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
 
     private final ImagenService imagenService;
     private static final String ENTIDAD_TIPO = "AREADEPORTIVA";
-
-
-    /*@Autowired
-    public AreaDeportivaServiceImpl(
-        AreaDeportivaRepository areaDeportivaRepository, 
-        ZonaRepository zonaRepository, 
-        AdministradorRepository administradorRepository, 
-        AreaDeportivaValidator areaDeportivaValidator,
-        ImagenService imagenService
-    ) {
-        this.areaDeportivaRepository = areaDeportivaRepository;
-        this.zonaRepository = zonaRepository;
-        this.administradorRepository = administradorRepository;
-        this.areaDeportivaValidator = areaDeportivaValidator;
-        this.imagenService = imagenService;
-    }*/
 
     @Override
     @Transactional(readOnly = true)
@@ -121,8 +103,8 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         existente.setEmailArea(dto.getEmailArea());
         existente.setTelefonoArea(dto.getTelefonoArea());
         existente.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea() : null);
-        existente.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea(): null);
-        existente.setUrlImagen(dto.getUrlImagen());
+        existente.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea() : null);
+        // existente.setUrlImagen(dto.getUrlImagen()); // ELIMINADO
         existente.setLatitud(dto.getLatitud());
         existente.setLongitud(dto.getLongitud());
         existente.setEstado(dto.getEstado());
@@ -137,13 +119,13 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
     @Transactional
     public void eliminarAreaDeportivaFisicamente(Long id) {
         AreaDeportiva existente = areaDeportivaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + id));
         areaDeportivaRepository.delete(existente);
     }
 
     @Override
     @Transactional
-    public AreaDeportivaDTO eliminarAreaDeportiva(Long idarea , Boolean nuevoEstado) {
+    public AreaDeportivaDTO eliminarAreaDeportiva(Long idarea, Boolean nuevoEstado) {
         AreaDeportiva existente = areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idarea)
                 .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + idarea));
         existente.setEstado(nuevoEstado);
@@ -165,40 +147,32 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         AreaDeportiva areaDeportiva = areaDeportivaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Área deportiva no encontrada con ID: " + id));
         try {
-            Thread.sleep(15000); 
+            Thread.sleep(15000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         return areaDeportiva;
     }
 
-         // objeto front K
-    /*private ZonaDTO convertZonaToDTO(Zona z) {
-        if (z == null) return null;
-        return ZonaDTO.builder()
-                .idZona(z.getIdZona()) // objeto front K
-                .nombre(z.getNombre()) // objeto front K
-                .descripcion(z.getDescripcion()) // objeto front K
-                .estado(z.getEstado()) // objeto front K
-                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
-                .build();
-    }*/
-
-     // ==========================================================
-// 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES PARA CANCHAS
-// ==========================================================
+    // ==========================================================
+    // 🖼️ MÉTODOS DE GESTIÓN DE IMÁGENES
+    // ==========================================================
 
     @Override
     @Transactional
     public AreaDeportivaDTO agregarImagenes(Long idAreadeportiva, List<MultipartFile> archivosImagenes) {
         log.info("📸 Agregando {} imágenes a la area ID: {}", archivosImagenes.size(), idAreadeportiva);
 
-        AreaDeportiva area = areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
+        // 1. Verificar existencia
+        areaDeportivaRepository.findByIdAreaDeportivaAndEstadoTrue(idAreadeportiva)
                 .orElseThrow(() -> new RuntimeException("area no encontrada o inactiva"));
 
+        // 2. Guardar en el sistema polimórfico
         imagenService.guardarImagenesParaEntidad(archivosImagenes, ENTIDAD_TIPO, idAreadeportiva);
+
         log.info("Imágenes agregadas exitosamente a la area {}", idAreadeportiva);
 
+        // 3. Devolver DTO actualizado (el convertToDTO traerá las imágenes)
         return obtenerAreaDeportivaPorId(idAreadeportiva);
     }
 
@@ -230,9 +204,11 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         return obtenerAreaDeportivaPorId(idAreadeportiva);
     }
 
-
     // ---------- mapping ----------
     private AreaDeportivaDTO convertToDTO(AreaDeportiva a) {
+        // Buscamos las imágenes de esta área usando el servicio
+        List<ImagenDTO> misImagenes = imagenService.obtenerImagenesPorEntidad(ENTIDAD_TIPO, a.getIdAreaDeportiva());
+
         return AreaDeportivaDTO.builder()
                 .idAreadeportiva(a.getIdAreaDeportiva())
                 .nombreArea(a.getNombreArea())
@@ -241,19 +217,20 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .telefonoArea(a.getTelefonoArea())
                 .horaInicioArea(a.getHoraInicioArea())
                 .horaFinArea(a.getHoraFinArea())
-                .urlImagen(a.getUrlImagen())
+                // .urlImagen(a.getUrlImagen()) // ELIMINADO
+                .imagenes(misImagenes) // Lista de imágenes
                 .latitud(a.getLatitud())
                 .longitud(a.getLongitud())
                 .estado(a.getEstado())
                 .idZona(a.getZona() != null ? a.getZona().getIdZona() : null)
-                .zona(convertZonaToDTO(a.getZona())) // objeto front K
+                .zona(convertZonaToDTO(a.getZona()))
                 .id(a.getAdministrador() != null ? a.getAdministrador().getId() : null)
                 .build();
     }
 
     private AreaDeportiva convertToEntity(AreaDeportivaDTO d) {
         Administrador administrador = administradorRepository.findById(d.getId())
-                .orElseThrow(() -> new RuntimeException("Admin no encontrada con ID: " + d.getId()));        
+                .orElseThrow(() -> new RuntimeException("Admin no encontrada con ID: " + d.getId()));
         Zona zona = zonaRepository.findById(d.getIdZona())
                 .orElseThrow(() -> new RuntimeException("Zona no encontrada con ID: " + d.getIdZona()));
 
@@ -263,9 +240,9 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .descripcionArea(d.getDescripcionArea())
                 .emailArea(d.getEmailArea())
                 .telefonoArea(d.getTelefonoArea())
-                .horaInicioArea(d.getHoraInicioArea() != null ? d.getHoraInicioArea(): null)
+                .horaInicioArea(d.getHoraInicioArea() != null ? d.getHoraInicioArea() : null)
                 .horaFinArea(d.getHoraFinArea() != null ? d.getHoraFinArea() : null)
-                .urlImagen(d.getUrlImagen())
+                // .urlImagen(d.getUrlImagen()) // ELIMINADO
                 .latitud(d.getLatitud())
                 .longitud(d.getLongitud())
                 .estado(d.getEstado() != null ? d.getEstado() : Boolean.TRUE)
@@ -274,60 +251,42 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
                 .build();
     }
 
-    private LocalTime parseTime(String t) {
-        return (t != null && !t.isBlank()) ? LocalTime.parse(t) : null;
-    }
-
-     // objeto front 
     private ZonaDTO convertZonaToDTO(Zona z) {
-        if (z == null) return null;
+        if (z == null)
+            return null;
         return ZonaDTO.builder()
-                .idZona(z.getIdZona()) // objeto front K
-                .nombre(z.getNombre()) // objeto front K
-                .descripcion(z.getDescripcion()) // objeto front K
-                .estado(z.getEstado()) // objeto front K
-                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null) // objeto front K
-                .macrodistrito(convertMacrodistritoToDTO(z.getMacrodistrito()))
-                .build();
-    }
-
-    private MacrodistritoDTO convertMacrodistritoToDTO(Macrodistrito z) {
-        if (z == null) return null;
-        return MacrodistritoDTO.builder()
-                .idMacrodistrito(z.getIdMacrodistrito())
+                .idZona(z.getIdZona())
                 .nombre(z.getNombre())
                 .descripcion(z.getDescripcion())
                 .estado(z.getEstado())
+                .idMacrodistrito(z.getMacrodistrito() != null ? z.getMacrodistrito().getIdMacrodistrito() : null)
                 .build();
     }
 
     @Override
     public AreaDeportivaDTO obtenerPorAdminId(Long Id) {
         AreaDeportiva area = areaDeportivaRepository.findByAdministrador_Id(Id)
-            .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
+                .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
         return convertToDTO(area);
     }
 
-    //MI_AREA k actualizar por adminId   
-    //Comentario : "rocio cambien las fechas ya no sons tring espero que no te afecte mucho perdon"
     @Override
     public AreaDeportivaDTO actualizarPorAdminId(Long adminId, AreaDeportivaDTO dto) {
         AreaDeportiva area = areaDeportivaRepository.findByAdministrador_Id(adminId)
-            .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
+                .orElseThrow(() -> new RuntimeException("Área no encontrada para el administrador"));
 
-        areaDeportivaValidator.validarArea(dto); // validación como en otros métodos
+        areaDeportivaValidator.validarArea(dto);
 
         Zona zona = zonaRepository.findById(dto.getIdZona())
-            .orElseThrow(() -> new RuntimeException("Zona no encontrada con ID: " + dto.getIdZona()));
+                .orElseThrow(() -> new RuntimeException("Zona no encontrada con ID: " + dto.getIdZona()));
 
-        // Actualiza los campos permitidos
         area.setNombreArea(dto.getNombreArea());
         area.setDescripcionArea(dto.getDescripcionArea());
         area.setEmailArea(dto.getEmailArea());
         area.setTelefonoArea(dto.getTelefonoArea());
-        area.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea(): null);
+        area.setHoraInicioArea(dto.getHoraInicioArea() != null ? dto.getHoraInicioArea() : null);
         area.setHoraFinArea(dto.getHoraFinArea() != null ? dto.getHoraFinArea() : null);
-        area.setUrlImagen(dto.getUrlImagen());
+        // area.setUrlImagen(dto.getUrlImagen()); // ELIMINADO
         area.setLatitud(dto.getLatitud());
         area.setLongitud(dto.getLongitud());
         area.setEstado(dto.getEstado());
@@ -336,9 +295,4 @@ public class AreaDeportivaServiceImpl implements IAreaDeportivaService {
         AreaDeportiva actualizada = areaDeportivaRepository.save(area);
         return convertToDTO(actualizada);
     }
-
-
-
-
-
 }

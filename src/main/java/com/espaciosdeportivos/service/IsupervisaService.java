@@ -5,7 +5,7 @@ import com.espaciosdeportivos.dto.UsuarioControlDTO;
 
 import java.util.List;
 
-public interface ISupervisaService {
+public interface IsupervisaService {
 
     // Asocia un usuario de control a una cancha
     void asignarCanchaASupervisor(Long idUsuarioControl, Long idCancha);

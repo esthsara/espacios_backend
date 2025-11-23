@@ -3,10 +3,8 @@ package com.espaciosdeportivos.service.impl;
 import com.espaciosdeportivos.dto.MacrodistritoDTO;
 import com.espaciosdeportivos.dto.ZonaDTO;
 
-
 import com.espaciosdeportivos.model.Zona;
 import com.espaciosdeportivos.model.Macrodistrito;
-
 
 import com.espaciosdeportivos.repository.MacrodistritoRepository;
 import com.espaciosdeportivos.repository.ZonaRepository;
@@ -23,12 +21,11 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ZonaServiceImpl implements IZonaService {
-    
+
     private final ZonaRepository zonaRepository;
     private final ZonaValidator zonaValidator;
     private final MacrodistritoRepository macrodistritoRepository;
@@ -40,7 +37,7 @@ public class ZonaServiceImpl implements IZonaService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-                //.toList();
+        // .toList();
     }
 
     @Override
@@ -49,7 +46,7 @@ public class ZonaServiceImpl implements IZonaService {
         return zonaRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
-                //.collect(Collectors.toList());
+                // .collect(Collectors.toList());
                 .toList();
     }
 
@@ -68,7 +65,7 @@ public class ZonaServiceImpl implements IZonaService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-                //.toList();
+        // .toList();
     }
 
     @Override
@@ -78,7 +75,8 @@ public class ZonaServiceImpl implements IZonaService {
 
         boolean existeMacrodistrito = macrodistritoRepository.existsById(zonaDTO.getIdMacrodistrito());
         if (!existeMacrodistrito) {
-            throw new EntityNotFoundException("El macrodistrito con ID " + zonaDTO.getIdMacrodistrito() + " no existe.");
+            throw new EntityNotFoundException(
+                    "El macrodistrito con ID " + zonaDTO.getIdMacrodistrito() + " no existe.");
 
         }
 
@@ -91,7 +89,6 @@ public class ZonaServiceImpl implements IZonaService {
         return convertToDTO(guardada);
     }
 
-    
     @Override
     @Transactional
     public ZonaDTO actualizarZona(Long idZona, ZonaDTO zonaDTO) {
@@ -106,7 +103,8 @@ public class ZonaServiceImpl implements IZonaService {
         }
 
         Macrodistrito macro = macrodistritoRepository.findById(zonaDTO.getIdMacrodistrito())
-                .orElseThrow(() -> new EntityNotFoundException("Macrodistrito no encontrado con ID: " + zonaDTO.getIdMacrodistrito()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Macrodistrito no encontrado con ID: " + zonaDTO.getIdMacrodistrito()));
 
         existente.setNombre(zonaDTO.getNombre());
         existente.setDescripcion(zonaDTO.getDescripcion());
@@ -118,10 +116,9 @@ public class ZonaServiceImpl implements IZonaService {
         return convertToDTO(actualizada);
     }
 
-
     @Override
     @Transactional
-    public ZonaDTO eliminarZona(Long id , Boolean nuevoEstado) {
+    public ZonaDTO eliminarZona(Long id, Boolean nuevoEstado) {
         Zona existente = zonaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Zona no encontrada con ID: " + id));
         existente.setEstado(nuevoEstado);
@@ -132,7 +129,7 @@ public class ZonaServiceImpl implements IZonaService {
     @Transactional
     public void eliminarZonaFisicamente(Long id) {
         Zona existente = zonaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Zona no encontrado con ID: " + id)); 
+                .orElseThrow(() -> new RuntimeException("Zona no encontrado con ID: " + id));
         zonaRepository.delete(existente);
     }
 
@@ -149,8 +146,6 @@ public class ZonaServiceImpl implements IZonaService {
         return zona;
     }
 
-    
-
     // ---------- mapping ----------
     private ZonaDTO convertToDTO(Zona zona) {
         return ZonaDTO.builder()
@@ -159,24 +154,27 @@ public class ZonaServiceImpl implements IZonaService {
                 .descripcion(zona.getDescripcion())
                 .estado(zona.getEstado())
                 .idMacrodistrito(zona.getMacrodistrito() != null ? zona.getMacrodistrito().getIdMacrodistrito() : null)
-                .macrodistrito(convertMacrodistritoToDTO(zona.getMacrodistrito()))
+                .idMacrodistrito(zona.getMacrodistrito().getIdMacrodistrito())
                 .build();
     }
 
     private Zona convertToEntity(ZonaDTO dto) {
         Macrodistrito macrodistrito = macrodistritoRepository.findById(dto.getIdMacrodistrito())
-            .orElseThrow(() -> new RuntimeException("Macrodistrito no encontrado con ID: " + dto.getIdMacrodistrito()));
+                .orElseThrow(
+                        () -> new RuntimeException("Macrodistrito no encontrado con ID: " + dto.getIdMacrodistrito()));
 
         return Zona.builder()
-            .idZona(dto.getIdZona())
-            .nombre(dto.getNombre())
-            .descripcion(dto.getDescripcion())
-            .estado(dto.getEstado() == null ? Boolean.TRUE : dto.getEstado())
-            .macrodistrito(macrodistrito)
-            .build();
+                .idZona(dto.getIdZona())
+                .nombre(dto.getNombre())
+                .descripcion(dto.getDescripcion())
+                .estado(dto.getEstado() == null ? Boolean.TRUE : dto.getEstado())
+                .macrodistrito(macrodistrito)
+                .build();
     }
+
     private MacrodistritoDTO convertMacrodistritoToDTO(Macrodistrito z) {
-        if (z == null) return null;
+        if (z == null)
+            return null;
         return MacrodistritoDTO.builder()
                 .idMacrodistrito(z.getIdMacrodistrito())
                 .nombre(z.getNombre())

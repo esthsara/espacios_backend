@@ -12,14 +12,16 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:uploads/");
         registry.addResourceHandler("/img/**")
-                .addResourceLocations("classpath:/static/img/");
+                .addResourceLocations("file:uploads/img/");
     }
-    
-    /*@Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("*");
-    }*/
+
+    /*
+     * @Override
+     * public void addCorsMappings(CorsRegistry registry) {
+     * registry.addMapping("/**")
+     * .allowedOrigins("*")
+     * .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+     * .allowedHeaders("*");
+     * }
+     */
 }

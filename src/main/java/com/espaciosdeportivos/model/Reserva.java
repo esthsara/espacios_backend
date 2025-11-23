@@ -1,9 +1,9 @@
 package com.espaciosdeportivos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- IMPORTANTE
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -40,9 +40,6 @@ public class Reserva {
     @Column(name = "estado_reserva", nullable = false, length = 50)
     private String estadoReserva;
 
-    /*@Column(name = "monto_total", nullable = false)
-    private Double montoTotal;*/
-
     @Column(name = "observaciones", length = 500)
     private String observaciones;
 
@@ -58,31 +55,34 @@ public class Reserva {
     @Column(name = "pagada_completa")
     private Boolean pagadaCompleta;
 
-
     // RELACIÓNES
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona",nullable = false)
+    @JoinColumn(name = "id_cliente", referencedColumnName = "id_persona", nullable = false)
+    // Nota: Aquí NO ponemos JsonIgnore porque queremos saber de quién es la reserva
     private Cliente cliente;
 
-  //Relaciones afuera de la reserva aqui si es bueno usar el cascade all
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Incluye> Incluidos;  // 
+    // Nota: Aquí NO ponemos JsonIgnore porque queremos saber qué cancha incluye
+    private List<incluye> Incluidos;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- Recomendado ignorar pagos al listar reservas masivamente
     private List<Pago> pagos;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Qr> qr; 
+    @JsonIgnore // <--- Recomendado ignorar QRs
+    private List<Qr> qr;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Participa> invitados;
+    @JsonIgnore // <--- Recomendado ignorar invitados
+    private List<participa> invitados;
 
-    @OneToOne(mappedBy = "reserva",  cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore // <--- Recomendado ignorar cancelación
     private Cancelacion cancelacion;
 
-
-    // ========== VALIDACIONES DE NEGOCIO ==========
-    // Enums para estados
+    // ... resto de tus métodos (puedeReprogramar, etc) siguen igual ...
     public enum EstadoReserva {
         PENDIENTE, CONFIRMADA, EN_CURSO, COMPLETADA, CANCELADA, NO_SHOW
     }
@@ -105,11 +105,8 @@ public class Reserva {
         return EstadoReserva.CANCELADA.name().equals(estadoReserva);
     }
 
-    // Obtener la primera cancha (asumiendo 1 cancha por reserva)
     public Cancha getCancha() {
-        return Incluidos != null && !Incluidos.isEmpty() 
-            ? Incluidos.get(0).getCancha() 
-            : null;
+        return Incluidos != null && !Incluidos.isEmpty() ? Incluidos.get(0).getCancha() : null;
     }
 
     @PrePersist
@@ -121,17 +118,17 @@ public class Reserva {
     }
 
     public boolean estaActiva() {
-        return estadoReserva.equals(EstadoReserva.CONFIRMADA.name()) || 
-               estadoReserva.equals(EstadoReserva.EN_CURSO.name());
+        return estadoReserva.equals(EstadoReserva.CONFIRMADA.name())
+                || estadoReserva.equals(EstadoReserva.EN_CURSO.name());
     }
 
     public boolean esModificable() {
-        return estadoReserva.equals(EstadoReserva.PENDIENTE.name()) || 
-               estadoReserva.equals(EstadoReserva.CONFIRMADA.name());
+        return estadoReserva.equals(EstadoReserva.PENDIENTE.name())
+                || estadoReserva.equals(EstadoReserva.CONFIRMADA.name());
     }
 
     public boolean puedeCancelarse() {
-        return !estadoReserva.equals(EstadoReserva.CANCELADA.name()) && 
-               !estadoReserva.equals(EstadoReserva.COMPLETADA.name());
+        return !estadoReserva.equals(EstadoReserva.CANCELADA.name())
+                && !estadoReserva.equals(EstadoReserva.COMPLETADA.name());
     }
 }

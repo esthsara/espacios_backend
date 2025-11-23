@@ -8,7 +8,7 @@ import com.espaciosdeportivos.model.Cliente;
 import com.espaciosdeportivos.model.UsuarioControl;
 import com.espaciosdeportivos.repository.AdministradorRepository;
 import com.espaciosdeportivos.repository.ReservaRepository;
-import com.espaciosdeportivos.repository.SupervisaRepository;
+import com.espaciosdeportivos.repository.supervisaRepository;
 import com.espaciosdeportivos.repository.UsuarioControlRepository;
 import com.espaciosdeportivos.service.AdministradorService;
 
@@ -27,19 +27,18 @@ import java.util.stream.Collectors;
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
-    private final SupervisaRepository supervisaRepository;
+    private final supervisaRepository supervisaRepository;
     private final ReservaRepository reservaRepository;
     private final UsuarioControlRepository usuarioControlRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
     public AdministradorServiceImpl(
-        AdministradorRepository administradorRepository,
-        SupervisaRepository supervisaRepository,
-        ReservaRepository reservaRepository,
-        UsuarioControlRepository usuarioControlRepository,
-        ModelMapper modelMapper
-    ) {
+            AdministradorRepository administradorRepository,
+            supervisaRepository supervisaRepository,
+            ReservaRepository reservaRepository,
+            UsuarioControlRepository usuarioControlRepository,
+            ModelMapper modelMapper) {
         this.administradorRepository = administradorRepository;
         this.supervisaRepository = supervisaRepository;
         this.reservaRepository = reservaRepository;
@@ -97,7 +96,7 @@ public class AdministradorServiceImpl implements AdministradorService {
         admin.setApellidoPaterno(dto.getAPaterno());
         admin.setApellidoMaterno(dto.getAMaterno());
         admin.setFechaNacimiento(dto.getFechaNacimiento());
-        admin.setTelefono(dto.getTelefono()); 
+        admin.setTelefono(dto.getTelefono());
         admin.setEmail(dto.getEmail());
         admin.setUrlImagen(dto.getUrlImagen());
         admin.setEstado(dto.getEstado());
@@ -162,27 +161,27 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .collect(Collectors.toList());
     }
 
-    //admin crea un usuario de control y lo asigna a sus canchas
+    // admin crea un usuario de control y lo asigna a sus canchas
     @Override
     @Transactional
     public UsuarioControlDTO crearUsuarioControlParaAdministrador(Long idAdmin, UsuarioControlDTO dto) {
         Administrador admin = administradorRepository.findById(idAdmin)
-            .orElseThrow(() -> new RuntimeException("Administrador no encontrado con ID: " + idAdmin));
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado con ID: " + idAdmin));
 
         UsuarioControl usuarioControl = UsuarioControl.builder()
-            .nombre(dto.getNombre())
-            .apellidoPaterno(dto.getAPaterno())
-            .apellidoMaterno(dto.getAMaterno())
-            .fechaNacimiento(dto.getFechaNacimiento())
-            .telefono(dto.getTelefono())
-            .email(dto.getEmail())
-            .urlImagen(dto.getUrlImagen())
-            .estado(dto.getEstado())
-            .direccion(dto.getDireccion())
-            .estadoOperativo(dto.getEstadoOperativo())
-            .horaInicioTurno(dto.getHoraInicioTurno())
-            .horaFinTurno(dto.getHoraFinTurno())
-            .build();
+                .nombre(dto.getNombre())
+                .apellidoPaterno(dto.getAPaterno())
+                .apellidoMaterno(dto.getAMaterno())
+                .fechaNacimiento(dto.getFechaNacimiento())
+                .telefono(dto.getTelefono())
+                .email(dto.getEmail())
+                .urlImagen(dto.getUrlImagen())
+                .estado(dto.getEstado())
+                .direccion(dto.getDireccion())
+                .estadoOperativo(dto.getEstadoOperativo())
+                .horaInicioTurno(dto.getHoraInicioTurno())
+                .horaFinTurno(dto.getHoraFinTurno())
+                .build();
 
         usuarioControlRepository.save(usuarioControl);
 
@@ -197,7 +196,7 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .aPaterno(a.getApellidoPaterno())
                 .aMaterno(a.getApellidoMaterno())
                 .fechaNacimiento(a.getFechaNacimiento())
-                .telefono(a.getTelefono()) 
+                .telefono(a.getTelefono())
                 .email(a.getEmail())
                 .urlImagen(a.getUrlImagen())
                 .estado(a.getEstado())
@@ -213,7 +212,7 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .apellidoPaterno(d.getAPaterno())
                 .apellidoMaterno(d.getAMaterno())
                 .fechaNacimiento(d.getFechaNacimiento())
-                .telefono(d.getTelefono()) 
+                .telefono(d.getTelefono())
                 .email(d.getEmail())
                 .urlImagen(d.getUrlImagen())
                 .estado(d.getEstado())
